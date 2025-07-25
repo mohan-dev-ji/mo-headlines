@@ -2,7 +2,7 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { FilteredArticleList } from "@/components/filtered-article-list";
+import { FilteredArticleList } from "@/components/public/filtered-article-list";
 import { use } from "react";
 
 export default function TopicPage({ params }: { params: Promise<{ slug: string }> }) {

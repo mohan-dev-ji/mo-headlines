@@ -2,10 +2,10 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useState, useEffect } from "react";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Textarea } from "./ui/textarea";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Textarea } from "../ui/textarea";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { Pencil, Save, X, Upload } from "lucide-react";
 
 export default function ProfileForm() {

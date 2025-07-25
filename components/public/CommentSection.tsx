@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
 import { Comment } from "./Comment";
 import { CommentForm } from "./CommentForm";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 

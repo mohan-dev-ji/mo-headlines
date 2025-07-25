@@ -4,11 +4,11 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import TimeAgo from "react-timeago";
-import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
-import { Button } from "./ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
+import { Button } from "../ui/button";
 import { Pencil, Trash2, Save, X } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "../ui/textarea";
 import { useState } from "react";
 import { UserAvatar } from "./UserAvatar";
 

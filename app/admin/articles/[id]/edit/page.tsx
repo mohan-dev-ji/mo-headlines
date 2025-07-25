@@ -13,8 +13,8 @@ import { Label } from "@/components/ui/label";
 import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
-import { CategorySelector } from "@/components/category-selector";
-import { RichTextEditor } from "@/components/rich-text-editor";
+import { CategorySelector } from "@/components/public/category-selector";
+import { RichTextEditor } from "@/components/admin/rich-text-editor";
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);

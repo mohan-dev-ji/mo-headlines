@@ -49,7 +49,7 @@ export default function AdminPage() {
         <div className="container py-2 space-y-2">
             {/* <NavLinks vertical /> */}
             {isSignedIn && (
-              <Link href="/create">
+              <Link href="/admin/articles">
                 <Button variant="outline" className="w-full">
                   Create Post
                 </Button>

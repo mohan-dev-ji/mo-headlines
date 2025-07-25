@@ -1,6 +1,6 @@
 "use client";
 
-import ProfileForm from "@/components/ProfileForm";
+import ProfileForm from "@/components/public/ProfileForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ProfilePage() {

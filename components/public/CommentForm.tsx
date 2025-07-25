@@ -5,8 +5,8 @@ import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { Id } from "@/convex/_generated/dataModel";
-import { Textarea } from "./ui/textarea";
-import { Button } from "./ui/button";
+import { Textarea } from "../ui/textarea";
+import { Button } from "../ui/button";
 
 interface CommentFormProps {
   articleId: Id<"articles">;

@@ -22,7 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { CommentSection } from "@/components/CommentSection";
+import { CommentSection } from "@/components/public/CommentSection";
 
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -98,7 +98,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         {/* Edit and Delete Buttons - Only visible to admin */}
         {isAdmin(user?.id) && (
           <div className="mt-8 flex justify-end gap-4">
-            <Link href={`/article/${resolvedParams.id}/edit`}>
+            <Link href={`/admin/articles/${resolvedParams.id}/edit`}>
               <Button variant="outline" className="gap-2">
                 <Pencil className="h-4 w-4" />
                 Edit Article
