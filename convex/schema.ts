@@ -15,7 +15,10 @@ export default defineSchema({
   categories: defineTable({
     name: v.string(),
     slug: v.string(),
+    keywords: v.optional(v.array(v.string())),
+    isActive: v.optional(v.boolean()),
     createdAt: v.number(),
+    updatedAt: v.optional(v.number()),
   }).index("by_slug", ["slug"]),
 
   topics: defineTable({
@@ -36,4 +39,35 @@ export default defineSchema({
   })
   .index("by_article", ["articleId"])
   .index("by_user", ["userId"]),
+
+  rss_sources: defineTable({
+    name: v.string(),
+    url: v.string(),
+    category: v.string(),
+    isActive: v.boolean(),
+    pollFrequency: v.number(),
+    numberOfArticles: v.number(),
+    lastPolled: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    goldenArticleUrl: v.optional(v.string()),
+    goldenArticleTitle: v.optional(v.string()),
+    goldenArticleDate: v.optional(v.number()),
+  })
+  .index("by_category", ["category"])
+  .index("by_active", ["isActive"])
+  .index("by_created", ["createdAt"]),
+
+  rss_items: defineTable({
+    sourceId: v.id("rss_sources"),
+    title: v.string(),
+    description: v.string(),
+    url: v.string(),
+    publishedAt: v.number(),
+    processed: v.boolean(),
+    createdAt: v.number(),
+  })
+  .index("by_source", ["sourceId"])
+  .index("by_processed", ["processed"])
+  .index("by_published", ["publishedAt"]),
 });

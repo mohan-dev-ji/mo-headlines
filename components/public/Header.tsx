@@ -14,13 +14,13 @@ import { api } from "@/convex/_generated/api";
 export default function Header() {
   const { isSignedIn } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const categories = useQuery(api.categories.getAllCategories);
+  const categories = useQuery(api.categories.getActiveCategories);
   const topics = useQuery(api.topics.getAllTopics);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
   return (
-    <header className="border-b">
+    <header className="border-b bg-brand-card">
       <div className="mx-auto px-16 max-w-7xl">
         <nav className="flex justify-between items-center h-16">
           {/* Logo as home button */}
@@ -28,54 +28,19 @@ export default function Header() {
             <Logo />
           </Link>
 
-          {/* Right-aligned navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {/* Categories dropdown */}
-            <div className="relative group">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1"
+          {/* Right-aligned navigation - Categories and Auth */}
+          <div className="hidden md:flex items-center gap-8">
+            {/* Categories */}
+            {categories && categories.map((category) => (
+              <Link
+                key={category._id}
+                href={`/category/${category.slug}`}
+                className="text-body-primary hover:text-brand-primary transition-colors duration-200"
               >
-                Categories
-              </Button>
-              {categories && (
-                <div className="absolute top-full right-0 w-48 bg-white border rounded-md shadow-lg py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto translate-x-[-0px] z-50">
-                  {categories.map((category) => (
-                    <Link
-                      key={category._id}
-                      href={`/category/${category.slug}`}
-                      className="block px-4 py-2 hover:bg-gray-100 text-right"
-                    >
-                      {category.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Topics dropdown */}
-            <div className="relative group">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1"
-              >
-                Topics
-              </Button>
-              {topics && (
-                <div className="absolute top-full right-0 w-48 bg-white border rounded-md shadow-lg py-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto translate-x-[-0px] z-50">
-                  {topics.map((topic) => (
-                    <Link
-                      key={topic._id}
-                      href={`/topic/${topic.slug}`}
-                      className="block px-4 py-2 hover:bg-gray-100 text-right"
-                    >
-                      {topic.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-
+                {category.name}
+              </Link>
+            ))}
+            
             {/* Auth section */}
             <AuthSection />
           </div>

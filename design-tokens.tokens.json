@@ -1,0 +1,456 @@
+{
+  "design-system": {
+    "brand-colors": {
+      "brand-primary": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.green.600}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:35:1235",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-card": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.800}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:45:2719",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-background": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.950}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:45:2772",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-line": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.500}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:46:1965",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-alt-background": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.100}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:47:1986",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-alt-card": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.white}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:47:1989",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-primary-button": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.blue.600}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:57:2846",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-secondary-button": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.green.800}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:57:2847",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-alt-line": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.300}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:72:2301",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "brand-card-dark": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.900}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:98:3323",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "color": {
+        "type": "color",
+        "value": "#ffffffff",
+        "blendMode": "normal",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:100:3511",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "color 2": {
+        "type": "color",
+        "value": "#ffffffff",
+        "blendMode": "normal",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:100:3512",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "color 3": {
+        "type": "color",
+        "value": "#ffffffff",
+        "blendMode": "normal",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:100:3513",
+            "exportKey": "variables"
+          }
+        }
+      }
+    },
+    "text-colors": {
+      "headline-primary": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.50}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:45:2718",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "headline-secondary": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.800}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:46:1966",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "body-secondary": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.600}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:47:2012",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "body-primary": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.300}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:47:2013",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "button-black": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.black}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3313",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "button-white": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.white}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3314",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "body-greyed-out": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.400}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:98:3494",
+            "exportKey": "variables"
+          }
+        }
+      }
+    },
+    "spacing": {
+      "radius": {
+        "type": "dimension",
+        "value": 8,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3316",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "space-between-items": {
+        "type": "dimension",
+        "value": 20,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3317",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "padding-md": {
+        "type": "dimension",
+        "value": 20,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3318",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "padding-lg": {
+        "type": "dimension",
+        "value": 32,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:96:3319",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "space-between-text": {
+        "type": "dimension",
+        "value": 4,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:98:3322",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "border": {
+        "type": "dimension",
+        "value": 1,
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:100:3507",
+            "exportKey": "variables"
+          }
+        }
+      }
+    },
+    "indicators": {
+      "pending": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.zinc.500}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:117:3534",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "approved": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.green.500}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:117:3535",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "drafts": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.amber.500}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:117:3536",
+            "exportKey": "variables"
+          }
+        }
+      },
+      "rejected": {
+        "description": "",
+        "type": "color",
+        "value": "{tailwindcss.color.red.500}",
+        "extensions": {
+          "org.lukasoppermann.figmaDesignTokens": {
+            "collection": "Design-System",
+            "scopes": [
+              "ALL_SCOPES"
+            ],
+            "variableId": "VariableID:117:3537",
+            "exportKey": "variables"
+          }
+        }
+      }
+    }
+  }
+}

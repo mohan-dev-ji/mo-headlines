@@ -75,6 +75,55 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* Mo Headlines Design Tokens */
+  
+  /* Brand Colors */
+  --brand-primary: #16a34a; /* green-600 */
+  --brand-primary-button: #2563eb; /* blue-600 */
+  --brand-secondary-button: #166534; /* green-800 */
+  
+  /* Background Colors */
+  --brand-background: #09090b; /* zinc-950 */
+  --brand-alt-background: #f4f4f5; /* zinc-100 */
+  --brand-card: #27272a; /* zinc-800 */
+  --brand-card-dark: #18181b; /* zinc-900 */
+  --brand-alt-card: #ffffff; /* white */
+  
+  /* Border/Line Colors */
+  --brand-line: #71717a; /* zinc-500 */
+  --brand-alt-line: #d4d4d8; /* zinc-300 */
+  
+  /* Text Colors */
+  --headline-primary: #fafafa; /* zinc-50 */
+  --headline-secondary: #27272a; /* zinc-800 */
+  --body-primary: #d4d4d8; /* zinc-300 */
+  --body-secondary: #52525b; /* zinc-600 */
+  --body-greyed-out: #a1a1aa; /* zinc-400 */
+  --button-black: #000000; /* black */
+  --button-white: #ffffff; /* white */
+  
+  /* Spacing Tokens */
+  --space-between-text: 4px;
+  --space-between-items: 20px;
+  --padding-md: 20px;
+  --padding-lg: 32px;
+  --border-width: 1px;
+  
+  /* Status Indicator Colors */
+  --indicator-pending: #71717a; /* zinc-500 */
+  --indicator-approved: #22c55e; /* green-500 */
+  --indicator-drafts: #f59e0b; /* amber-500 */
+  --indicator-rejected: #ef4444; /* red-500 */
+  
+  /* Interactive State Colors */
+  --error-red: #dc2626; /* red-600 */
+  --warning-yellow: #f59e0b; /* amber-500 */
+  --info-blue: #2563eb; /* blue-600 */
+  
+  /* Hover States */
+  --brand-primary-button-hover: #1d4ed8; /* blue-700 */
+  --brand-primary-hover: #166534; /* green-700 */
 }
 
 .dark {
@@ -116,6 +165,18 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
+}
+
+@layer components {
+  /* Mo Headlines Typography Utilities */
+  .text-headline-1 { @apply text-4xl font-bold leading-tight; }
+  .text-headline-2 { @apply text-3xl font-semibold leading-tight; }
+  .text-headline-3 { @apply text-2xl font-semibold leading-snug; }
+  .text-headline-4 { @apply text-xl font-medium leading-snug; }
+  .text-body-lg { @apply text-lg leading-relaxed; }
+  .text-body-md { @apply text-base leading-normal; }
+  .text-body-sm { @apply text-sm leading-normal; }
+  .text-caption { @apply text-xs leading-tight; }
 }
