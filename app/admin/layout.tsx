@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminSidebar } from "@/components/shared/navigation/AdminSidebar";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function AdminLayout({

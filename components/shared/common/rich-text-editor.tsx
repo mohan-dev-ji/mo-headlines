@@ -5,7 +5,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
 import Image from "@tiptap/extension-image";
-import { Button } from "./ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Bold,
   Italic,

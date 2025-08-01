@@ -4,10 +4,12 @@ import { v } from "convex/values";
 // Enhanced categories with strategic keywords for RSS filtering
 const PREDEFINED_CATEGORIES = [
   {
-    name: "AI & Machine Learning",
-    slug: "ai-ml",
+    name: "AI",
+    slug: "ai",
     keywords: [
       "artificial intelligence",
+      "ai",
+      "AGI",
       "machine learning", 
       "neural network",
       "deep learning",
@@ -20,10 +22,11 @@ const PREDEFINED_CATEGORIES = [
     ]
   },
   {
-    name: "Startups & Funding",
-    slug: "startups-funding", 
+    name: "Startups",
+    slug: "startups", 
     keywords: [
       "startup",
+      "funding",
       "venture capital",
       "series a",
       "series b", 
@@ -36,7 +39,7 @@ const PREDEFINED_CATEGORIES = [
     ]
   },
   {
-    name: "Big Tech & Platforms",
+    name: "Big Tech",
     slug: "big-tech",
     keywords: [
       "apple",
@@ -48,13 +51,18 @@ const PREDEFINED_CATEGORIES = [
       "tesla",
       "nvidia",
       "openai",
-      "anthropic"
+      "anthropic",
+      "perplexity",
+      "openai",
+      "deepmind",
+      "deepseek"
     ]
   },
   {
-    name: "Science & Research",
-    slug: "science-research",
+    name: "Science",
+    slug: "science",
     keywords: [
+      "science",
       "breakthrough",
       "research",
       "study",
@@ -64,12 +72,14 @@ const PREDEFINED_CATEGORIES = [
       "laboratory",
       "experiment",
       "innovation",
-      "scientific"
+      "scientific",
+      "biotech",
+      "cure"
     ]
   },
   {
-    name: "Electric Vehicles",
-    slug: "electric-vehicles",
+    name: "Transport",
+    slug: "transport",
     keywords: [
       "electric vehicle",
       "ev",
@@ -80,7 +90,10 @@ const PREDEFINED_CATEGORIES = [
       "self-driving",
       "electric car",
       "lithium",
-      "range anxiety"
+      "range anxiety",
+      "robotaxi",
+      "uber",
+      "zenzic uk"
     ]
   }
 ];

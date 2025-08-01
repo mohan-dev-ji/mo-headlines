@@ -19,7 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/sections/*": ["./components/sections/*"],
+      "@/shared/*": ["./components/shared/*"],
+      "@/public/*": ["./components/public/*"],
+      "@/ui/*": ["./components/ui/*"]
     },
     "types": ["@clerk/nextjs"]
   },

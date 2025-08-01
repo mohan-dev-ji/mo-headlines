@@ -17,7 +17,7 @@ import type * as articles from "../articles.js";
 import type * as categories from "../categories.js";
 import type * as comments from "../comments.js";
 import type * as migrations from "../migrations.js";
-import type * as rssSources from "../rssSources.js";
+import type * as rssProducer from "../rssProducer.js";
 import type * as seedCategories from "../seedCategories.js";
 import type * as topics from "../topics.js";
 
@@ -34,7 +34,7 @@ declare const fullApi: ApiFromModules<{
   categories: typeof categories;
   comments: typeof comments;
   migrations: typeof migrations;
-  rssSources: typeof rssSources;
+  rssProducer: typeof rssProducer;
   seedCategories: typeof seedCategories;
   topics: typeof topics;
 }>;

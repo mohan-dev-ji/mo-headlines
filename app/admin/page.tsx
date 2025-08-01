@@ -17,8 +17,8 @@ export default function AdminPage() {
   const router = useRouter();
 
   // Get data for dashboard stats
-  const activeSources = useQuery(api.rssSources.getSourcesByStatus, { isActive: true });
-  const inactiveSources = useQuery(api.rssSources.getSourcesByStatus, { isActive: false });
+  const activeSources = useQuery(api.rssProducer.getProducersByStatus, { isActive: true });
+  const inactiveSources = useQuery(api.rssProducer.getProducersByStatus, { isActive: false });
   const articles = useQuery(api.articles.getAllArticles);
   const categories = useQuery(api.categories.getAllCategories);
 
@@ -43,7 +43,7 @@ export default function AdminPage() {
 
   const activeSourcesCount = activeSources?.length ?? 0;
   const inactiveSourcesCount = inactiveSources?.length ?? 0;
-  const totalSources = activeSourcesCount + inactiveSourcesCount;
+  const totalProducers = activeSourcesCount + inactiveSourcesCount;
   const articlesCount = articles?.length ?? 0;
   const categoriesCount = categories?.length ?? 0;
 
@@ -62,7 +62,7 @@ export default function AdminPage() {
         <Card className="bg-brand-card border-brand-line">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-body-sm text-body-secondary font-medium">
-              Active RSS Sources
+              Active RSS Producers
             </CardTitle>
             <Rss className="h-4 w-4 text-indicator-approved" />
           </CardHeader>
@@ -71,7 +71,7 @@ export default function AdminPage() {
               {activeSourcesCount}
             </div>
             <p className="text-caption text-body-greyed-out">
-              {totalSources} total sources
+              {totalProducers} total producers
             </p>
           </CardContent>
         </Card>
@@ -141,7 +141,7 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <p className="text-body-sm text-body-secondary mb-4">
-              Manage your RSS feeds and create new sources for content generation.
+              Manage your RSS producers and monitor feeds for content generation.
             </p>
             <div className="flex flex-col space-y-2">
               <Link href="/admin/rss-sources">

@@ -14,7 +14,7 @@ import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { CategorySelector } from "@/components/public/category-selector";
-import { RichTextEditor } from "@/components/admin/rich-text-editor";
+import { RichTextEditor } from "@/components/shared/common/rich-text-editor";
 
 export default function EditArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);

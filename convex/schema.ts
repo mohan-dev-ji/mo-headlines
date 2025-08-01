@@ -40,26 +40,23 @@ export default defineSchema({
   .index("by_article", ["articleId"])
   .index("by_user", ["userId"]),
 
-  rss_sources: defineTable({
+  rss_producer: defineTable({
     name: v.string(),
     url: v.string(),
-    category: v.string(),
+    categoryId: v.id("categories"),
     isActive: v.boolean(),
     pollFrequency: v.number(),
     numberOfArticles: v.number(),
     lastPolled: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
-    goldenArticleUrl: v.optional(v.string()),
-    goldenArticleTitle: v.optional(v.string()),
-    goldenArticleDate: v.optional(v.number()),
   })
-  .index("by_category", ["category"])
+  .index("by_category", ["categoryId"])
   .index("by_active", ["isActive"])
   .index("by_created", ["createdAt"]),
 
-  rss_items: defineTable({
-    sourceId: v.id("rss_sources"),
+  rss_queue: defineTable({
+    producerId: v.id("rss_producer"),
     title: v.string(),
     description: v.string(),
     url: v.string(),
@@ -67,7 +64,7 @@ export default defineSchema({
     processed: v.boolean(),
     createdAt: v.number(),
   })
-  .index("by_source", ["sourceId"])
+  .index("by_producer", ["producerId"])
   .index("by_processed", ["processed"])
   .index("by_published", ["publishedAt"]),
 });

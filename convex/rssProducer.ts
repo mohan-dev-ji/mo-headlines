@@ -22,18 +22,15 @@ interface FeedAnalysis {
   error?: string;
 }
 
-// Create a new RSS source
-export const createRSSSource = mutation({
+// Create a new RSS producer
+export const createProducer = mutation({
   args: {
     name: v.string(),
     url: v.string(),
-    category: v.string(),
+    categoryId: v.id("categories"),
     isActive: v.boolean(),
     pollFrequency: v.number(),
     numberOfArticles: v.number(),
-    goldenArticleUrl: v.optional(v.string()),
-    goldenArticleTitle: v.optional(v.string()),
-    goldenArticleDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -43,22 +40,19 @@ export const createRSSSource = mutation({
 
     const now = Date.now();
     
-    const sourceId = await ctx.db.insert("rss_sources", {
+    const producerId = await ctx.db.insert("rss_producer", {
       name: args.name,
       url: args.url,
-      category: args.category,
+      categoryId: args.categoryId,
       isActive: args.isActive,
       pollFrequency: args.pollFrequency,
       numberOfArticles: args.numberOfArticles,
       lastPolled: undefined,
       createdAt: now,
       updatedAt: now,
-      goldenArticleUrl: args.goldenArticleUrl,
-      goldenArticleTitle: args.goldenArticleTitle,
-      goldenArticleDate: args.goldenArticleDate,
     });
 
-    return { sourceId };
+    return { producerId };
   },
 });
 
@@ -314,40 +308,40 @@ export const testRSSFeed = action({
   },
 });
 
-// Get all RSS sources
-export const getAllSources = query({
+// Get all RSS producers
+export const getAllProducers = query({
   handler: async (ctx) => {
     return await ctx.db
-      .query("rss_sources")
+      .query("rss_producer")
       .order("desc")
       .collect();
   },
 });
 
-// Get RSS sources by status
-export const getSourcesByStatus = query({
+// Get RSS producers by status
+export const getProducersByStatus = query({
   args: { isActive: v.boolean() },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("rss_sources")
+      .query("rss_producer")
       .withIndex("by_active", (q) => q.eq("isActive", args.isActive))
       .order("desc")
       .collect();
   },
 });
 
-// Get RSS source by ID
-export const getSourceById = query({
-  args: { id: v.id("rss_sources") },
+// Get RSS producer by ID
+export const getProducerById = query({
+  args: { id: v.id("rss_producer") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
   },
 });
 
-// Toggle RSS source active status
-export const toggleSourceStatus = mutation({
+// Toggle RSS producer active status
+export const toggleProducerStatus = mutation({
   args: { 
-    id: v.id("rss_sources"),
+    id: v.id("rss_producer"),
     isActive: v.boolean(),
   },
   handler: async (ctx, args) => {
@@ -365,19 +359,16 @@ export const toggleSourceStatus = mutation({
   },
 });
 
-// Update RSS source
-export const updateRSSSource = mutation({
+// Update RSS producer
+export const updateProducer = mutation({
   args: {
-    id: v.id("rss_sources"),
+    id: v.id("rss_producer"),
     name: v.optional(v.string()),
     url: v.optional(v.string()),
-    category: v.optional(v.string()),
+    categoryId: v.optional(v.id("categories")),
     isActive: v.optional(v.boolean()),
     pollFrequency: v.optional(v.number()),
     numberOfArticles: v.optional(v.number()),
-    goldenArticleUrl: v.optional(v.string()),
-    goldenArticleTitle: v.optional(v.string()),
-    goldenArticleDate: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -396,22 +387,22 @@ export const updateRSSSource = mutation({
   },
 });
 
-// Delete RSS source
-export const deleteRSSSource = mutation({
-  args: { id: v.id("rss_sources") },
+// Delete RSS producer
+export const deleteProducer = mutation({
+  args: { id: v.id("rss_producer") },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
       throw new Error("Not authenticated");
     }
 
-    // Also delete related RSS items
-    const rssItems = await ctx.db
-      .query("rss_items")
-      .withIndex("by_source", (q) => q.eq("sourceId", args.id))
+    // Also delete related RSS queue items
+    const queueItems = await ctx.db
+      .query("rss_queue")
+      .withIndex("by_producer", (q) => q.eq("producerId", args.id))
       .collect();
 
-    for (const item of rssItems) {
+    for (const item of queueItems) {
       await ctx.db.delete(item._id);
     }
 
@@ -422,9 +413,9 @@ export const deleteRSSSource = mutation({
 });
 
 // Update last polled timestamp
-export const updateLastPolled = mutation({
+export const updateProducerLastPolled = mutation({
   args: { 
-    id: v.id("rss_sources"),
+    id: v.id("rss_producer"),
     timestamp: v.number(),
   },
   handler: async (ctx, args) => {
@@ -437,23 +428,71 @@ export const updateLastPolled = mutation({
   },
 });
 
-// Get RSS sources by category
-export const getSourcesByCategory = query({
-  args: { category: v.string() },
+// Get RSS producers by category
+export const getProducersByCategory = query({
+  args: { categoryId: v.id("categories") },
   handler: async (ctx, args) => {
     return await ctx.db
-      .query("rss_sources")
-      .withIndex("by_category", (q) => q.eq("category", args.category))
+      .query("rss_producer")
+      .withIndex("by_category", (q) => q.eq("categoryId", args.categoryId))
       .collect();
   },
 });
 
-// Get active RSS sources for polling
-export const getActiveSourcesForPolling = query({
+// Get active RSS producers for polling
+export const getActiveProducersForPolling = query({
   handler: async (ctx) => {
     return await ctx.db
-      .query("rss_sources")
+      .query("rss_producer")
       .withIndex("by_active", (q) => q.eq("isActive", true))
       .collect();
+  },
+});
+
+// Get all producers with their category data (including keywords)
+export const getAllProducersWithCategories = query({
+  handler: async (ctx) => {
+    const producers = await ctx.db
+      .query("rss_producer")
+      .order("desc", "createdAt")
+      .collect();
+
+    // Fetch category data for each producer
+    const producersWithCategories = await Promise.all(
+      producers.map(async (producer) => {
+        const category = await ctx.db.get(producer.categoryId);
+        return {
+          ...producer,
+          category: category ? {
+            _id: category._id,
+            name: category.name,
+            slug: category.slug,
+            keywords: category.keywords || [],
+          } : null,
+        };
+      })
+    );
+
+    return producersWithCategories;
+  },
+});
+
+// Get producer with category data by ID
+export const getProducerWithCategoryById = query({
+  args: { id: v.id("rss_producer") },
+  handler: async (ctx, args) => {
+    const producer = await ctx.db.get(args.id);
+    if (!producer) return null;
+
+    const category = await ctx.db.get(producer.categoryId);
+    return {
+      ...producer,
+      category: category ? {
+        _id: category._id,
+        name: category.name,
+        slug: category.slug,
+        keywords: category.keywords || [],
+      } : null,
+    };
   },
 });
