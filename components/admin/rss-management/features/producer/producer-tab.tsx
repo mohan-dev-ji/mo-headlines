@@ -17,9 +17,25 @@ import { Plus } from "lucide-react"
 import { CreateProducerModal } from "./create-producer-modal"
 import { EditProducerModal } from "./edit-producer-modal"
 import { ProducerCard } from "./producer-card"
-import { useQuery, useMutation } from "convex/react"
+import { useQuery, useMutation, useAction } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
+
+interface RunResult {
+  success: boolean
+  feedStatus: 'live' | 'not_live'
+  categoryStatus: 'found' | 'not_found' | null
+  articlesFound: number
+  articlesQueued: number
+  articles: Array<{
+    title: string
+    url: string
+    publishedAt: string
+    excerpt: string
+  }>
+  lastRun: number
+  error?: string
+}
 
 export function ProducerTab() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -28,10 +44,13 @@ export function ProducerTab() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [producerToDelete, setProducerToDelete] = useState<any>(null)
   const [countdowns, setCountdowns] = useState<Record<string, number>>({})
+  const [runResults, setRunResults] = useState<Record<string, RunResult>>({})
+  const [runningProducers, setRunningProducers] = useState<Set<string>>(new Set())
   const producers = useQuery(api.rssProducer.getAllProducers)
   const categories = useQuery(api.categories.getAllCategories)
   const deleteProducer = useMutation(api.rssProducer.deleteProducer)
   const toggleProducerStatus = useMutation(api.rssProducer.toggleProducerStatus)
+  const runProducerNow = useAction(api.rssProducer.runProducerNow)
 
   const handleEditProducer = (producerId: string) => {
     const producer = producers?.find(p => p._id === producerId)
@@ -110,6 +129,51 @@ export function ProducerTab() {
     }
   }
 
+  const handleRunNow = async (producerId: string) => {
+    const producer = producers?.find(p => p._id === producerId)
+    if (!producer) return
+
+    // Add to running producers set
+    setRunningProducers(prev => new Set([...prev, producerId]))
+
+    try {
+      console.log('Running producer:', producer.name)
+      const result = await runProducerNow({ producerId: producerId as Id<"rss_producer"> })
+      
+      // Store the run result
+      setRunResults(prev => ({
+        ...prev,
+        [producerId]: result as RunResult
+      }))
+
+      console.log('Producer run completed:', result)
+    } catch (error) {
+      console.error('Failed to run producer:', error)
+      
+      // Store error result
+      setRunResults(prev => ({
+        ...prev,
+        [producerId]: {
+          success: false,
+          feedStatus: 'not_live',
+          categoryStatus: null,
+          articlesFound: 0,
+          articlesQueued: 0,
+          articles: [],
+          lastRun: Date.now(),
+          error: error instanceof Error ? error.message : 'Failed to run producer'
+        }
+      }))
+    } finally {
+      // Remove from running producers set
+      setRunningProducers(prev => {
+        const newSet = new Set(prev)
+        newSet.delete(producerId)
+        return newSet
+      })
+    }
+  }
+
   // Effect to manage countdown timers
   useEffect(() => {
     const interval = setInterval(() => {
@@ -122,9 +186,12 @@ export function ProducerTab() {
             newCountdowns[producerId] -= 1
             hasChanges = true
           } else {
-            // Reset countdown when it reaches 0
+            // When countdown reaches 0, trigger run and reset countdown
             const producer = producers?.find(p => p._id === producerId)
-            if (producer?.isActive) {
+            if (producer?.isActive && !runningProducers.has(producerId)) {
+              // Trigger the run
+              handleRunNow(producerId)
+              // Reset countdown
               newCountdowns[producerId] = producer.pollFrequency * 60
               hasChanges = true
             }
@@ -136,7 +203,7 @@ export function ProducerTab() {
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [producers])
+  }, [producers, runningProducers])
 
   // Effect to initialize countdowns for active producers
   useEffect(() => {
@@ -206,7 +273,10 @@ export function ProducerTab() {
                   onEdit={handleEditProducer}
                   onDelete={handleDeleteProducer}
                   onToggleStatus={handleToggleStatus}
+                  onRunNow={handleRunNow}
                   countdown={countdowns[producer._id]}
+                  runResult={runResults[producer._id]}
+                  isRunning={runningProducers.has(producer._id)}
                 />
               )
             })}

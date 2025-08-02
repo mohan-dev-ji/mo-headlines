@@ -78,7 +78,6 @@ export const testRSSFeed = action({
       }
 
       const xmlText = await response.text();
-      
       // Parse XML using fast-xml-parser
       const parser = new XMLParser({
         ignoreAttributes: false,
@@ -123,6 +122,14 @@ export const testRSSFeed = action({
 
       // Extract articles/items
       const maxArticles = args.numberOfArticles || 10;
+      
+      console.log('🔍 RSS PARSER RESPONSE - Complete Feed Data:');
+      console.log('📄 Feed Title:', feedTitle);
+      console.log('📄 Feed Description:', feedDescription);
+      console.log('📄 Total Items in Feed:', itemsData.length);
+      console.log('📄 Max Articles to Process:', maxArticles);
+      console.log('📄 Raw Feed Data Structure:', JSON.stringify(feedData, null, 2));
+      console.log('📄 Raw Items Data (first 3 items):', JSON.stringify(itemsData.slice(0, 3), null, 2));
       
       const articles: FeedArticle[] = itemsData.slice(0, maxArticles).map((item: any) => {
         let title = 'Untitled';
@@ -217,8 +224,23 @@ export const testRSSFeed = action({
         };
       });
 
+      console.log('📰 EXTRACTED ARTICLES (before keyword filtering):');
+      console.log('📰 Total Articles Extracted:', articles.length);
+      console.log('📰 Articles Summary:', articles.map((article, index) => ({
+        index: index + 1,
+        title: article.title,
+        url: article.url,
+        publishedAt: article.publishedAt,
+        excerpt: article.excerpt.substring(0, 100) + '...',
+        categories: article.categories
+      })));
+      console.log('📰 Full Article Data:', JSON.stringify(articles, null, 2));
+
       // Filter articles by category if specified
       let filteredArticles = articles;
+      console.log('🎯 FILTERING CHECK: Category value:', args.category);
+      console.log('🎯 FILTERING CHECK: Will filter?', !!(args.category && args.category.trim() !== '' && args.category.toLowerCase() !== 'all'));
+      
       if (args.category && args.category.trim() !== '' && args.category.toLowerCase() !== 'all') {
         console.log('🔍 Starting category filtering...');
         console.log('🎯 Target category:', args.category);
@@ -494,5 +516,71 @@ export const getProducerWithCategoryById = query({
         keywords: category.keywords || [],
       } : null,
     };
+  },
+});
+
+// Run producer now - fetch RSS, filter by keywords, and add to queue
+export const runProducerNow = action({
+  args: { producerId: v.id("rss_producer") },
+  handler: async (ctx, args) => {
+    // Get producer and category data
+    const producer = await ctx.runQuery("rssProducer:getProducerWithCategoryById", {
+      id: args.producerId
+    });
+    
+    if (!producer) {
+      throw new Error("Producer not found");
+    }
+
+    if (!producer.category) {
+      throw new Error("Producer category not found");
+    }
+
+    // Test RSS feed with category keywords
+    const feedResult = await ctx.runAction("rssProducer:testRSSFeed", {
+      url: producer.url,
+      category: producer.category.name,
+      numberOfArticles: producer.numberOfArticles,
+    });
+
+    // Update producer last polled timestamp
+    await ctx.runMutation("rssProducer:updateProducerLastPolled", {
+      id: args.producerId,
+      timestamp: Date.now(),
+    });
+
+    // If feed was successful and articles found, add to queue
+    if (feedResult.status === 'success' && feedResult.articles.length > 0) {
+      const queueResult = await ctx.runMutation("rssQueue:addArticlesToQueue", {
+        producerId: args.producerId,
+        articles: feedResult.articles.map(article => ({
+          title: article.title,
+          description: article.excerpt,
+          url: article.url,
+          publishedAt: article.publishedAt,
+        })),
+      });
+
+      return {
+        success: true,
+        feedStatus: 'live',
+        categoryStatus: feedResult.articles.length > 0 ? 'found' : 'not_found',
+        articlesFound: feedResult.articles.length,
+        articlesQueued: queueResult.insertedCount,
+        articles: feedResult.articles,
+        lastRun: Date.now(),
+      };
+    } else {
+      return {
+        success: feedResult.status === 'success',
+        feedStatus: feedResult.status === 'success' ? 'live' : 'not_live',
+        categoryStatus: feedResult.status === 'success' ? 'not_found' : null,
+        articlesFound: 0,
+        articlesQueued: 0,
+        articles: [],
+        lastRun: Date.now(),
+        error: feedResult.error,
+      };
+    }
   },
 });

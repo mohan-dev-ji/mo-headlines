@@ -55,7 +55,18 @@ const PREDEFINED_CATEGORIES = [
       "perplexity",
       "openai",
       "deepmind",
-      "deepseek"
+      "deepseek",
+      "alibaba",
+      "tencent",
+      "baidu",
+      "bytedance",
+      "tiktok",
+      "twitter",
+      "x",
+      "instagram",
+      "facebook",
+      "snapchat",
+      "linkedin",
     ]
   },
   {
@@ -81,8 +92,8 @@ const PREDEFINED_CATEGORIES = [
     name: "Transport",
     slug: "transport",
     keywords: [
-      "electric vehicle",
-      "ev",
+      "electric vehicles",
+      "evs",
       "tesla",
       "battery",
       "charging station",

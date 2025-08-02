@@ -69,8 +69,8 @@ export function AdminSidebar() {
               className={cn(
                 "flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors",
                 isActive
-                  ? "bg-brand-card-dark !text-headline-primary"
-                  : "text-body-greyed-out hover:bg-brand-card-dark hover:!text-headline-primary"
+                  ? "bg-brand-card text-headline-primary"
+                  : "text-body-greyed-out hover:bg-brand-card hover:text-headline-primary"
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />

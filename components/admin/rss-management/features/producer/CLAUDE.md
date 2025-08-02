@@ -172,6 +172,15 @@ const producerSchema = z.object({
 3. Status updates reflect changes immediately
 4. Integration with queue shows processing flow
 
+### Run a Producer
+1. Enable Producer
+2. Hit Run from dropdown or allow timer to countdown to 0.
+3. Producer calls rss-parser.
+4. If there is a response update the feed status
+5. Producer uses keywords to filter all articles containing any keywords in the response's titles or descriptions
+6. If there is a response update category status
+7. Add Each article containing any keywords to rss queue and list urls in the producer card
+
 ## Error Handling
 
 ### RSS Feed Failures

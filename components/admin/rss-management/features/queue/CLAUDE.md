@@ -8,16 +8,14 @@ The Queue feature monitors pending articles awaiting AI processing and fact-chec
 
 ### Queue Tab (`queue-tab.tsx`)
 Main container component for the Queue feature:
-- Real-time queue monitoring with article counts
-- Queue statistics and performance metrics
+- Real-time queue monitoring via listening to the rss_queue table
 - Filter and search controls
-- Queue management actions
+- Bulk actions such as Delete all or multiple via checkboxes
 
 ### Queue Item Card (`queue-item-card.tsx`)
 Individual queue article display component:
-- Article title, source, and metadata
+- Article title, excerpt, URL, Source (use producerId to get producer: name), published at (from producer table) and status (waiting or processing)
 - Processing status indicators
-- Time in queue tracking
 - Similarity/deduplication status
 
 ### Queue Filters (`queue-filters.tsx`)
@@ -25,14 +23,16 @@ Filter and search controls for the queue:
 - Category filtering
 - Source filtering
 - Processing status filtering
-- Date range selection
+- Most recently published
 - Search by title/content
+Bulk Action:
+- Delete all
+- Delete multiple via checkbox
 
 ### Queue Stats (`queue-stats.tsx`)
 Queue performance metrics and statistics:
 - Total articles in queue
-- Processing rate statistics
-- Average time in queue
+- Number processed today
 - Deduplication effectiveness metrics
 
 ## Data Management
@@ -46,7 +46,7 @@ interface QueueArticle {
   sourceId: Id<"rss_sources">;
   category: string;
   description: string;
-  foundAt: number;
+  publishedAt: number;
   processed: boolean;
   isProcessing: boolean;
   processedAt?: number;
@@ -131,8 +131,6 @@ function generateSimilarityHash(title: string): string {
 ### Bulk Operations
 - Select multiple articles for bulk actions
 - Bulk delete or reprocess
-- Bulk category reassignment
-- Bulk priority adjustment
 
 ### Individual Actions
 - Manual processing trigger
