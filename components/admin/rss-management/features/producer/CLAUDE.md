@@ -16,9 +16,9 @@ Main container component for the Producer feature:
 ### Create Producer Modal (`create-producer-modal.tsx`)
 Form modal for creating new RSS producers:
 - Feed Title, URL, Category, Refresh Interval fields
+- Uses relational link from the category table to select a category
 - Form validation using Zod schemas
-- RSS feed testing and validation
-- Success/error state handling
+- Saves user input to rss_producer table
 
 ### Producer Card (`producer-card.tsx`)
 Individual RSS producer display component:
@@ -34,7 +34,9 @@ Actions menu for each producer:
 - Edit producer settings
 - Run Now (manual trigger)
 - Delete producer
-- Enable/Disable toggle
+- Enable/Disable toggle. 
+- Enable sets isActive to true and starts a countdown timer starting from the pollFrequency number in rss_producer table.
+- Disable sets isActive to false and displays no countdown timer.
 
 ## Data Management
 

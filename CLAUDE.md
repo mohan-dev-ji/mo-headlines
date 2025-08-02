@@ -395,6 +395,31 @@ prompts: {
    - Use semantic naming for variants that matches their purpose
    - Ensure accessibility compliance (proper contrast, focus indicators)
 
+### UI Component Philosophy: Simplicity Over Complexity
+
+**Rule: When a third-party UI component has known issues, build a custom solution instead of complex workarounds.**
+
+**Principle:** Always choose the simplest solution that works reliably.
+
+**Examples:**
+- ✅ **Good:** Build custom dropdown with basic div + state when Radix DropdownMenu has remounting issues
+- ❌ **Bad:** Write complex key manipulation, forced remounting, useEffect chains to fix library issues
+- ✅ **Good:** Create simple custom components with full control over behavior
+- ❌ **Bad:** Layer multiple abstractions to work around library limitations
+
+**Benefits:**
+- Predictable behavior - you control every aspect
+- Easier debugging - no black box library behavior
+- Better performance - no unnecessary complexity
+- Maintainable code - future developers understand the logic
+- Reusable components - custom solutions can be designed for your specific needs
+
+**When to Apply:**
+- Library component has mysterious bugs or issues
+- Workaround code becomes more complex than building from scratch
+- Component behavior is unpredictable or hard to debug
+- Multiple attempts to fix library issues have failed
+
 ### Code Style & Patterns
 
 **TypeScript First:** All components, functions, and API routes must use TypeScript with proper type definitions.

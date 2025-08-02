@@ -21,7 +21,7 @@
     "paths": {
       "@/*": ["./*"],
       "@/components/*": ["./components/*"],
-      "@/sections/*": ["./components/sections/*"],
+      "@/admin/*": ["./components/admin/*"],
       "@/shared/*": ["./components/shared/*"],
       "@/public/*": ["./components/public/*"],
       "@/ui/*": ["./components/ui/*"]
