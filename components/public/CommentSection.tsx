@@ -8,6 +8,7 @@ import { Id } from "@/convex/_generated/dataModel";
 import { Comment } from "./Comment";
 import { CommentForm } from "./CommentForm";
 import { Button } from "../ui/button";
+import { LoadingAnimation } from "../ui/loading-animation";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 
@@ -21,7 +22,7 @@ export function CommentSection({ articleId }: CommentSectionProps) {
   const [editingCommentId, setEditingCommentId] = useState<Id<"comments"> | null>(null);
 
   if (!isLoaded) {
-    return <div>Loading...</div>;
+    return <LoadingAnimation size={40} className="py-4" />;
   }
 
   return (

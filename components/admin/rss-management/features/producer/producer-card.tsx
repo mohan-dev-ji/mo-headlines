@@ -53,47 +53,40 @@ interface ProducerCardProps {
 export function ProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onRunNow, countdown, runResult, isRunning }: ProducerCardProps) {
   return (
     <Card className="bg-brand-card border-brand-line">
-      <CardContent className="p-6 relative">
-        {/* Status and Actions - Top Right */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          <div className="flex items-center gap-1">
-            <span className="text-body-primary text-sm">
-              {producer.isActive ? '🟢 Active' : '🔴 Inactive'}
-              {producer.isActive && countdown !== undefined && (
-                <span className="ml-2 text-blue-400 font-mono">
-                  {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
-                </span>
-              )}
-            </span>
-          </div>
-          <ProducerActionsDropdown 
-            producer={{
-              _id: producer._id,
-              name: producer.name,
-              isActive: producer.isActive
-            }}
-            onEdit={() => onEdit(producer._id)}
-            onRunNow={() => onRunNow(producer._id)}
-            onDelete={() => onDelete(producer._id)}
-            onToggleStatus={() => onToggleStatus(producer._id)}
-          />
-        </div>
-
-        {/* Producer Content */}
-        <div className="space-y-4 pr-32">
-          
-          {/* Row 1: Name and URL */}
-          <div>
-            <CardTitle className="text-headline-primary text-lg mb-1">
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          {/* Title with Actions */}
+          <div className="flex items-start justify-between gap-4">
+            {/* Title */}
+            <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight flex-1">
               {producer.name}
-            </CardTitle>
-            <CardDescription className="text-body-secondary text-sm">
+            </h3>
+            
+            {/* Actions Only */}
+            <div className="shrink-0">
+              <ProducerActionsDropdown 
+                producer={{
+                  _id: producer._id,
+                  name: producer.name,
+                  isActive: producer.isActive
+                }}
+                onEdit={() => onEdit(producer._id)}
+                onRunNow={() => onRunNow(producer._id)}
+                onDelete={() => onDelete(producer._id)}
+                onToggleStatus={() => onToggleStatus(producer._id)}
+              />
+            </div>
+          </div>
+
+          {/* URL */}
+          <div>
+            <p className="text-body-secondary text-sm">
               {producer.url}
-            </CardDescription>
+            </p>
           </div>
           
-          {/* Row 2: Producer Details - Responsive Layout */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-sm">
+          {/* Producer Details */}
+          <div className="flex flex-col md:flex-row gap-2 text-sm">
             <div className="flex items-center gap-1">
               <span className="text-headline-primary font-medium">Category:</span>
               <span className="text-body-primary">{category?.name || 'Unknown'}</span>
@@ -114,65 +107,65 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
             )}
           </div>
           
-          {/* Row 3: Run Results - Responsive Layout */}
+          {/* Run Results */}
           <div className="space-y-2">
             <h4 className="text-headline-primary text-sm font-medium">Run Results</h4>
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-sm">
+            <div className="flex flex-col md:flex-row gap-2 text-sm">
               <div className="flex items-center gap-1">
                 <span className="text-headline-primary font-medium">Last Run:</span>
-              <span className="text-body-primary">
-                {isRunning ? (
-                  <span className="text-blue-400">Running...</span>
-                ) : runResult?.lastRun ? (
-                  new Date(runResult.lastRun).toLocaleString()
-                ) : (
-                  <span className="text-body-greyed-out">Never</span>
-                )}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Feed Status:</span>
-              <span className="text-body-primary">
-                {isRunning ? (
-                  <span className="text-blue-400">Checking...</span>
-                ) : runResult?.feedStatus === 'live' ? (
-                  <span className="text-green-400">🟢 Live</span>
-                ) : runResult?.feedStatus === 'not_live' ? (
-                  <span className="text-red-400">🔴 Not Live</span>
-                ) : (
-                  <span className="text-body-greyed-out">Not checked</span>
-                )}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Category Status:</span>
-              <span className="text-body-primary">
-                {isRunning ? (
-                  <span className="text-blue-400">Filtering...</span>
-                ) : runResult?.categoryStatus === 'found' ? (
-                  <span className="text-green-400">📰 Articles Found</span>
-                ) : runResult?.categoryStatus === 'not_found' ? (
-                  <span className="text-yellow-400">📭 No Articles</span>
-                ) : (
-                  <span className="text-body-greyed-out">Not checked</span>
-                )}
-              </span>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Articles Found:</span>
-              <span className="text-body-primary">
-                {isRunning ? (
-                  <span className="text-blue-400">Counting...</span>
-                ) : runResult?.articlesFound !== undefined ? (
-                  runResult.articlesFound
-                ) : (
-                  <span className="text-body-greyed-out">-</span>
-                )}
-              </span>
-            </div>
+                <span className="text-body-primary">
+                  {isRunning ? (
+                    <span className="text-blue-400">Running...</span>
+                  ) : runResult?.lastRun ? (
+                    new Date(runResult.lastRun).toLocaleString()
+                  ) : (
+                    <span className="text-body-greyed-out">Never</span>
+                  )}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <span className="text-headline-primary font-medium">Feed Status:</span>
+                <span className="text-body-primary">
+                  {isRunning ? (
+                    <span className="text-blue-400">Checking...</span>
+                  ) : runResult?.feedStatus === 'live' ? (
+                    <span className="text-green-400">🟢 Live</span>
+                  ) : runResult?.feedStatus === 'not_live' ? (
+                    <span className="text-red-400">🔴 Not Live</span>
+                  ) : (
+                    <span className="text-body-greyed-out">Not checked</span>
+                  )}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <span className="text-headline-primary font-medium">Category Status:</span>
+                <span className="text-body-primary">
+                  {isRunning ? (
+                    <span className="text-blue-400">Filtering...</span>
+                  ) : runResult?.categoryStatus === 'found' ? (
+                    <span className="text-green-400">📰 Articles Found</span>
+                  ) : runResult?.categoryStatus === 'not_found' ? (
+                    <span className="text-yellow-400">📭 No Articles</span>
+                  ) : (
+                    <span className="text-body-greyed-out">Not checked</span>
+                  )}
+                </span>
+              </div>
+              
+              <div className="flex items-center gap-1">
+                <span className="text-headline-primary font-medium">Articles Found:</span>
+                <span className="text-body-primary">
+                  {isRunning ? (
+                    <span className="text-blue-400">Counting...</span>
+                  ) : runResult?.articlesFound !== undefined ? (
+                    runResult.articlesFound
+                  ) : (
+                    <span className="text-body-greyed-out">-</span>
+                  )}
+                </span>
+              </div>
             </div>
           </div>
           
@@ -203,10 +196,22 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
           )}
           
           {runResult?.error && (
-            <div className="text-xs text-red-400 mt-2">
+            <div className="text-xs text-red-400">
               <span className="text-headline-primary font-medium">Error:</span> {runResult.error}
             </div>
           )}
+
+          {/* Status Badge */}
+          <div className="flex items-center gap-1">
+            <span className="text-body-primary text-sm">
+              {producer.isActive ? '🟢 Active' : '🔴 Inactive'}
+              {producer.isActive && countdown !== undefined && (
+                <span className="ml-2 text-blue-400 font-mono">
+                  {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                </span>
+              )}
+            </span>
+          </div>
         </div>
       </CardContent>
     </Card>

@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Pencil, Trash2 } from "lucide-react";
 import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
@@ -41,7 +42,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   };
 
   if (!article) {
-    return <div className="p-8">Loading article...</div>;
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-8">
+        <LoadingAnimation size={60} className="py-8" />
+      </div>
+    );
   }
 
   return (

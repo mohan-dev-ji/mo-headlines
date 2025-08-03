@@ -91,8 +91,9 @@
   --brand-alt-card: #ffffff; /* white */
   
   /* Border/Line Colors */
-  --brand-line: #71717a; /* zinc-500 */
   --brand-alt-line: #d4d4d8; /* zinc-300 */
+  --brand-line: #71717a; /* zinc-500 */
+  --brand-line-dark: #3F3F46; /* zinc-700 */
   
   /* Text Colors */
   --headline-primary: #fafafa; /* zinc-50 */

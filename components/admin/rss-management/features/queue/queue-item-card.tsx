@@ -2,6 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Clock } from "lucide-react"
 import { Id } from "@/convex/_generated/dataModel"
 import { QueueActionsDropdown } from "./queue-actions-dropdown"
@@ -29,9 +30,11 @@ interface QueueItemProps {
       updatedAt: number
     } | null
   }
+  isSelected: boolean
+  onSelectChange: (isSelected: boolean) => void
 }
 
-export function QueueItemCard({ queueItem }: QueueItemProps) {
+export function QueueItemCard({ queueItem, isSelected, onSelectChange }: QueueItemProps) {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
@@ -45,40 +48,55 @@ export function QueueItemCard({ queueItem }: QueueItemProps) {
 
   return (
     <Card className="bg-brand-card-dark border-brand-line">
-      <CardContent className="p-6 relative">
-        {/* Status and Actions - Top Right */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
-          <Badge variant="secondary" className="bg-yellow-600/20 text-yellow-400 border-yellow-600/30">
-            <Clock className="w-3 h-3 mr-1" />
-            Pending
-          </Badge>
-          <QueueActionsDropdown 
-            queueItem={{
-              _id: queueItem._id,
-              title: queueItem.title
-            }}
-            onProcessNow={() => {
-              // TODO: Implement process now functionality
-              console.log('Process now:', queueItem.title)
-            }}
-            onDelete={() => {
-              // TODO: Implement delete functionality
-              console.log('Delete:', queueItem.title)
-            }}
-          />
-        </div>
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          {/* Checkbox and Title with Actions */}
+          <div className="flex items-start gap-4">
+            {/* Selection Checkbox */}
+            <div className="pt-1">
+              <Checkbox
+                checked={isSelected}
+                onCheckedChange={(checked) => onSelectChange(checked === true)}
+                id={`select-${queueItem._id}`}
+              />
+            </div>
+            
+            {/* Title and Actions */}
+            <div className="flex items-start justify-between gap-4 flex-1">
+              {/* Title */}
+              <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight flex-1">
+                {queueItem.title}
+              </h3>
+              
+              {/* Actions Only */}
+              <div className="shrink-0">
+                <QueueActionsDropdown 
+                  queueItem={{
+                    _id: queueItem._id,
+                    title: queueItem.title
+                  }}
+                  onProcessNow={() => {
+                    // TODO: Implement process now functionality
+                    console.log('Process now:', queueItem.title)
+                  }}
+                  onDelete={() => {
+                    // TODO: Implement delete functionality
+                    console.log('Delete:', queueItem.title)
+                  }}
+                />
+              </div>
+            </div>
+          </div>
 
-        {/* Article Content */}
-        <div className="space-y-4 pr-32">
-          {/* Article Title */}
+          {/* Description */}
           <div>
-            <h3 className="text-headline-primary text-lg font-semibold leading-tight">
-              {queueItem.title}
-            </h3>
+            <p className="text-body-primary text-sm leading-relaxed">
+              {queueItem.description}
+            </p>
           </div>
 
           {/* Source, Published, Added Info */}
-          <div className="flex flex-col lg:flex-row lg:items-center gap-4 text-sm">
+          <div className="flex flex-col md:flex-row gap-2 text-sm">
             <div className="flex items-center gap-1">
               <span className="text-headline-primary font-medium">Source:</span>
               <span className="text-body-primary">{queueItem.producer?.name || 'Unknown'}</span>
@@ -93,14 +111,6 @@ export function QueueItemCard({ queueItem }: QueueItemProps) {
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <span className="text-headline-primary block text-sm mb-1">Description</span>
-            <p className="text-body-primary text-sm leading-relaxed">
-              {queueItem.description}
-            </p>
-          </div>
-
           {/* View Article Link */}
           <div>
             <a 
@@ -111,6 +121,14 @@ export function QueueItemCard({ queueItem }: QueueItemProps) {
             >
               View Article
             </a>
+          </div>
+
+          {/* Status Badge */}
+          <div>
+            <Badge variant="secondary" className="bg-yellow-600/20 text-yellow-400 border-yellow-600/30">
+              <Clock className="w-3 h-3 mr-1" />
+              Pending
+            </Badge>
           </div>
         </div>
       </CardContent>

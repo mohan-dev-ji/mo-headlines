@@ -57,6 +57,7 @@ module.exports = {
           'alt-card': "var(--brand-alt-card)",
           line: "var(--brand-line)",
           'alt-line': "var(--brand-alt-line)",
+          'line-dark': "var(--brand-line-dark)",
         },
         headline: {
           primary: "var(--headline-primary)",

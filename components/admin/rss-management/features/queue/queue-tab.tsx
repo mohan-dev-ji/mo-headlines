@@ -1,81 +1,200 @@
 "use client"
 
-import { useQuery } from "convex/react"
+import { useState, useMemo, useCallback } from "react"
+import { useQuery, useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { QueueItemCard } from "./queue-item-card"
+import { QueueFilters } from "./queue-filters"
+import { BulkDeleteDialog } from "./bulk-delete-dialog"
+import { LoadingAnimation } from "@/components/ui/loading-animation"
+import { Id } from "@/convex/_generated/dataModel"
+import { toast } from "sonner"
+
+type SortOption = 'newest' | 'oldest' | 'title' | 'source' | 'published'
 
 export function QueueTab() {
-  const queueItems = useQuery(api.rssQueue.getUnprocessedQueueWithProducers)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<SortOption>('newest')
+  const [selectedItems, setSelectedItems] = useState<Set<Id<"rss_queue">>>(new Set())
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  // Always fetch all queue items (stable query)
+  const allQueueItems = useQuery(api.rssQueue.getUnprocessedQueueWithProducers)
   const queueStats = useQuery(api.rssQueue.getQueueStats)
+  
+  // Mutation for bulk delete
+  const bulkDeleteMutation = useMutation(api.rssQueue.bulkDeleteQueueItems)
+
+  // Filter and sort items on frontend
+  const sortedAndFilteredQueueItems = useMemo(() => {
+    if (!allQueueItems) return []
+    
+    // First filter by search term
+    let items = allQueueItems
+    if (searchTerm.trim()) {
+      const searchLower = searchTerm.toLowerCase()
+      items = items.filter(item => 
+        item.title.toLowerCase().includes(searchLower) ||
+        item.description.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Then sort the filtered results
+    return [...items].sort((a, b) => {
+      switch (sortBy) {
+        case 'newest': 
+          return b.createdAt - a.createdAt
+        case 'oldest': 
+          return a.createdAt - b.createdAt
+        case 'title': 
+          return a.title.localeCompare(b.title)
+        case 'source': 
+          return (a.producer?.name || '').localeCompare(b.producer?.name || '')
+        case 'published':
+          return b.publishedAt - a.publishedAt
+        default: 
+          return 0
+      }
+    })
+  }, [allQueueItems, searchTerm, sortBy])
+
+  const queueItems = sortedAndFilteredQueueItems
+
+  // Selection management functions
+  const handleSelectItem = useCallback((itemId: Id<"rss_queue">, isSelected: boolean) => {
+    setSelectedItems(prev => {
+      const newSelection = new Set(prev)
+      if (isSelected) {
+        newSelection.add(itemId)
+      } else {
+        newSelection.delete(itemId)
+      }
+      return newSelection
+    })
+  }, [])
+
+  const handleSelectAll = useCallback((isSelected: boolean) => {
+    if (isSelected) {
+      setSelectedItems(new Set(queueItems.map(item => item._id)))
+    } else {
+      setSelectedItems(new Set())
+    }
+  }, [queueItems])
+
+  // Bulk delete handlers
+  const handleBulkDeleteClick = useCallback(() => {
+    if (selectedItems.size > 0) {
+      setShowDeleteDialog(true)
+    }
+  }, [selectedItems.size])
+
+  const handleBulkDeleteConfirm = useCallback(async () => {
+    if (selectedItems.size === 0) return
+
+    setIsDeleting(true)
+    try {
+      const itemIds = Array.from(selectedItems)
+      const result = await bulkDeleteMutation({ itemIds })
+
+      if (result.success) {
+        toast.success(`Successfully deleted ${result.successCount} article${result.successCount === 1 ? '' : 's'}`)
+        setSelectedItems(new Set()) // Clear selection
+      } else {
+        // Partial success
+        if (result.successCount > 0) {
+          toast.success(`Deleted ${result.successCount} articles, but ${result.failedCount} failed`)
+          // Remove successfully deleted items from selection
+          const newSelection = new Set(result.failedIds)
+          setSelectedItems(newSelection)
+        } else {
+          toast.error(`Failed to delete articles: ${result.errors[0] || 'Unknown error'}`)
+        }
+      }
+    } catch (error) {
+      console.error('Bulk delete error:', error)
+      toast.error('Failed to delete articles. Please try again.')
+    } finally {
+      setIsDeleting(false)
+      setShowDeleteDialog(false)
+    }
+  }, [selectedItems, bulkDeleteMutation])
+
+  const handleBulkDeleteCancel = useCallback(() => {
+    setShowDeleteDialog(false)
+  }, [])
+
+  // Selection state calculations
+  const selectedCount = selectedItems.size
+  const totalCount = queueItems.length
 
   const isLoading = queueItems === undefined || queueStats === undefined
 
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-semibold">Article Queue</h2>
-            <p className="text-muted-foreground">
-              Monitor pending articles awaiting AI processing and fact-checking
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="secondary">Loading...</Badge>
-          </div>
-        </div>
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-                <div className="h-3 bg-muted rounded w-1/2"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <LoadingAnimation size={80} className="py-8" />
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold">Article Queue</h2>
-          <p className="text-muted-foreground">
-            Monitor pending articles awaiting AI processing and fact-checking
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="secondary">
-            {queueStats.unprocessed} articles pending
-          </Badge>
-          <Badge variant="outline">
-            {queueStats.processed} processed
-          </Badge>
-        </div>
-      </div>
+      {/* Search and Sort Controls */}
+      <QueueFilters
+        searchTerm={searchTerm}
+        sortBy={sortBy}
+        resultCount={queueItems?.length || 0}
+        onSearchChange={setSearchTerm}
+        onSortChange={setSortBy}
+        isLoading={isLoading || isDeleting}
+        selectedCount={selectedCount}
+        totalCount={totalCount}
+        onSelectAll={handleSelectAll}
+        onBulkDelete={handleBulkDeleteClick}
+        onBulkProcess={() => {
+          // TODO: Implement bulk process functionality
+          console.log('Bulk process:', Array.from(selectedItems))
+        }}
+        queueCount={queueStats?.unprocessed}
+      />
 
       {queueItems.length === 0 ? (
-        <Card>
+        <Card className="bg-brand-card-dark border-brand-line">
           <CardHeader>
-            <CardTitle>No Articles in Queue</CardTitle>
-            <CardDescription>
-              There are currently no articles waiting for processing. 
-              Articles will appear here when RSS producers add new content.
+            <CardTitle className="text-headline-primary">
+              {searchTerm.trim() ? 'No Search Results' : 'No Articles in Queue'}
+            </CardTitle>
+            <CardDescription className="text-body-primary">
+              {searchTerm.trim() 
+                ? `No articles found matching "${searchTerm}". Try a different search term.`
+                : 'There are currently no articles waiting for processing. Articles will appear here when RSS producers add new content.'
+              }
             </CardDescription>
           </CardHeader>
         </Card>
       ) : (
         <div className="space-y-4">
           {queueItems.map((item) => (
-            <QueueItemCard key={item._id} queueItem={item} />
+            <QueueItemCard 
+              key={item._id} 
+              queueItem={item}
+              isSelected={selectedItems.has(item._id)}
+              onSelectChange={(isSelected) => handleSelectItem(item._id, isSelected)}
+            />
           ))}
         </div>
       )}
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <BulkDeleteDialog
+        isOpen={showDeleteDialog}
+        selectedCount={selectedCount}
+        isLoading={isDeleting}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={handleBulkDeleteCancel}
+      />
     </div>
   )
 }

@@ -10,6 +10,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Rss, FileText, BarChart3, Users, TrendingUp, Clock } from "lucide-react";
 
 export default function AdminPage() {
@@ -32,7 +33,7 @@ export default function AdminPage() {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-full">
-        <div className="text-headline-primary">Loading...</div>
+        <LoadingAnimation size={60} />
       </div>
     );
   }

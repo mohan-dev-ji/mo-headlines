@@ -19,12 +19,13 @@ Individual queue article display component:
 - Similarity/deduplication status
 
 ### Queue Filters (`queue-filters.tsx`)
+Filter and earch by title/content
+- type words that are in the title or description to get results  
 Filter and search controls for the queue:
 - Category filtering
 - Source filtering
 - Processing status filtering
 - Most recently published
-- Search by title/content
 Bulk Action:
 - Delete all
 - Delete multiple via checkbox
@@ -158,6 +159,185 @@ function generateSimilarityHash(title: string): string {
 - **Update Status:** `api.rss_queue.updateStatus`
 - **Bulk Actions:** `api.rss_queue.bulkUpdate`
 
+## Search and Sorting Strategy
+
+### Data Architecture Analysis
+
+**Current System:**
+- Queue data stored in Convex `rss_queue` table
+- Frontend uses reactive queries: `useQuery(api.rssQueue.getUnprocessedQueueWithProducers)`
+- Data is NOT stored on frontend - fetched real-time from Convex
+- Automatic re-renders when database changes
+
+**Data Flow:**
+```
+Convex Database → Reactive Query → React Component State → UI
+```
+
+### Sorting Strategy (Hybrid Approach)
+
+#### Phase 1: Frontend Sorting (Current Implementation)
+**Recommended for immediate implementation**
+
+**Pros:**
+- No additional backend queries needed
+- Instant sorting (no network delay)
+- Works with existing data architecture
+- Simple to implement for current scale
+
+**Implementation:**
+```typescript
+const sortedItems = useMemo(() => {
+  if (!queueItems) return []
+  
+  return [...queueItems].sort((a, b) => {
+    switch (sortBy) {
+      case 'newest': 
+        return b.createdAt - a.createdAt
+      case 'oldest': 
+        return a.createdAt - b.createdAt
+      case 'title': 
+        return a.title.localeCompare(b.title)
+      case 'source': 
+        return (a.producer?.name || '').localeCompare(b.producer?.name || '')
+      case 'published':
+        return b.publishedAt - a.publishedAt
+      default: 
+        return 0
+    }
+  })
+}, [queueItems, sortBy])
+```
+
+**Sort Options:**
+- **Newest**: Most recently added to queue
+- **Oldest**: Earliest added to queue  
+- **Title A-Z**: Alphabetical by article title
+- **Source**: Alphabetical by producer name
+- **Published**: Most recently published articles first
+
+#### Phase 2: Backend Sorting (Future Migration)
+**When queue grows large (1000+ items)**
+
+```typescript
+// Future Convex query for backend sorting
+export const getQueueSorted = query({
+  args: { 
+    sortBy: v.union(
+      v.literal("newest"), 
+      v.literal("oldest"), 
+      v.literal("title"), 
+      v.literal("source")
+    )
+  },
+  handler: async (ctx, args) => {
+    let query = ctx.db.query("rss_queue")
+      .withIndex("by_processed", (q) => q.eq("processed", false))
+    
+    switch (args.sortBy) {
+      case 'newest':
+        return await query.order("desc", "createdAt").collect()
+      case 'oldest': 
+        return await query.order("asc", "createdAt").collect()
+      case 'title':
+      case 'source':
+        // Requires different indexing strategy
+        const items = await query.collect()
+        return items.sort(/* sorting logic */)
+    }
+  }
+})
+```
+
+### Search Strategy (Backend Filtering)
+
+**Recommended: Backend search queries**
+
+**Why Backend Search:**
+- Search across ALL data (not just loaded items)
+- Database filtering more efficient than client-side
+- Supports partial matching and case-insensitive search
+- Real-time search as user types
+
+**Implementation:**
+```typescript
+// Convex search query
+export const searchQueue = query({
+  args: { 
+    searchTerm: v.string(),
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    if (!args.searchTerm.trim()) {
+      return await ctx.db.query("rss_queue")
+        .withIndex("by_processed", (q) => q.eq("processed", false))
+        .order("desc", "createdAt")
+        .take(args.limit || 50)
+    }
+    
+    const allItems = await ctx.db.query("rss_queue")
+      .withIndex("by_processed", (q) => q.eq("processed", false))
+      .collect()
+    
+    const searchLower = args.searchTerm.toLowerCase()
+    
+    return allItems.filter(item => 
+      item.title.toLowerCase().includes(searchLower) ||
+      item.description.toLowerCase().includes(searchLower)
+    ).slice(0, args.limit || 50)
+  }
+})
+```
+
+**Frontend Search Integration:**
+```typescript
+// Debounced search implementation
+const [searchTerm, setSearchTerm] = useState('')
+const [debouncedSearch, setDebouncedSearch] = useState('')
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setDebouncedSearch(searchTerm)
+  }, 300)
+  
+  return () => clearTimeout(timer)
+}, [searchTerm])
+
+// Use search query when there's a search term
+const queueItems = useQuery(
+  debouncedSearch 
+    ? api.rssQueue.searchQueue 
+    : api.rssQueue.getUnprocessedQueueWithProducers,
+  debouncedSearch ? { searchTerm: debouncedSearch } : undefined
+)
+```
+
+### Performance Considerations
+
+**Current Scale (< 1000 items):**
+- Frontend sorting: ✅ Optimal
+- Backend search: ✅ Necessary for comprehensive search
+- No pagination needed yet
+
+**Future Scale (1000+ items):**
+- Backend sorting: ✅ Required for performance
+- Pagination: ✅ Required
+- Indexes: ✅ Required for title/source sorting
+- Virtualized rendering: ✅ Required for large lists
+
+### Migration Path
+
+**Step 1 (Current):** Frontend sorting + Backend search
+**Step 2 (Growth):** Add pagination when queue > 500 items  
+**Step 3 (Scale):** Move to backend sorting when > 1000 items
+**Step 4 (Optimization):** Add database indexes for complex sorting
+
+This hybrid approach provides the best balance of:
+- ✅ Simple implementation
+- ✅ Instant user feedback  
+- ✅ Comprehensive search capabilities
+- ✅ Future scalability
+
 ## Filtering and Search
 
 ### Filter Options
@@ -172,14 +352,16 @@ interface QueueFilters {
   };
   searchTerm?: string;
   showDuplicates?: boolean;
+  sortBy?: 'newest' | 'oldest' | 'title' | 'source' | 'published';
 }
 ```
 
 ### Search Functionality
+- Real-time search with 300ms debounce
 - Full-text search in article titles and descriptions
-- Filter by source, category, status
-- Date range filtering
-- Advanced search with multiple criteria
+- Backend filtering for comprehensive results
+- Clear search functionality
+- Search result count display
 
 ## User Workflows
 

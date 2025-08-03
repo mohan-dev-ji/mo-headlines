@@ -184,8 +184,18 @@ Button text: var(--button-white) with .text-body-sm
 **Animation Standards:**
 - Hover transitions: 150ms ease-in-out
 - Page transitions: 300ms ease-out
-- Loading states: Consistent spinner/skeleton patterns
+- Loading states: Consistent Lottie animation across all components
 - Micro-interactions: 200ms for feedback
+
+**Loading States:**
+- **Always use `LoadingAnimation` component** for all loading states throughout the project
+- **Location**: `/components/ui/loading-animation.tsx` - centralized, reusable component
+- **Animation Source**: `/public/animations/loading_gray.json` - Lottie animation file
+- **Implementation**: `<LoadingAnimation size={60} className="py-8" />`
+- **Sizes**: Adjust size prop based on context (40px for small, 60px for medium, 80px for large areas)
+- **No CSS Fallbacks**: Component prevents flash by showing empty space while loading, only shows CSS spinner on error
+- **Global Caching**: Animation data is cached globally to prevent re-fetching and ensure smooth performance
+- **Replace All**: Never use "Loading..." text, skeleton animations, or custom spinners - always use LoadingAnimation
 
 ## RSS Categories & Keywords
 

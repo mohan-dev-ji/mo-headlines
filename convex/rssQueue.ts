@@ -88,6 +88,67 @@ export const getUnprocessedQueueWithProducers = query({
   },
 });
 
+// Search queue items with producer details
+export const searchQueueWithProducers = query({
+  args: { 
+    searchTerm: v.string(),
+    limit: v.optional(v.number())
+  },
+  handler: async (ctx, args) => {
+    // If no search term, return recent unprocessed items
+    if (!args.searchTerm.trim()) {
+      const queueItems = await ctx.db
+        .query("rss_queue")
+        .withIndex("by_processed", (q) => q.eq("processed", false))
+        .order("desc", "createdAt")
+        .take(args.limit || 50);
+
+      // Fetch producer details for each queue item
+      const itemsWithProducers = await Promise.all(
+        queueItems.map(async (item) => {
+          const producer = await ctx.db.get(item.producerId);
+          return {
+            ...item,
+            producer,
+          };
+        })
+      );
+
+      return itemsWithProducers;
+    }
+    
+    // Get all unprocessed items for searching
+    const allItems = await ctx.db
+      .query("rss_queue")
+      .withIndex("by_processed", (q) => q.eq("processed", false))
+      .collect();
+    
+    const searchLower = args.searchTerm.toLowerCase();
+    
+    // Filter items by search term
+    const filteredItems = allItems.filter(item => 
+      item.title.toLowerCase().includes(searchLower) ||
+      item.description.toLowerCase().includes(searchLower)
+    );
+    
+    // Take only the requested limit
+    const limitedItems = filteredItems.slice(0, args.limit || 50);
+    
+    // Fetch producer details for filtered items
+    const itemsWithProducers = await Promise.all(
+      limitedItems.map(async (item) => {
+        const producer = await ctx.db.get(item.producerId);
+        return {
+          ...item,
+          producer,
+        };
+      })
+    );
+
+    return itemsWithProducers;
+  },
+});
+
 // Get queue statistics
 export const getQueueStats = query({
   handler: async (ctx) => {
@@ -99,6 +160,48 @@ export const getQueueStats = query({
       total: allItems.length,
       unprocessed: unprocessedItems.length,
       processed: processedItems.length,
+    };
+  },
+});
+
+// Bulk delete queue items
+export const bulkDeleteQueueItems = mutation({
+  args: { 
+    itemIds: v.array(v.id("rss_queue"))
+  },
+  handler: async (ctx, args) => {
+    const results = {
+      successCount: 0,
+      failedIds: [] as Id<"rss_queue">[],
+      errors: [] as string[]
+    };
+
+    for (const itemId of args.itemIds) {
+      try {
+        // Check if item exists before attempting to delete
+        const item = await ctx.db.get(itemId);
+        if (!item) {
+          results.failedIds.push(itemId);
+          results.errors.push(`Item ${itemId} not found`);
+          continue;
+        }
+
+        // Delete the item
+        await ctx.db.delete(itemId);
+        results.successCount++;
+      } catch (error) {
+        results.failedIds.push(itemId);
+        results.errors.push(`Failed to delete ${itemId}: ${error}`);
+      }
+    }
+
+    return {
+      success: results.failedIds.length === 0,
+      successCount: results.successCount,
+      failedCount: results.failedIds.length,
+      totalRequested: args.itemIds.length,
+      failedIds: results.failedIds,
+      errors: results.errors
     };
   },
 });

@@ -5,6 +5,7 @@ import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AdminSidebar } from "@/components/shared/navigation/AdminSidebar";
+import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Toaster } from "@/components/ui/sonner";
 
 export default function AdminLayout({
@@ -25,7 +26,7 @@ export default function AdminLayout({
   if (!isLoaded) {
     return (
       <div className="min-h-screen bg-brand-background flex items-center justify-center">
-        <div className="text-headline-primary">Loading...</div>
+        <LoadingAnimation size={80} />
       </div>
     );
   }
