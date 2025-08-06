@@ -24,8 +24,9 @@ export function QueueTab() {
   const allQueueItems = useQuery(api.rssQueue.getUnprocessedQueueWithProducers)
   const queueStats = useQuery(api.rssQueue.getQueueStats)
   
-  // Mutation for bulk delete
+  // Mutations for delete operations
   const bulkDeleteMutation = useMutation(api.rssQueue.bulkDeleteQueueItems)
+  const deleteQueueItemMutation = useMutation(api.rssQueue.deleteQueueItem)
 
   // Filter and sort items on frontend
   const sortedAndFilteredQueueItems = useMemo(() => {
@@ -125,6 +126,26 @@ export function QueueTab() {
     setShowDeleteDialog(false)
   }, [])
 
+  // Individual delete handler
+  const handleDeleteItem = useCallback(async (itemId: string) => {
+    try {
+      const result = await deleteQueueItemMutation({ itemId: itemId as Id<"rss_queue"> })
+      
+      if (result.success) {
+        toast.success('Article deleted successfully')
+        // Remove from selection if it was selected
+        setSelectedItems(prev => {
+          const newSelection = new Set(prev)
+          newSelection.delete(itemId as Id<"rss_queue">)
+          return newSelection
+        })
+      }
+    } catch (error) {
+      console.error('Delete failed:', error)
+      toast.error('Failed to delete article')
+    }
+  }, [deleteQueueItemMutation])
+
   // Selection state calculations
   const selectedCount = selectedItems.size
   const totalCount = queueItems.length
@@ -182,6 +203,7 @@ export function QueueTab() {
               queueItem={item}
               isSelected={selectedItems.has(item._id)}
               onSelectChange={(isSelected) => handleSelectItem(item._id, isSelected)}
+              onDelete={handleDeleteItem}
             />
           ))}
         </div>

@@ -164,6 +164,28 @@ export const getQueueStats = query({
   },
 });
 
+// Delete single queue item
+export const deleteQueueItem = mutation({
+  args: { 
+    itemId: v.id("rss_queue")
+  },
+  handler: async (ctx, args) => {
+    // Check if item exists before attempting to delete
+    const item = await ctx.db.get(args.itemId);
+    if (!item) {
+      throw new Error(`Queue item ${args.itemId} not found`);
+    }
+
+    // Delete the item
+    await ctx.db.delete(args.itemId);
+    
+    return {
+      success: true,
+      deletedId: args.itemId
+    };
+  },
+});
+
 // Bulk delete queue items
 export const bulkDeleteQueueItems = mutation({
   args: { 

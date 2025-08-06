@@ -32,9 +32,10 @@ interface QueueItemProps {
   }
   isSelected: boolean
   onSelectChange: (isSelected: boolean) => void
+  onDelete: (itemId: string) => void
 }
 
-export function QueueItemCard({ queueItem, isSelected, onSelectChange }: QueueItemProps) {
+export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete }: QueueItemProps) {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
@@ -80,8 +81,7 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange }: QueueIt
                     console.log('Process now:', queueItem.title)
                   }}
                   onDelete={() => {
-                    // TODO: Implement delete functionality
-                    console.log('Delete:', queueItem.title)
+                    onDelete(queueItem._id)
                   }}
                 />
               </div>

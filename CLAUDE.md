@@ -6,11 +6,6 @@
 
 **Core Value Proposition:** Every story is automatically cross-referenced against 3+ sources using AI to identify common facts, eliminate bias, and present balanced perspectives - solving the problem of conflicting reports and misinformation in fast-moving tech news.
 
-**Target Users:**
-- Primary: Tech professionals (developers, PMs, investors) needing accurate news quickly
-- Secondary: Tech enthusiasts tired of clickbait and conflicting reports
-- Use cases: Morning briefings, work research, staying informed without doom-scrolling
-
 ## Technical Stack
 
 **Frontend:**
@@ -32,115 +27,65 @@
 
 ## Design System
 
-### Design Tokens & Semantic Variables
+**Design Tokens & Semantic Variables:**
+- Hard coded in /globals.css
+- Tokenized in /tailwind.config.js
+- Always use design tokens for styling all UI elements
 
+**Color Palettes and Scaling:**
+- Brand colors
+- Text colors
+- Border colors
+- Spacing tokens
+- Typography scale
 
-**Color Palette:**
-*Semantic design tokens based on Tailwind CSS:*
+## Core Features & Architecture
 
-```css
-/* Brand Colors */
---brand-primary: theme('colors.green.600');
---brand-primary-button: theme('colors.blue.600'); /* Fixed: was referencing invalid theme.primary */
---brand-secondary-button: theme('colors.green.800');
+### 1. RSS Source Management
+- Admin creates RSS Producer with polling frequency
+- System automatically polls feeds for new articles
+- Articles filtered by category and processed through AI pipeline
 
-/* Background Colors */
---brand-background: theme('colors.zinc.950');
---brand-alt-background: theme('colors.zinc.100');
---brand-card: theme('colors.zinc.800');
---brand-card-dark: theme('colors.zinc.900');
---brand-alt-card: theme('colors.white');
+### 2. AI Fact-Checking Pipeline
+1. RSS item selected for processing
+2. Perplexity API searches for 3+ related articles
+3. AI synthesizes common themes using custom prompts
+4. Generated article stored for admin review
+5. Admin approves/edits/rejects before publishing
 
-/* Border/Line Colors */
---brand-line: theme('colors.zinc.500');
---brand-alt-line: theme('colors.zinc.300');
+### 3. User Experience
+- Browse latest verified headlines
+- Filter by categories and topic tags
+- Read full synthesized articles with source citations
+- Comment and like system (requires authentication)
+- User profiles with comment/like history
 
-/* Text Colors */
---headline-primary: theme('colors.zinc.50');
---headline-secondary: theme('colors.zinc.800');
---body-primary: theme('colors.zinc.300');
---body-secondary: theme('colors.zinc.600');
---body-greyed-out: theme('colors.zinc.400');
---button-black: theme('colors.black');
---button-white: theme('colors.white');
+### 4. Admin Dashboard
+- RSS source creation and management
+- Article review and approval workflow
+- Analytics and performance metrics
+- Settings configuration
+- Prompt management for AI generation
 
-/* Interactive State Colors (add to your existing list) */
---error-red: theme('colors.red.600');
---warning-yellow: theme('colors.yellow.500');
---info-blue: var(--brand-primary-button);
+### File Organization
 
-/* Hover States */
---brand-primary-button-hover: theme('colors.blue.700');
---brand-primary-hover: theme('colors.green.700');
 ```
-
-**Spacing Tokens:**
-*Custom spacing values for consistent layout:*
-
-```css
-/* Border & Layout */
---radius: 8px;
---border-width: 1px;
-
-/* Spacing Scale */
---space-between-text: 4px;    /* 1 in Tailwind scale */
---space-between-items: 20px;   /* 5 in Tailwind scale */
---padding-md: 20px;           /* 5 in Tailwind scale */
---padding-lg: 32px;           /* 8 in Tailwind scale */
-```
-
-**Typography Scale:**
-*Using Inter font family with Tailwind's text sizing system:*
-
-```css
-/* Font Family */
---font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
-
-/* Typography Classes (use Tailwind directly) */
-/* Headlines: text-4xl, text-3xl, text-2xl, text-xl */
-/* Body Text: text-lg, text-base, text-sm */
-/* Captions: text-xs */
-
-/* Custom Typography Utilities */
-.text-headline-1 { @apply text-4xl font-bold leading-tight; }
-.text-headline-2 { @apply text-3xl font-semibold leading-tight; }
-.text-headline-3 { @apply text-2xl font-semibold leading-snug; }
-.text-headline-4 { @apply text-xl font-medium leading-snug; }
-.text-body-lg { @apply text-lg leading-relaxed; }
-.text-body-md { @apply text-base leading-normal; }
-.text-body-sm { @apply text-sm leading-normal; }
-.text-caption { @apply text-xs leading-tight; }
-```
-
-**Spacing Scale:**
-*Using Tailwind's default scale (4px base) - update if Figma uses different values:*
-- `space-1`: 4px
-- `space-2`: 8px
-- `space-3`: 12px
-- `space-4`: 16px
-- `space-6`: 24px
-- `space-8`: 32px
-- `space-12`: 48px
-- `space-16`: 64px
-
-### RSS Component Color Mapping
-```css
-/* Modal Components */
-Modal background: var(--brand-card)
-Modal overlay: rgba(0, 0, 0, 0.75)
-Form inputs: var(--brand-background) with var(--brand-line) border
-
-/* Interactive Elements */  
-Primary buttons: var(--brand-primary-button)
-Success states: var(--brand-primary)
-Toggle switches: var(--brand-primary-button) when active
-Step indicators: var(--brand-primary-button) when active, var(--body-greyed-out) when inactive
-
-/* Text Hierarchy */
-Modal titles: var(--headline-primary) with .text-headline-3
-Form labels: var(--body-primary) with .text-body-sm
-Input text: var(--headline-primary) with .text-body-md
-Button text: var(--button-white) with .text-body-sm
+/app
+  /(auth)           # Auth-related pages
+  /(public)         # Public pages
+  /admin           # Admin dashboard
+  /api             # API routes
+  /globals.css     # Global styles
+  /layout.tsx      # Root layout
+/components
+  /ui              # shadcn/ui components
+  /admin           # Admin-specific components
+  /public          # public, website related components
+/lib
+  /convex          # Convex utilities
+  /utils.ts        # General utilities
+  /types.ts        # Shared TypeScript types
+/convex            # Convex schema and functions
 ```
 
 ### Component Design Standards
@@ -197,44 +142,7 @@ Button text: var(--button-white) with .text-body-sm
 - **Global Caching**: Animation data is cached globally to prevent re-fetching and ensure smooth performance
 - **Replace All**: Never use "Loading..." text, skeleton animations, or custom spinners - always use LoadingAnimation
 
-## RSS Categories & Keywords
 
-The system uses 5 predefined categories with 10 keywords each for RSS article filtering:
-- **AI & Machine Learning** (ai-ml)
-- **Startups & Funding** (startups-funding) 
-- **Big Tech & Platforms** (big-tech)
-- **Science & Research** (science-research)
-- **Electric Vehicles** (electric-vehicles)
-
-Categories are managed via seedCategories script and stored in Convex with keywords for enhanced filtering accuracy.
-
-## Core Features & Architecture
-
-### 1. RSS Source Management
-- Admin creates RSS Producer with polling frequency
-- System automatically polls feeds for new articles
-- Articles filtered by category and processed through AI pipeline
-
-### 2. AI Fact-Checking Pipeline
-1. RSS item selected for processing
-2. Perplexity API searches for 3+ related articles
-3. AI synthesizes common themes using custom prompts
-4. Generated article stored for admin review
-5. Admin approves/edits/rejects before publishing
-
-### 3. User Experience
-- Browse latest verified headlines
-- Filter by categories and topic tags
-- Read full synthesized articles with source citations
-- Comment and like system (requires authentication)
-- User profiles with comment/like history
-
-### 4. Admin Dashboard
-- RSS source creation and management
-- Article review and approval workflow
-- Analytics and performance metrics
-- Settings configuration
-- Prompt management for AI generation
 
 ## Development Methodology
 
@@ -455,26 +363,7 @@ export default function ComponentName({ prop1, prop2 }: ComponentProps) {
 - Functions: camelCase (`handleSubmit`, `fetchArticles`)
 - Constants: SCREAMING_SNAKE_CASE (`API_ENDPOINTS`, `MAX_ARTICLES`)
 
-### File Organization
 
-```
-/app
-  /(auth)           # Auth-related pages
-  /(public)         # Public pages
-  /admin           # Admin dashboard
-  /api             # API routes
-  /globals.css     # Global styles
-  /layout.tsx      # Root layout
-/components
-  /ui              # shadcn/ui components
-  /admin           # Admin-specific components
-  /public          # public, website related components
-/lib
-  /convex          # Convex utilities
-  /utils.ts        # General utilities
-  /types.ts        # Shared TypeScript types
-/convex            # Convex schema and functions
-```
 
 ### State Management
 

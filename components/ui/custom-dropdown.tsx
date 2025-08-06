@@ -71,7 +71,7 @@ export function CustomDropdown({
       
       {isOpen && (
         <div className={cn(
-          "absolute top-8 z-50 w-[180px] bg-brand-card-dark border border-brand-line-dark shadow-lg rounded-md py-1",
+          "absolute top-8 z-50 w-[180px] bg-white border border-gray-200 shadow-lg rounded-md py-1",
           align === "right" ? "right-0" : "left-0"
         )}>
           {items.map((item, index) => (
@@ -81,11 +81,11 @@ export function CustomDropdown({
               disabled={item.disabled}
               className={cn(
                 "flex items-center gap-2 w-full text-left px-3 py-2 text-sm transition-colors",
-                "hover:bg-brand-card focus:bg-brand-card focus:outline-none",
+                "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none",
                 item.variant === "destructive" 
-                  ? "text-error-red hover:bg-red-600/10 focus:bg-red-600/10" 
-                  : "text-headline-primary",
-                item.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent text-body-greyed-out"
+                  ? "text-red-600 hover:bg-red-50 focus:bg-red-50" 
+                  : "text-gray-900",
+                item.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent text-gray-400 dark:text-gray-500"
               )}
             >
               {item.icon && <span className="w-4 h-4">{item.icon}</span>}

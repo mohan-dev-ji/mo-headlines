@@ -170,7 +170,7 @@ export function DarkDropdown(props: DarkDropdownProps) {
                   "flex items-center gap-2 w-full text-left px-3 py-2 text-sm transition-colors",
                   "hover:bg-brand-card focus:bg-brand-card focus:outline-none",
                   item.variant === "destructive" 
-                    ? "text-error-red hover:bg-red-600/10 focus:bg-red-600/10" 
+                    ? "text-red-400 hover:bg-red-600/10 focus:bg-red-600/10" 
                     : "text-headline-primary",
                   item.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent text-body-greyed-out"
                 )}
