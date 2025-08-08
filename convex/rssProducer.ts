@@ -3,6 +3,49 @@ import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 import { XMLParser } from "fast-xml-parser";
 
+// Function to decode HTML entities
+function decodeHTMLEntities(text: string): string {
+  const entities: Record<string, string> = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#x27;': "'",
+    '&#8217;': "'",
+    '&#8220;': '"',
+    '&#8221;': '"',
+    '&#8212;': '—',
+    '&#8211;': '–',
+    '&#8230;': '...',
+    '&nbsp;': ' ',
+    '&hellip;': '...',
+    '&mdash;': '—',
+    '&ndash;': '–',
+    '&ldquo;': '"',
+    '&rdquo;': '"',
+    '&lsquo;': "'",
+    '&rsquo;': "'",
+  };
+  
+  // Replace named entities
+  let decoded = text;
+  Object.entries(entities).forEach(([entity, replacement]) => {
+    decoded = decoded.replace(new RegExp(entity, 'g'), replacement);
+  });
+  
+  // Replace numeric entities like &#8217;
+  decoded = decoded.replace(/&#(\d+);/g, (match, num) => {
+    return String.fromCharCode(parseInt(num, 10));
+  });
+  
+  // Replace hex entities like &#x27;
+  decoded = decoded.replace(/&#x([0-9A-Fa-f]+);/g, (match, hex) => {
+    return String.fromCharCode(parseInt(hex, 16));
+  });
+  
+  return decoded;
+}
+
 // Types for RSS parsing
 interface FeedArticle {
   title: string;
@@ -48,7 +91,6 @@ export const createProducer = mutation({
       pollFrequency: args.pollFrequency,
       numberOfArticles: args.numberOfArticles,
       lastPolled: undefined,
-      createdAt: now,
       updatedAt: now,
     });
 
@@ -123,13 +165,8 @@ export const testRSSFeed = action({
       // Extract articles/items
       const maxArticles = args.numberOfArticles || 10;
       
-      console.log('🔍 RSS PARSER RESPONSE - Complete Feed Data:');
-      console.log('📄 Feed Title:', feedTitle);
-      console.log('📄 Feed Description:', feedDescription);
       console.log('📄 Total Items in Feed:', itemsData.length);
       console.log('📄 Max Articles to Process:', maxArticles);
-      console.log('📄 Raw Feed Data Structure:', JSON.stringify(feedData, null, 2));
-      console.log('📄 Raw Items Data (first 3 items):', JSON.stringify(itemsData.slice(0, 3), null, 2));
       
       const articles: FeedArticle[] = itemsData.slice(0, maxArticles).map((item: any) => {
         let title = 'Untitled';
@@ -140,9 +177,9 @@ export const testRSSFeed = action({
 
         // Extract title
         if (typeof item.title === 'string') {
-          title = item.title;
+          title = decodeHTMLEntities(item.title);
         } else if (item.title && item.title['#text']) {
-          title = item.title['#text'];
+          title = decodeHTMLEntities(item.title['#text']);
         }
 
         // Extract link
@@ -182,37 +219,22 @@ export const testRSSFeed = action({
           }
         }
 
-        // Clean up description (remove HTML tags)
+        // Clean up description (remove HTML tags and decode entities)
         if (typeof description === 'string') {
-          description = description.replace(/<[^>]*>/g, '').substring(0, 300);
+          description = decodeHTMLEntities(description.replace(/<[^>]*>/g, '')).substring(0, 300);
         }
 
-        // Extract categories with detailed debugging
+        // Extract categories
         if (item.category) {
-          console.log('🏷️  Raw category data for article:', title.substring(0, 50) + '...', {
-            categoryType: typeof item.category,
-            isArray: Array.isArray(item.category),
-            rawData: item.category
-          });
-          
           if (Array.isArray(item.category)) {
             categories = item.category.map((cat: any) => {
-              const extracted = typeof cat === 'string' ? cat : (cat['#text'] || cat['@_term'] || '');
-              console.log('📝 Category extracted:', extracted, 'from:', cat);
-              return extracted.trim();
-            }).filter(Boolean);
+              return typeof cat === 'string' ? cat : (cat['#text'] || cat['@_term'] || '');
+            }).filter(Boolean).map(c => c.trim());
           } else if (typeof item.category === 'string') {
             categories = [item.category.trim()];
-            console.log('📝 Single string category:', item.category.trim());
           } else if (item.category['#text'] || item.category['@_term']) {
-            const extracted = item.category['#text'] || item.category['@_term'];
-            categories = [extracted.trim()];
-            console.log('📝 Object category extracted:', extracted.trim());
+            categories = [item.category['#text'] || item.category['@_term']].map(c => c.trim());
           }
-          
-          console.log('✅ Final categories array:', categories);
-        } else {
-          console.log('❌ No category data found for article:', title.substring(0, 50) + '...');
         }
 
         return {
@@ -224,17 +246,12 @@ export const testRSSFeed = action({
         };
       });
 
-      console.log('📰 EXTRACTED ARTICLES (before keyword filtering):');
-      console.log('📰 Total Articles Extracted:', articles.length);
-      console.log('📰 Articles Summary:', articles.map((article, index) => ({
-        index: index + 1,
-        title: article.title,
-        url: article.url,
-        publishedAt: article.publishedAt,
-        excerpt: article.excerpt.substring(0, 100) + '...',
-        categories: article.categories
-      })));
-      console.log('📰 Full Article Data:', JSON.stringify(articles, null, 2));
+      console.log('\n📰 PROCESSING ARTICLES:');
+      articles.forEach((article, index) => {
+        console.log(`${index + 1}. ${article.title}`);
+        console.log(`   URL: ${article.url}`);
+        console.log(`   Categories: [${article.categories?.join(', ') || 'None'}]`);
+      });
 
       // Filter articles by category if specified
       let filteredArticles = articles;
@@ -242,67 +259,69 @@ export const testRSSFeed = action({
       console.log('🎯 FILTERING CHECK: Will filter?', !!(args.category && args.category.trim() !== '' && args.category.toLowerCase() !== 'all'));
       
       if (args.category && args.category.trim() !== '' && args.category.toLowerCase() !== 'all') {
-        console.log('🔍 Starting category filtering...');
-        console.log('🎯 Target category:', args.category);
-        console.log('📄 Total articles before filtering:', articles.length);
-        console.log('📋 All articles summary:', articles.map(a => ({ 
-          title: a.title.substring(0, 40) + '...', 
-          categories: a.categories 
-        })));
+        // First, fetch the category keywords from the database
+        console.log('🔍 Fetching category keywords from database...');
+        const categoryRecord = await ctx.runQuery("categories:getCategoryBySlug", {
+          slug: args.category.toLowerCase()
+        });
+        
+        if (!categoryRecord) {
+          console.log('❌ Category not found in database:', args.category);
+          return {
+            feedTitle,
+            feedURL: args.url,
+            category: args.category,
+            dateFetched: new Date().toISOString(),
+            status: 'error',
+            articles: [],
+            error: `Category "${args.category}" not found in database`,
+          };
+        }
+        
+        const categoryKeywords = categoryRecord.keywords || [];
+        console.log(`\n🎯 OUR PRODUCER CATEGORY: ${categoryRecord.name}`);
+        console.log('🔑 KEYWORDS:', categoryKeywords);
         
         filteredArticles = articles.filter((article, index) => {
-          console.log(`\n🔎 Processing article ${index + 1}/${articles.length}:`);
-          console.log('📰 Title:', article.title);
-          
           // Only process articles that have categories
           if (!article.categories || article.categories.length === 0) {
-            console.log('❌ REJECTED: Article has no categories');
             return false;
           }
           
-          console.log('🏷️  Article categories:', article.categories);
-          console.log('🎯 Looking for category:', args.category);
-          
-          // Check each category for matches with strict logic
+          // Check if any RSS category contains any of our category keywords
           let matchFound = false;
-          let matchDetails: string[] = [];
           
-          for (const cat of article.categories) {
-            const catLower = cat.toLowerCase().trim();
-            const targetLower = args.category.toLowerCase().trim();
+          for (const rssCategory of article.categories) {
+            const rssCategoryLower = rssCategory.toLowerCase().trim();
             
-            // Only allow exact matches or category contains target (more strict)
-            // This prevents "AI" from matching unrelated categories
-            const exactMatch = catLower === targetLower;
-            const catContainsTarget = catLower.includes(targetLower) && targetLower.length >= 2; // Minimum 2 chars to avoid false positives
-            
-            console.log(`  🔍 Testing "${cat}":`);
-            console.log(`    • Exact match: ${exactMatch}`);
-            console.log(`    • "${cat}" contains "${args.category}": ${catContainsTarget}`);
-            
-            // More strict matching: only exact or category-contains-target
-            if (exactMatch || catContainsTarget) {
-              matchFound = true;
-              matchDetails.push(`"${cat}" (${exactMatch ? 'exact' : 'contains-target'})`);
-            } else {
-              console.log(`    • REJECTED: No valid match found`);
+            // Check if this RSS category contains any of our keywords (whole word matching)
+            for (const keyword of categoryKeywords) {
+              const keywordLower = keyword.toLowerCase().trim();
+              
+              // Use word boundary matching to avoid false positives like "ai" matching "brain"
+              const regex = new RegExp(`\\b${keywordLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+              const keywordFound = regex.test(rssCategoryLower);
+              
+              if (keywordFound) {
+                matchFound = true;
+                break; // Found a match in this category, no need to check more keywords for this category
+              }
             }
+            
+            if (matchFound) break; // Found a match, no need to check more categories
           }
           
-          const result = matchFound;
-          console.log(`${result ? '✅ ACCEPTED' : '❌ REJECTED'}: ${result ? 'Matches: ' + matchDetails.join(', ') : 'No matches found'}`);
-          
-          return result;
+          return matchFound;
         });
         
-        console.log('\n📊 FILTERING SUMMARY:');
-        console.log('📄 Articles before filtering:', articles.length);
-        console.log('✅ Articles after filtering:', filteredArticles.length);
-        console.log('📝 Filtered articles:', filteredArticles.map(a => a.title.substring(0, 50) + '...'));
+        console.log('\n✅ MATCHED ARTICLES:');
+        filteredArticles.forEach((article, index) => {
+          console.log(`${index + 1}. ${article.title}`);
+          console.log(`   URL: ${article.url}`);
+          console.log(`   Categories: [${article.categories?.join(', ') || 'None'}]`);
+        });
       } else {
         console.log('🌐 No category filtering applied - returning all articles');
-        console.log('📄 Total articles:', articles.length);
-        console.log('🎯 Category value:', args.category || 'undefined/empty');
       }
 
       return {
@@ -372,10 +391,26 @@ export const toggleProducerStatus = mutation({
       throw new Error("Not authenticated");
     }
 
-    await ctx.db.patch(args.id, {
+    const producer = await ctx.db.get(args.id);
+    if (!producer) {
+      throw new Error("Producer not found");
+    }
+
+    const now = Date.now();
+    const updateData: any = {
       isActive: args.isActive,
-      updatedAt: Date.now(),
-    });
+      updatedAt: now,
+    };
+
+    // If enabling, set next run time based on poll frequency
+    // If disabling, clear next run time
+    if (args.isActive) {
+      updateData.nextRunTime = now + (producer.pollFrequency * 60 * 1000);
+    } else {
+      updateData.nextRunTime = undefined;
+    }
+
+    await ctx.db.patch(args.id, updateData);
 
     return { success: true };
   },
@@ -450,6 +485,55 @@ export const updateProducerLastPolled = mutation({
   },
 });
 
+// Update next run time
+export const updateProducerNextRunTime = mutation({
+  args: { 
+    id: v.id("rss_producer"),
+    nextRunTime: v.number(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      nextRunTime: args.nextRunTime,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+// Update producer with run results
+export const updateProducerRunResults = mutation({
+  args: {
+    id: v.id("rss_producer"),
+    success: v.boolean(),
+    feedStatus: v.string(),
+    categoryStatus: v.optional(v.string()),
+    articlesFound: v.number(),
+    articlesQueued: v.number(),
+    articles: v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      publishedAt: v.string(),
+      excerpt: v.string(),
+    })),
+    error: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.id, {
+      lastRunSuccess: args.success,
+      lastRunFeedStatus: args.feedStatus,
+      lastRunCategoryStatus: args.categoryStatus,
+      lastRunArticlesFound: args.articlesFound,
+      lastRunArticlesQueued: args.articlesQueued,
+      lastRunArticles: args.articles,
+      lastRunError: args.error,
+      updatedAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 // Get RSS producers by category
 export const getProducersByCategory = query({
   args: { categoryId: v.id("categories") },
@@ -476,7 +560,7 @@ export const getAllProducersWithCategories = query({
   handler: async (ctx) => {
     const producers = await ctx.db
       .query("rss_producer")
-      .order("desc", "createdAt")
+      .order("desc", "_creationTime")
       .collect();
 
     // Fetch category data for each producer
@@ -520,6 +604,42 @@ export const getProducerWithCategoryById = query({
 });
 
 // Run producer now - fetch RSS, filter by keywords, and add to queue
+// Internal action to check and run scheduled producers (called by cron job)
+export const checkAndRunScheduledProducers = action({
+  handler: async (ctx) => {
+    const now = Date.now();
+    
+    // Get all active producers that are due to run
+    const producersDue = await ctx.runQuery("rssProducer:getProducersDueForRun", { currentTime: now });
+    
+    console.log(`🕐 Cron check: ${producersDue.length} producers due for run`);
+    
+    // Run each producer that's due
+    for (const producer of producersDue) {
+      try {
+        console.log(`🚀 Auto-running producer: ${producer.name}`);
+        await ctx.runAction("rssProducer:runProducerNow", { producerId: producer._id });
+      } catch (error) {
+        console.error(`❌ Failed to auto-run producer ${producer.name}:`, error);
+      }
+    }
+    
+    return { producersRun: producersDue.length };
+  },
+});
+
+// Get producers that are due to run
+export const getProducersDueForRun = query({
+  args: { currentTime: v.number() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("rss_producer")
+      .withIndex("by_next_run", (q) => q.lt("nextRunTime", args.currentTime))
+      .filter((q) => q.eq(q.field("isActive"), true))
+      .collect();
+  },
+});
+
 export const runProducerNow = action({
   args: { producerId: v.id("rss_producer") },
   handler: async (ctx, args) => {
@@ -543,11 +663,22 @@ export const runProducerNow = action({
       numberOfArticles: producer.numberOfArticles,
     });
 
-    // Update producer last polled timestamp
+    // Update producer last polled timestamp and set next run time
+    const now = Date.now();
     await ctx.runMutation("rssProducer:updateProducerLastPolled", {
       id: args.producerId,
-      timestamp: Date.now(),
+      timestamp: now,
     });
+    
+    // Set next run time based on poll frequency (only if producer is still active)
+    const currentProducer = await ctx.runQuery("rssProducer:getProducerById", { id: args.producerId });
+    if (currentProducer?.isActive) {
+      const nextRunTime = now + (currentProducer.pollFrequency * 60 * 1000); // Convert minutes to milliseconds
+      await ctx.runMutation("rssProducer:updateProducerNextRunTime", {
+        id: args.producerId,
+        nextRunTime: nextRunTime,
+      });
+    }
 
     // If feed was successful and articles found, add to queue
     if (feedResult.status === 'success' && feedResult.articles.length > 0) {
@@ -558,6 +689,23 @@ export const runProducerNow = action({
           description: article.excerpt,
           url: article.url,
           publishedAt: article.publishedAt,
+          categories: article.categories,
+        })),
+      });
+
+      // Save run results to database
+      await ctx.runMutation("rssProducer:updateProducerRunResults", {
+        id: args.producerId,
+        success: true,
+        feedStatus: 'live',
+        categoryStatus: feedResult.articles.length > 0 ? 'found' : 'not_found',
+        articlesFound: feedResult.articles.length,
+        articlesQueued: queueResult.insertedCount,
+        articles: feedResult.articles.map(article => ({
+          title: article.title,
+          url: article.url,
+          publishedAt: article.publishedAt,
+          excerpt: article.excerpt,
         })),
       });
 
@@ -571,6 +719,18 @@ export const runProducerNow = action({
         lastRun: Date.now(),
       };
     } else {
+      // Save run results to database
+      await ctx.runMutation("rssProducer:updateProducerRunResults", {
+        id: args.producerId,
+        success: feedResult.status === 'success',
+        feedStatus: feedResult.status === 'success' ? 'live' : 'not_live',
+        categoryStatus: feedResult.status === 'success' ? 'not_found' : undefined,
+        articlesFound: 0,
+        articlesQueued: 0,
+        articles: [],
+        error: feedResult.error,
+      });
+
       return {
         success: feedResult.status === 'success',
         feedStatus: feedResult.status === 'success' ? 'live' : 'not_live',

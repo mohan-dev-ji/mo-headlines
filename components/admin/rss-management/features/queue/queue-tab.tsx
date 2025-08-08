@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { QueueItemCard } from "./queue-item-card"
 import { QueueFilters } from "./queue-filters"
 import { BulkDeleteDialog } from "./bulk-delete-dialog"
+import { DeduplicationDialog } from "./deduplication-dialog"
 import { LoadingAnimation } from "@/components/ui/loading-animation"
 import { Id } from "@/convex/_generated/dataModel"
 import { toast } from "sonner"
@@ -18,7 +19,10 @@ export function QueueTab() {
   const [sortBy, setSortBy] = useState<SortOption>('newest')
   const [selectedItems, setSelectedItems] = useState<Set<Id<"rss_queue">>>(new Set())
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDeduplicationDialog, setShowDeduplicationDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [isDedupicating, setIsDeduplicating] = useState(false)
+  const [articlesToDelete, setArticlesToDelete] = useState<any[]>([])
 
   // Always fetch all queue items (stable query)
   const allQueueItems = useQuery(api.rssQueue.getUnprocessedQueueWithProducers)
@@ -27,6 +31,12 @@ export function QueueTab() {
   // Mutations for delete operations
   const bulkDeleteMutation = useMutation(api.rssQueue.bulkDeleteQueueItems)
   const deleteQueueItemMutation = useMutation(api.rssQueue.deleteQueueItem)
+  
+  // Query for finding duplicates
+  const duplicatesQuery = useQuery(
+    api.rssQueue.findDuplicatesForDeduplication, 
+    selectedItems.size > 0 ? { selectedIds: Array.from(selectedItems) } : "skip"
+  )
 
   // Filter and sort items on frontend
   const sortedAndFilteredQueueItems = useMemo(() => {
@@ -46,9 +56,9 @@ export function QueueTab() {
     return [...items].sort((a, b) => {
       switch (sortBy) {
         case 'newest': 
-          return b.createdAt - a.createdAt
+          return b._creationTime - a._creationTime
         case 'oldest': 
-          return a.createdAt - b.createdAt
+          return a._creationTime - b._creationTime
         case 'title': 
           return a.title.localeCompare(b.title)
         case 'source': 
@@ -126,6 +136,64 @@ export function QueueTab() {
     setShowDeleteDialog(false)
   }, [])
 
+  // Deduplication handlers
+  const handleBulkDeduplicateClick = useCallback(() => {
+    if (selectedItems.size < 2) {
+      toast.error('Please select at least 2 articles to deduplicate')
+      return
+    }
+
+    // Use the duplicates query result to show the dialog
+    if (duplicatesQuery?.articlesToDelete) {
+      setArticlesToDelete(duplicatesQuery.articlesToDelete)
+      setShowDeduplicationDialog(true)
+    } else {
+      toast.error('Unable to analyze articles for duplicates. Please try again.')
+    }
+  }, [selectedItems.size, duplicatesQuery])
+
+  const handleDeduplicationConfirm = useCallback(async () => {
+    if (articlesToDelete.length === 0) {
+      setShowDeduplicationDialog(false)
+      return
+    }
+
+    setIsDeduplicating(true)
+    try {
+      const itemIds = articlesToDelete.map(item => item._id)
+      const result = await bulkDeleteMutation({ itemIds })
+
+      if (result.success) {
+        toast.success(`Successfully removed ${result.successCount} duplicate article${result.successCount === 1 ? '' : 's'}`)
+        setSelectedItems(new Set()) // Clear selection
+        setArticlesToDelete([])
+      } else {
+        // Partial success
+        if (result.successCount > 0) {
+          toast.success(`Removed ${result.successCount} duplicates, but ${result.failedCount} failed`)
+          // Remove successfully deleted items from selection and articlesToDelete
+          const failedIdSet = new Set(result.failedIds)
+          const newSelection = new Set(Array.from(selectedItems).filter(id => failedIdSet.has(id)))
+          setSelectedItems(newSelection)
+          setArticlesToDelete(articlesToDelete.filter(item => failedIdSet.has(item._id as Id<"rss_queue">)))
+        } else {
+          toast.error(`Failed to remove duplicates: ${result.errors[0] || 'Unknown error'}`)
+        }
+      }
+    } catch (error) {
+      console.error('Deduplication error:', error)
+      toast.error('Failed to remove duplicates. Please try again.')
+    } finally {
+      setIsDeduplicating(false)
+      setShowDeduplicationDialog(false)
+    }
+  }, [articlesToDelete, bulkDeleteMutation, selectedItems])
+
+  const handleDeduplicationCancel = useCallback(() => {
+    setShowDeduplicationDialog(false)
+    setArticlesToDelete([])
+  }, [])
+
   // Individual delete handler
   const handleDeleteItem = useCallback(async (itemId: string) => {
     try {
@@ -169,11 +237,12 @@ export function QueueTab() {
         resultCount={queueItems?.length || 0}
         onSearchChange={setSearchTerm}
         onSortChange={setSortBy}
-        isLoading={isLoading || isDeleting}
+        isLoading={isLoading || isDeleting || isDedupicating}
         selectedCount={selectedCount}
         totalCount={totalCount}
         onSelectAll={handleSelectAll}
         onBulkDelete={handleBulkDeleteClick}
+        onBulkDeduplicate={handleBulkDeduplicateClick}
         onBulkProcess={() => {
           // TODO: Implement bulk process functionality
           console.log('Bulk process:', Array.from(selectedItems))
@@ -216,6 +285,15 @@ export function QueueTab() {
         isLoading={isDeleting}
         onConfirm={handleBulkDeleteConfirm}
         onCancel={handleBulkDeleteCancel}
+      />
+
+      {/* Deduplication Dialog */}
+      <DeduplicationDialog
+        isOpen={showDeduplicationDialog}
+        articlesToDelete={articlesToDelete}
+        isLoading={isDedupicating}
+        onConfirm={handleDeduplicationConfirm}
+        onCancel={handleDeduplicationCancel}
       />
     </div>
   )

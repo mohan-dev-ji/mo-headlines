@@ -16,7 +16,8 @@ interface QueueItemProps {
     url: string
     publishedAt: number
     processed: boolean
-    createdAt: number
+    _creationTime: number
+    categories?: string[]
     producer: {
       _id: Id<"rss_producer">
       name: string
@@ -107,9 +108,24 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
             </div>
             <div className="flex items-center gap-1">
               <span className="text-headline-primary font-medium">Added:</span>
-              <span className="text-body-primary">{formatDate(queueItem.createdAt)} at {formatTime(queueItem.createdAt)}</span>
+              <span className="text-body-primary">{formatDate(queueItem._creationTime)} at {formatTime(queueItem._creationTime)}</span>
             </div>
           </div>
+
+          {/* RSS Categories */}
+          {queueItem.categories && queueItem.categories.length > 0 && (
+            <div className="flex flex-wrap gap-1">
+              <span className="text-headline-primary font-medium text-sm">RSS Categories:</span>
+              {queueItem.categories.map((category, index) => (
+                <span 
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-md bg-background-secondary text-body-primary text-xs border border-border-primary"
+                >
+                  {category}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* View Article Link */}
           <div>

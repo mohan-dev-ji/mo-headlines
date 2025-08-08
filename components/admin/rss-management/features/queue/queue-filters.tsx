@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { DarkDropdown } from "@/components/ui/dark-dropdown"
-import { Search, Trash2, Play, CheckSquare } from "lucide-react"
+import { Search, Trash2, Play, CheckSquare, GitMerge } from "lucide-react"
 
 type SortOption = 'newest' | 'oldest' | 'title' | 'source' | 'published'
 
@@ -21,6 +21,7 @@ interface QueueFiltersProps {
   // Bulk action handlers
   onBulkDelete?: () => void
   onBulkProcess?: () => void
+  onBulkDeduplicate?: () => void
   // Queue count
   queueCount?: number
 }
@@ -37,6 +38,7 @@ export function QueueFilters({
   onSelectAll,
   onBulkDelete,
   onBulkProcess,
+  onBulkDeduplicate,
   queueCount
 }: QueueFiltersProps) {
   // Calculate selection state locally
@@ -65,6 +67,12 @@ export function QueueFilters({
       onClick: onBulkProcess,
       disabled: !hasSelection || isLoading,
       icon: <Play className="h-4 w-4" />
+    }] : []),
+    ...(onBulkDeduplicate ? [{
+      label: `Deduplicate Selected ${hasSelection ? `(${selectedCount})` : ''}`,
+      onClick: onBulkDeduplicate,
+      disabled: !hasSelection || selectedCount < 2 || isLoading,
+      icon: <GitMerge className="h-4 w-4" />
     }] : []),
     ...(onBulkDelete ? [{
       label: `Delete Selected ${hasSelection ? `(${selectedCount})` : ''}`,

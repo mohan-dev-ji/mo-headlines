@@ -16,6 +16,7 @@ import type {
 import type * as articles from "../articles.js";
 import type * as categories from "../categories.js";
 import type * as comments from "../comments.js";
+import type * as crons from "../crons.js";
 import type * as migrations from "../migrations.js";
 import type * as rssProducer from "../rssProducer.js";
 import type * as rssQueue from "../rssQueue.js";
@@ -34,6 +35,7 @@ declare const fullApi: ApiFromModules<{
   articles: typeof articles;
   categories: typeof categories;
   comments: typeof comments;
+  crons: typeof crons;
   migrations: typeof migrations;
   rssProducer: typeof rssProducer;
   rssQueue: typeof rssQueue;

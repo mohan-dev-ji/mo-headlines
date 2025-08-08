@@ -11,6 +11,7 @@ export const addArticlesToQueue = mutation({
       description: v.string(),
       url: v.string(),
       publishedAt: v.string(),
+      categories: v.optional(v.array(v.string())),
     })),
   },
   handler: async (ctx, args) => {
@@ -27,7 +28,7 @@ export const addArticlesToQueue = mutation({
         url: article.url,
         publishedAt: publishedTimestamp,
         processed: false,
-        createdAt: Date.now(),
+        categories: article.categories || [],
       });
       
       insertedIds.push(queueId);
@@ -48,7 +49,7 @@ export const getQueueByProducer = query({
     return await ctx.db
       .query("rss_queue")
       .withIndex("by_producer", (q) => q.eq("producerId", args.producerId))
-      .order("desc", "createdAt")
+      .order("desc", "_creationTime")
       .collect();
   },
 });
@@ -59,7 +60,7 @@ export const getUnprocessedQueue = query({
     return await ctx.db
       .query("rss_queue")
       .withIndex("by_processed", (q) => q.eq("processed", false))
-      .order("desc", "createdAt")
+      .order("desc", "_creationTime")
       .collect();
   },
 });
@@ -70,7 +71,7 @@ export const getUnprocessedQueueWithProducers = query({
     const queueItems = await ctx.db
       .query("rss_queue")
       .withIndex("by_processed", (q) => q.eq("processed", false))
-      .order("desc", "createdAt")
+      .order("desc", "_creationTime")
       .collect();
 
     // Fetch producer details for each queue item
@@ -100,7 +101,7 @@ export const searchQueueWithProducers = query({
       const queueItems = await ctx.db
         .query("rss_queue")
         .withIndex("by_processed", (q) => q.eq("processed", false))
-        .order("desc", "createdAt")
+        .order("desc", "_creationTime")
         .take(args.limit || 50);
 
       // Fetch producer details for each queue item
@@ -224,6 +225,76 @@ export const bulkDeleteQueueItems = mutation({
       totalRequested: args.itemIds.length,
       failedIds: results.failedIds,
       errors: results.errors
+    };
+  },
+});
+
+// Find articles to delete for deduplication among selected items
+export const findDuplicatesForDeduplication = query({
+  args: { 
+    selectedIds: v.array(v.id("rss_queue"))
+  },
+  handler: async (ctx, args) => {
+    // Get all selected queue items with producer details
+    const selectedItems = await Promise.all(
+      args.selectedIds.map(async (itemId) => {
+        const item = await ctx.db.get(itemId);
+        if (!item) return null;
+        
+        const producer = await ctx.db.get(item.producerId);
+        return {
+          ...item,
+          producer,
+        };
+      })
+    );
+
+    // Filter out null items (items that weren't found)
+    const validItems = selectedItems.filter(item => item !== null);
+
+    if (validItems.length === 0) {
+      return { articlesToDelete: [] };
+    }
+
+    // Generate similarity hashes and find duplicates
+    // This is a simple implementation - the frontend will use the actual hashing logic
+    const titleGroups = new Map<string, typeof validItems>();
+    
+    // Group articles by normalized title
+    for (const item of validItems) {
+      const normalizedTitle = item.title
+        .toLowerCase()
+        .replace(/[^\w\s]/g, '')
+        .split(/\s+/)
+        .filter(word => word.length > 2)
+        .filter(word => !['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by'].includes(word))
+        .sort()
+        .join(' ');
+      
+      if (!titleGroups.has(normalizedTitle)) {
+        titleGroups.set(normalizedTitle, []);
+      }
+      titleGroups.get(normalizedTitle)!.push(item);
+    }
+
+    // Find duplicates to delete (keep the newest in each group)
+    const articlesToDelete = [];
+    
+    for (const group of titleGroups.values()) {
+      if (group.length > 1) {
+        // Sort by creation date (newest first) and mark older ones for deletion
+        const sorted = group.sort((a, b) => b._creationTime - a._creationTime);
+        articlesToDelete.push(...sorted.slice(1)); // Keep first (newest), delete rest
+      }
+    }
+
+    return {
+      articlesToDelete: articlesToDelete.map(item => ({
+        _id: item._id,
+        title: item.title,
+        producer: item.producer ? { name: item.producer.name } : undefined,
+        createdAt: item._creationTime
+      }))
     };
   },
 });

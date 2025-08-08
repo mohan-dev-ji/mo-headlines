@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProducerActionsDropdown } from "./producer-actions-dropdown"
 import { Id } from "@/convex/_generated/dataModel"
@@ -12,7 +13,21 @@ interface Producer {
   pollFrequency: number
   isActive: boolean
   lastPolled?: number
+  nextRunTime?: number
   updatedAt: number
+  // Run result fields from database
+  lastRunSuccess?: boolean
+  lastRunFeedStatus?: string
+  lastRunCategoryStatus?: string
+  lastRunArticlesFound?: number
+  lastRunArticlesQueued?: number
+  lastRunArticles?: Array<{
+    title: string
+    url: string
+    publishedAt: string
+    excerpt: string
+  }>
+  lastRunError?: string
 }
 
 interface Category {
@@ -22,21 +37,6 @@ interface Category {
   keywords?: string[]
 }
 
-interface RunResult {
-  success: boolean
-  feedStatus: 'live' | 'not_live'
-  categoryStatus: 'found' | 'not_found' | null
-  articlesFound: number
-  articlesQueued: number
-  articles: Array<{
-    title: string
-    url: string
-    publishedAt: string
-    excerpt: string
-  }>
-  lastRun: number
-  error?: string
-}
 
 interface ProducerCardProps {
   producer: Producer
@@ -45,12 +45,33 @@ interface ProducerCardProps {
   onDelete: (producerId: string) => void
   onToggleStatus: (producerId: string) => void
   onRunNow: (producerId: string) => void
-  countdown?: number
-  runResult?: RunResult
   isRunning?: boolean
 }
 
-export function ProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onRunNow, countdown, runResult, isRunning }: ProducerCardProps) {
+export function ProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onRunNow, isRunning }: ProducerCardProps) {
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  
+  // Update current time every second for countdown display
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Calculate remaining time until next run (no database queries)
+  const getRemainingTime = () => {
+    if (!producer.isActive || !producer.nextRunTime) return null;
+    
+    const remaining = producer.nextRunTime - currentTime;
+    
+    if (remaining <= 0) return "Ready to run";
+    
+    const minutes = Math.floor(remaining / (60 * 1000));
+    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
+    
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
   return (
     <Card className="bg-brand-card border-brand-line">
       <CardContent className="p-6">
@@ -99,13 +120,24 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
               <span className="text-headline-primary font-medium">Last Polled:</span>
               <span className="text-body-primary">{producer.lastPolled ? new Date(producer.lastPolled).toLocaleString() : 'Never'}</span>
             </div>
-            {category?.keywords && category.keywords.length > 0 && (
-              <div className="flex items-center gap-1">
-                <span className="text-headline-primary font-medium">Keywords:</span>
-                <span className="text-body-primary">{category.keywords.slice(0, 3).join(', ')}{category.keywords.length > 3 && '...'}</span>
-              </div>
-            )}
           </div>
+
+          {/* Keywords Section */}
+          {category?.keywords && category.keywords.length > 0 && (
+            <div className="space-y-2">
+              <h4 className="text-headline-primary text-sm font-medium">Keywords ({category.keywords.length})</h4>
+              <div className="flex flex-wrap gap-1">
+                {category.keywords.map((keyword, index) => (
+                  <span 
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 rounded-md bg-background-secondary text-body-primary text-xs border border-border-primary"
+                  >
+                    {keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Run Results */}
           <div className="space-y-2">
@@ -116,8 +148,8 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
                 <span className="text-body-primary">
                   {isRunning ? (
                     <span className="text-blue-400">Running...</span>
-                  ) : runResult?.lastRun ? (
-                    new Date(runResult.lastRun).toLocaleString()
+                  ) : producer.lastPolled ? (
+                    new Date(producer.lastPolled).toLocaleString()
                   ) : (
                     <span className="text-body-greyed-out">Never</span>
                   )}
@@ -129,9 +161,9 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
                 <span className="text-body-primary">
                   {isRunning ? (
                     <span className="text-blue-400">Checking...</span>
-                  ) : runResult?.feedStatus === 'live' ? (
+                  ) : producer.lastRunFeedStatus === 'live' ? (
                     <span className="text-green-400">🟢 Live</span>
-                  ) : runResult?.feedStatus === 'not_live' ? (
+                  ) : producer.lastRunFeedStatus === 'not_live' ? (
                     <span className="text-red-400">🔴 Not Live</span>
                   ) : (
                     <span className="text-body-greyed-out">Not checked</span>
@@ -144,9 +176,9 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
                 <span className="text-body-primary">
                   {isRunning ? (
                     <span className="text-blue-400">Filtering...</span>
-                  ) : runResult?.categoryStatus === 'found' ? (
+                  ) : producer.lastRunCategoryStatus === 'found' ? (
                     <span className="text-green-400">📰 Articles Found</span>
-                  ) : runResult?.categoryStatus === 'not_found' ? (
+                  ) : producer.lastRunCategoryStatus === 'not_found' ? (
                     <span className="text-yellow-400">📭 No Articles</span>
                   ) : (
                     <span className="text-body-greyed-out">Not checked</span>
@@ -159,8 +191,8 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
                 <span className="text-body-primary">
                   {isRunning ? (
                     <span className="text-blue-400">Counting...</span>
-                  ) : runResult?.articlesFound !== undefined ? (
-                    runResult.articlesFound
+                  ) : producer.lastRunArticlesFound !== undefined ? (
+                    producer.lastRunArticlesFound
                   ) : (
                     <span className="text-body-greyed-out">-</span>
                   )}
@@ -170,11 +202,11 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
           </div>
           
           {/* Additional Run Results (Articles & Errors) */}
-          {runResult?.articles && runResult.articles.length > 0 && (
+          {producer.lastRunArticles && producer.lastRunArticles.length > 0 && (
             <div className="text-xs">
-              <span className="text-headline-primary font-medium">Recent Articles:</span>
-              <div className="mt-1 space-y-1 max-h-20 overflow-y-auto">
-                {runResult.articles.slice(0, 3).map((article, index) => (
+              <span className="text-headline-primary font-medium">Matched Articles ({producer.lastRunArticles.length}):</span>
+              <div className="mt-1 space-y-1 max-h-32 overflow-y-auto">
+                {producer.lastRunArticles.map((article, index) => (
                   <div key={index} className="text-body-primary">
                     • <a 
                         href={article.url} 
@@ -182,22 +214,17 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
                         rel="noopener noreferrer"
                         className="hover:text-blue-400 underline"
                       >
-                        {article.title.substring(0, 40)}...
+                        {article.title}
                       </a>
                   </div>
                 ))}
-                {runResult.articles.length > 3 && (
-                  <div className="text-body-greyed-out">
-                    +{runResult.articles.length - 3} more articles
-                  </div>
-                )}
               </div>
             </div>
           )}
           
-          {runResult?.error && (
+          {producer.lastRunError && (
             <div className="text-xs text-red-400">
-              <span className="text-headline-primary font-medium">Error:</span> {runResult.error}
+              <span className="text-headline-primary font-medium">Error:</span> {producer.lastRunError}
             </div>
           )}
 
@@ -205,9 +232,9 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
           <div className="flex items-center gap-1">
             <span className="text-body-primary text-sm">
               {producer.isActive ? '🟢 Active' : '🔴 Inactive'}
-              {producer.isActive && countdown !== undefined && (
+              {producer.isActive && getRemainingTime() && (
                 <span className="ml-2 text-blue-400 font-mono">
-                  {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                  {getRemainingTime()}
                 </span>
               )}
             </span>
