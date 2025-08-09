@@ -42,35 +42,35 @@ Traditional RSS processing sends each article individually to AI processing, res
   - Article deduplication using similarity hashing
   - Queue filtering and sorting capabilities
   - Processing status tracking
+  - Manual "Process Now" functionality
 
-### Consumer Tab (Feature)
+### Batch Processing Tab (Feature)
 - **Purpose:** Configure and monitor batch processing
 - **Key Functionality:**
   - Batch processing controls (ON/OFF toggle, frequency settings)
   - Terminal-style display with real-time updates
-  - Manual "Process Now" functionality
   - Processing status with current article list
 
 ## Data Flow Between Features
 
 ```
-Producer → Queue → Consumer
-   ↓         ↓        ↓
+Producer → Queue → Batch Processing
+   ↓         ↓            ↓
 RSS Feed  Pending   AI Processing
 Monitor   Articles  Batch Jobs
 ```
-
 ### Producer to Queue Flow
 1. Producer monitors RSS feed on schedule
 2. Filters articles by category keywords
 3. Adds matching articles to centralized queue
 4. Updates status indicators
+5. Items in queue can be processed individually
 
-### Queue to Consumer Flow
-1. Consumer checks queue on scheduled intervals
-2. Groups pending articles by category
+### Queue to Batch Processing Flow
+1. Batch Processing checks queue on scheduled intervals
+2. Sweeps the whole queue as a batch
 3. Sends batch to Perplexity API for processing
-4. Marks articles as processed
+4. Marks articles through their status field
 
 ## Shared State Management
 
@@ -79,15 +79,11 @@ Monitor   Articles  Batch Jobs
 - Status indicators update automatically across tabs
 - Queue counts and processing states sync in real-time
 
-### Cross-tab Dependencies
-- Producer status affects queue population
-- Queue status affects consumer processing
-- Consumer processing affects producer completion states
 
 ## Component Structure
 
 ```
-/components/sections/rss-management/
+/components/admin/rss-management/
 ├── CLAUDE.md                           # This file
 ├── rss-management-tabs.tsx             # Main tab container
 ├── types.ts                            # Shared RSS types
@@ -119,7 +115,7 @@ Monitor   Articles  Batch Jobs
 ## Testing Strategy
 
 ### Integration Testing
-- Test complete Producer → Queue → Consumer flow
+- Test complete Producer → Queue → Batch Processing flow
 - Verify real-time updates across all tabs
 - Test error handling and recovery scenarios
 

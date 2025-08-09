@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ProducerActionsDropdown } from "./producer-actions-dropdown"
 import { Id } from "@/convex/_generated/dataModel"
@@ -49,29 +49,6 @@ interface ProducerCardProps {
 }
 
 export function ProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onRunNow, isRunning }: ProducerCardProps) {
-  const [currentTime, setCurrentTime] = useState(Date.now());
-  
-  // Update current time every second for countdown display
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Calculate remaining time until next run (no database queries)
-  const getRemainingTime = () => {
-    if (!producer.isActive || !producer.nextRunTime) return null;
-    
-    const remaining = producer.nextRunTime - currentTime;
-    
-    if (remaining <= 0) return "Ready to run";
-    
-    const minutes = Math.floor(remaining / (60 * 1000));
-    const seconds = Math.floor((remaining % (60 * 1000)) / 1000);
-    
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-  };
   return (
     <Card className="bg-brand-card border-brand-line">
       <CardContent className="p-6">
@@ -228,17 +205,6 @@ export function ProducerCard({ producer, category, onEdit, onDelete, onToggleSta
             </div>
           )}
 
-          {/* Status Badge */}
-          <div className="flex items-center gap-1">
-            <span className="text-body-primary text-sm">
-              {producer.isActive ? '🟢 Active' : '🔴 Inactive'}
-              {producer.isActive && getRemainingTime() && (
-                <span className="ml-2 text-blue-400 font-mono">
-                  {getRemainingTime()}
-                </span>
-              )}
-            </span>
-          </div>
         </div>
       </CardContent>
     </Card>

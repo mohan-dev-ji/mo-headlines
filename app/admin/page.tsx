@@ -18,8 +18,8 @@ export default function AdminPage() {
   const router = useRouter();
 
   // Get data for dashboard stats
-  const activeSources = useQuery(api.rssProducer.getProducersByStatus, { isActive: true });
-  const inactiveSources = useQuery(api.rssProducer.getProducersByStatus, { isActive: false });
+  const activeSources = useQuery(api.rssProducer.getProducers, { isActive: true });
+  const inactiveSources = useQuery(api.rssProducer.getProducers, { isActive: false });
   const articles = useQuery(api.articles.getAllArticles);
   const categories = useQuery(api.categories.getAllCategories);
 
@@ -42,8 +42,8 @@ export default function AdminPage() {
     return null;
   }
 
-  const activeSourcesCount = activeSources?.length ?? 0;
-  const inactiveSourcesCount = inactiveSources?.length ?? 0;
+  const activeSourcesCount = Array.isArray(activeSources) ? activeSources.length : 0;
+  const inactiveSourcesCount = Array.isArray(inactiveSources) ? inactiveSources.length : 0;
   const totalProducers = activeSourcesCount + inactiveSourcesCount;
   const articlesCount = articles?.length ?? 0;
   const categoriesCount = categories?.length ?? 0;

@@ -95,7 +95,10 @@ export function DeduplicationDialog({
                 <div className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
                   <span>
-                    {formatDistanceToNow(new Date(article._creationTime), { addSuffix: true })}
+                    {article._creationTime && !isNaN(article._creationTime) 
+                      ? formatDistanceToNow(new Date(article._creationTime), { addSuffix: true })
+                      : 'Unknown time'
+                    }
                   </span>
                 </div>
               </div>

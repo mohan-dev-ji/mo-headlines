@@ -1,8 +1,8 @@
-# Consumer Feature Implementation
+# Batch Processing Feature Implementation
 
 ## Feature Overview
 
-The Consumer feature configures and monitors AI batch processing of queued articles. It provides terminal-style display with real-time updates, batch processing controls, and manual override capabilities.
+The Batch Processing feature configures and monitors AI batch processing of queued articles. It provides terminal-style display with real-time updates, batch processing controls, and manual override capabilities.
 
 ## Component Architecture
 

@@ -29,13 +29,14 @@ export function ProducerTab() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [producerToDelete, setProducerToDelete] = useState<any>(null)
   const [runningProducers, setRunningProducers] = useState<Set<string>>(new Set())
-  const producers = useQuery(api.rssProducer.getAllProducersWithCategories)
+  const producers = useQuery(api.rssProducer.getProducers, { includeCategory: true })
   const deleteProducer = useMutation(api.rssProducer.deleteProducer)
-  const toggleProducerStatus = useMutation(api.rssProducer.toggleProducerStatus)
+  const updateProducer = useMutation(api.rssProducer.updateProducer)
   const runProducerNow = useAction(api.rssProducer.runProducerNow)
 
   const handleEditProducer = (producerId: string) => {
-    const producer = producers?.find(p => p._id === producerId)
+    if (!producers || !Array.isArray(producers)) return
+    const producer = producers.find(p => p._id === producerId)
     if (producer) {
       setEditingProducer(producer)
       setIsEditModalOpen(true)
@@ -51,13 +52,14 @@ export function ProducerTab() {
     setTimeout(() => {
       console.log('🔄 Edit modal closed - Convex should have refetched with new updatedAt')
       console.log('📊 Current producers updatedAt timestamps:', 
-        producers?.map(p => ({ name: p.name, updatedAt: p.updatedAt }))
+        Array.isArray(producers) ? producers.map(p => ({ name: p.name, updatedAt: p.updatedAt })) : []
       )
     }, 200) // Increased delay to ensure DB write + query refetch completes
   }
 
   const handleDeleteProducer = (producerId: string) => {
-    const producer = producers?.find(p => p._id === producerId)
+    if (!producers || !Array.isArray(producers)) return
+    const producer = producers.find(p => p._id === producerId)
     if (!producer) return
 
     setProducerToDelete(producer)
@@ -79,12 +81,13 @@ export function ProducerTab() {
   }
 
   const handleToggleStatus = async (producerId: string) => {
-    const producer = producers?.find(p => p._id === producerId)
+    if (!producers || !Array.isArray(producers)) return
+    const producer = producers.find(p => p._id === producerId)
     if (!producer) return
 
     try {
       const newStatus = !producer.isActive
-      await toggleProducerStatus({ 
+      await updateProducer({ 
         id: producerId as Id<"rss_producer">, 
         isActive: newStatus 
       })
@@ -97,7 +100,8 @@ export function ProducerTab() {
   }
 
   const handleRunNow = async (producerId: string) => {
-    const producer = producers?.find(p => p._id === producerId)
+    if (!producers || !Array.isArray(producers)) return
+    const producer = producers.find(p => p._id === producerId)
     if (!producer) return
 
     // Add to running producers set
@@ -143,7 +147,7 @@ export function ProducerTab() {
         )}
 
         {/* Empty State */}
-        {producers?.length === 0 && (
+        {(!producers || (Array.isArray(producers) && producers.length === 0)) && (
           <Card className="bg-brand-card border-brand-line">
             <CardHeader className="text-center py-12">
               <CardTitle className="text-headline-primary">No Producers Yet</CardTitle>
@@ -155,14 +159,14 @@ export function ProducerTab() {
         )}
 
         {/* Producer Cards */}
-        {producers && producers.length > 0 && (
+        {producers && Array.isArray(producers) && producers.length > 0 && (
           <div className="grid gap-4">
             {producers.map((producer) => {
               return (
                 <ProducerCard
                   key={`${producer._id}-${producer.name}-${producer.updatedAt}`}
                   producer={producer}
-                  category={producer.category}
+                  category={(producer as any).category}
                   onEdit={handleEditProducer}
                   onDelete={handleDeleteProducer}
                   onToggleStatus={handleToggleStatus}

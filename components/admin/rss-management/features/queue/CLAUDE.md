@@ -9,8 +9,8 @@ The Queue feature monitors pending articles awaiting AI processing and fact-chec
 ### Queue Tab (`queue-tab.tsx`)
 Main container component for the Queue feature:
 - Real-time queue monitoring via listening to the rss_queue table
-- Filter and search controls
-- Bulk actions such as Delete all or multiple via checkboxes
+- Sort by and search controls
+- Bulk actions such as Delete, deduplication and AI processing
 
 ### Queue Item Card (`queue-item-card.tsx`)
 Individual queue article display component:
@@ -26,9 +26,10 @@ Filter and search controls for the queue:
 - Source filtering
 - Processing status filtering
 - Most recently published
-Bulk Action:
-- Delete all
-- Delete multiple via checkbox
+Bulk Action via checkboxes:
+- Delete
+- Deduplication
+- AI processing
 
 ### Queue Stats (`queue-stats.tsx`)
 Queue performance metrics and statistics:
@@ -36,49 +37,17 @@ Queue performance metrics and statistics:
 - Number processed today
 - Deduplication effectiveness metrics
 
-## Data Management
-
-### Queue Article Structure
-```typescript
-interface QueueArticle {
-  _id: Id<"pending_articles">;
-  title: string;
-  url: string;
-  sourceId: Id<"rss_sources">;
-  category: string;
-  description: string;
-  publishedAt: number;
-  processed: boolean;
-  isProcessing: boolean;
-  processedAt?: number;
-  similarityHash: string;
-}
-```
-
-### Queue Statistics
-```typescript
-interface QueueStatistics {
-  totalPending: number;
-  processing: number;
-  processed: number;
-  averageProcessingTime: number;
-  duplicatesDetected: number;
-  categoryBreakdown: Record<string, number>;
-}
-```
-
 ## Queue Item Display
 
 ### Article Card Layout
-```
-┌─────────────────────────────────────────────────────┐
-│ Article Title                           │ Status    │
-│ Source: TechCrunch AI                  │   ⏳      │
-│ Category: AI & ML                      │ Pending   │
-│ Added: 5 min ago                       │           │
-│ Similarity: 85% match detected         │           │
-└─────────────────────────────────────────────────────┘
-```
+- Title
+- Description
+- Source (rss producer name)
+- Published
+- Added
+- Rss categories
+- View article
+- Status
 
 ### Status Indicators
 - ⏳ **Pending:** Waiting for processing
@@ -113,275 +82,33 @@ function generateSimilarityHash(title: string): string {
 - Prevent duplicate processing to save API costs
 - Show duplicate detection in queue display
 
-## Real-time Monitoring
-
-### Live Updates
-- Queue count updates as articles added/removed
-- Processing status changes in real-time
-- New articles appear immediately
-- Completed articles move to processed state
-
-### Performance Metrics
-- Articles processed per hour
-- Average time from queue to completion
-- Processing success rate
-- API cost savings from deduplication
-
-## Queue Management Actions
+## Queue Item Actions
 
 ### Bulk Operations
 - Select multiple articles for bulk actions
-- Bulk delete or reprocess
+- Bulk delete, process or deduplicate
 
 ### Individual Actions
-- Manual processing trigger
-- Edit article metadata
-- Remove from queue
-- Mark as duplicate
+- Process now (to trigger AI sumarizing and fact checking work flow)
+- Delete
 
-## Integration Points
+## AI Processing System
+- Process articles individually from the item card or in bulk from the bulk actions in RSS Queue
+- API call with prompt is sent to Perplexity AI
+- Queue item status is set to Processing
+- Perplexity API recieves item(s) with the queue items titles and URLs
+- Perplexity uses it's Deep Research mode to find between 3-5 news articles or blogs from reputable sources reporting the same story.
+- Perplexity Deep Research finds similarity vectors in the source and research material
+- Perplexity writes a well balanced journalistic article on these points
+- Perplexity writes a prompt for image generation based on the contents of the article
+- Perplexity generates the image
+- Perplexity returns the Article title, body, date, image, category, urls of fact checking articles into articles table with a Status of Pending
+- Queue item status is set to Processed
+- AI generated article appears in the Admin dashboard/articles section/pending tab (this tab monitors the articles table)
+- The article can be opened in a preview window to Approve, Edit, Save or Delete
+- Once approved the article status is set to Approved where all approved articles appear on the live site.
 
-### Producer Integration
-- Receives articles from active producers
-- Shows which producer contributed each article
-- Producer status affects queue population
-- Queue feedback to producer performance
 
-### Consumer Integration
-- Articles batched for consumer processing
-- Processing status updates from consumer
-- Batch completion updates queue state
-- Failed processing returns articles to queue
-
-### Backend Integration
-- **Get Queue:** `api.rss_queue.getPending`
-- **Get Statistics:** `api.rss_queue.getStats`
-- **Update Status:** `api.rss_queue.updateStatus`
-- **Bulk Actions:** `api.rss_queue.bulkUpdate`
-
-## Search and Sorting Strategy
-
-### Data Architecture Analysis
-
-**Current System:**
-- Queue data stored in Convex `rss_queue` table
-- Frontend uses reactive queries: `useQuery(api.rssQueue.getUnprocessedQueueWithProducers)`
-- Data is NOT stored on frontend - fetched real-time from Convex
-- Automatic re-renders when database changes
-
-**Data Flow:**
-```
-Convex Database → Reactive Query → React Component State → UI
-```
-
-### Sorting Strategy (Hybrid Approach)
-
-#### Phase 1: Frontend Sorting (Current Implementation)
-**Recommended for immediate implementation**
-
-**Pros:**
-- No additional backend queries needed
-- Instant sorting (no network delay)
-- Works with existing data architecture
-- Simple to implement for current scale
-
-**Implementation:**
-```typescript
-const sortedItems = useMemo(() => {
-  if (!queueItems) return []
-  
-  return [...queueItems].sort((a, b) => {
-    switch (sortBy) {
-      case 'newest': 
-        return b.createdAt - a.createdAt
-      case 'oldest': 
-        return a.createdAt - b.createdAt
-      case 'title': 
-        return a.title.localeCompare(b.title)
-      case 'source': 
-        return (a.producer?.name || '').localeCompare(b.producer?.name || '')
-      case 'published':
-        return b.publishedAt - a.publishedAt
-      default: 
-        return 0
-    }
-  })
-}, [queueItems, sortBy])
-```
-
-**Sort Options:**
-- **Newest**: Most recently added to queue
-- **Oldest**: Earliest added to queue  
-- **Title A-Z**: Alphabetical by article title
-- **Source**: Alphabetical by producer name
-- **Published**: Most recently published articles first
-
-#### Phase 2: Backend Sorting (Future Migration)
-**When queue grows large (1000+ items)**
-
-```typescript
-// Future Convex query for backend sorting
-export const getQueueSorted = query({
-  args: { 
-    sortBy: v.union(
-      v.literal("newest"), 
-      v.literal("oldest"), 
-      v.literal("title"), 
-      v.literal("source")
-    )
-  },
-  handler: async (ctx, args) => {
-    let query = ctx.db.query("rss_queue")
-      .withIndex("by_processed", (q) => q.eq("processed", false))
-    
-    switch (args.sortBy) {
-      case 'newest':
-        return await query.order("desc", "createdAt").collect()
-      case 'oldest': 
-        return await query.order("asc", "createdAt").collect()
-      case 'title':
-      case 'source':
-        // Requires different indexing strategy
-        const items = await query.collect()
-        return items.sort(/* sorting logic */)
-    }
-  }
-})
-```
-
-### Search Strategy (Backend Filtering)
-
-**Recommended: Backend search queries**
-
-**Why Backend Search:**
-- Search across ALL data (not just loaded items)
-- Database filtering more efficient than client-side
-- Supports partial matching and case-insensitive search
-- Real-time search as user types
-
-**Implementation:**
-```typescript
-// Convex search query
-export const searchQueue = query({
-  args: { 
-    searchTerm: v.string(),
-    limit: v.optional(v.number())
-  },
-  handler: async (ctx, args) => {
-    if (!args.searchTerm.trim()) {
-      return await ctx.db.query("rss_queue")
-        .withIndex("by_processed", (q) => q.eq("processed", false))
-        .order("desc", "createdAt")
-        .take(args.limit || 50)
-    }
-    
-    const allItems = await ctx.db.query("rss_queue")
-      .withIndex("by_processed", (q) => q.eq("processed", false))
-      .collect()
-    
-    const searchLower = args.searchTerm.toLowerCase()
-    
-    return allItems.filter(item => 
-      item.title.toLowerCase().includes(searchLower) ||
-      item.description.toLowerCase().includes(searchLower)
-    ).slice(0, args.limit || 50)
-  }
-})
-```
-
-**Frontend Search Integration:**
-```typescript
-// Debounced search implementation
-const [searchTerm, setSearchTerm] = useState('')
-const [debouncedSearch, setDebouncedSearch] = useState('')
-
-useEffect(() => {
-  const timer = setTimeout(() => {
-    setDebouncedSearch(searchTerm)
-  }, 300)
-  
-  return () => clearTimeout(timer)
-}, [searchTerm])
-
-// Use search query when there's a search term
-const queueItems = useQuery(
-  debouncedSearch 
-    ? api.rssQueue.searchQueue 
-    : api.rssQueue.getUnprocessedQueueWithProducers,
-  debouncedSearch ? { searchTerm: debouncedSearch } : undefined
-)
-```
-
-### Performance Considerations
-
-**Current Scale (< 1000 items):**
-- Frontend sorting: ✅ Optimal
-- Backend search: ✅ Necessary for comprehensive search
-- No pagination needed yet
-
-**Future Scale (1000+ items):**
-- Backend sorting: ✅ Required for performance
-- Pagination: ✅ Required
-- Indexes: ✅ Required for title/source sorting
-- Virtualized rendering: ✅ Required for large lists
-
-### Migration Path
-
-**Step 1 (Current):** Frontend sorting + Backend search
-**Step 2 (Growth):** Add pagination when queue > 500 items  
-**Step 3 (Scale):** Move to backend sorting when > 1000 items
-**Step 4 (Optimization):** Add database indexes for complex sorting
-
-This hybrid approach provides the best balance of:
-- ✅ Simple implementation
-- ✅ Instant user feedback  
-- ✅ Comprehensive search capabilities
-- ✅ Future scalability
-
-## Filtering and Search
-
-### Filter Options
-```typescript
-interface QueueFilters {
-  category?: string;
-  sourceId?: string;
-  status?: 'pending' | 'processing' | 'completed' | 'failed';
-  dateRange?: {
-    start: Date;
-    end: Date;
-  };
-  searchTerm?: string;
-  showDuplicates?: boolean;
-  sortBy?: 'newest' | 'oldest' | 'title' | 'source' | 'published';
-}
-```
-
-### Search Functionality
-- Real-time search with 300ms debounce
-- Full-text search in article titles and descriptions
-- Backend filtering for comprehensive results
-- Clear search functionality
-- Search result count display
-
-## User Workflows
-
-### Monitor Queue Status
-1. View real-time queue statistics
-2. See pending articles with status indicators
-3. Monitor processing progress
-4. Review completed articles
-
-### Manage Queue Items
-1. Filter and search for specific articles
-2. Review duplicate detection results
-3. Manually trigger processing for priority items
-4. Remove unwanted articles from queue
-
-### Analyze Performance
-1. View queue statistics and metrics
-2. Monitor processing efficiency
-3. Identify bottlenecks or issues
-4. Track deduplication effectiveness
 
 ## Error Handling
 

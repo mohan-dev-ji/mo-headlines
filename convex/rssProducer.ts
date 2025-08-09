@@ -349,83 +349,96 @@ export const testRSSFeed = action({
   },
 });
 
-// Get all RSS producers
-export const getAllProducers = query({
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("rss_producer")
-      .order("desc")
-      .collect();
-  },
-});
-
-// Get RSS producers by status
-export const getProducersByStatus = query({
-  args: { isActive: v.boolean() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("rss_producer")
-      .withIndex("by_active", (q) => q.eq("isActive", args.isActive))
-      .order("desc")
-      .collect();
-  },
-});
-
-// Get RSS producer by ID
-export const getProducerById = query({
-  args: { id: v.id("rss_producer") },
-  handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
-  },
-});
-
-// Toggle RSS producer active status
-export const toggleProducerStatus = mutation({
-  args: { 
-    id: v.id("rss_producer"),
-    isActive: v.boolean(),
+// Unified producer query with flexible filtering
+export const getProducers = query({
+  args: {
+    isActive: v.optional(v.boolean()),
+    categoryId: v.optional(v.id("categories")),
+    includeCategory: v.optional(v.boolean()),
+    id: v.optional(v.id("rss_producer")),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
+    // Single producer by ID
+    if (args.id) {
+      const producer = await ctx.db.get(args.id);
+      if (!producer) return null;
+
+      if (args.includeCategory) {
+        const category = await ctx.db.get(producer.categoryId);
+        return {
+          ...producer,
+          category: category ? {
+            _id: category._id,
+            name: category.name,
+            slug: category.slug,
+            keywords: category.keywords || [],
+          } : null,
+        };
+      }
+      return producer;
     }
 
-    const producer = await ctx.db.get(args.id);
-    if (!producer) {
-      throw new Error("Producer not found");
+    // Multiple producers with filters
+    let query = ctx.db.query("rss_producer");
+
+    // Apply filters
+    if (args.isActive !== undefined) {
+      query = query.withIndex("by_active", (q) => q.eq("isActive", args.isActive));
+    }
+    if (args.categoryId) {
+      query = query.withIndex("by_category", (q) => q.eq("categoryId", args.categoryId));
     }
 
-    const now = Date.now();
-    const updateData: any = {
-      isActive: args.isActive,
-      updatedAt: now,
-    };
+    const producers = await query.order("desc", "_creationTime").collect();
 
-    // If enabling, set next run time based on poll frequency
-    // If disabling, clear next run time
-    if (args.isActive) {
-      updateData.nextRunTime = now + (producer.pollFrequency * 60 * 1000);
-    } else {
-      updateData.nextRunTime = undefined;
+    // Include category data if requested
+    if (args.includeCategory) {
+      return await Promise.all(
+        producers.map(async (producer) => {
+          const category = await ctx.db.get(producer.categoryId);
+          return {
+            ...producer,
+            category: category ? {
+              _id: category._id,
+              name: category.name,
+              slug: category.slug,
+              keywords: category.keywords || [],
+            } : null,
+          };
+        })
+      );
     }
 
-    await ctx.db.patch(args.id, updateData);
-
-    return { success: true };
+    return producers;
   },
 });
 
-// Update RSS producer
+// Unified update function for all producer changes
 export const updateProducer = mutation({
   args: {
     id: v.id("rss_producer"),
+    // Basic fields
     name: v.optional(v.string()),
     url: v.optional(v.string()),
     categoryId: v.optional(v.id("categories")),
     isActive: v.optional(v.boolean()),
     pollFrequency: v.optional(v.number()),
     numberOfArticles: v.optional(v.number()),
+    // Timestamp fields
+    lastPolled: v.optional(v.number()),
+    // Run result fields
+    lastRunSuccess: v.optional(v.boolean()),
+    lastRunFeedStatus: v.optional(v.string()),
+    lastRunCategoryStatus: v.optional(v.string()),
+    lastRunArticlesFound: v.optional(v.number()),
+    lastRunArticlesQueued: v.optional(v.number()),
+    lastRunArticles: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      publishedAt: v.string(),
+      excerpt: v.string(),
+    }))),
+    lastRunError: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -469,183 +482,17 @@ export const deleteProducer = mutation({
   },
 });
 
-// Update last polled timestamp
-export const updateProducerLastPolled = mutation({
-  args: { 
-    id: v.id("rss_producer"),
-    timestamp: v.number(),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
-      lastPolled: args.timestamp,
-      updatedAt: Date.now(),
-    });
-
-    return { success: true };
-  },
-});
-
-// Update next run time
-export const updateProducerNextRunTime = mutation({
-  args: { 
-    id: v.id("rss_producer"),
-    nextRunTime: v.number(),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
-      nextRunTime: args.nextRunTime,
-      updatedAt: Date.now(),
-    });
-
-    return { success: true };
-  },
-});
-
-// Update producer with run results
-export const updateProducerRunResults = mutation({
-  args: {
-    id: v.id("rss_producer"),
-    success: v.boolean(),
-    feedStatus: v.string(),
-    categoryStatus: v.optional(v.string()),
-    articlesFound: v.number(),
-    articlesQueued: v.number(),
-    articles: v.array(v.object({
-      title: v.string(),
-      url: v.string(),
-      publishedAt: v.string(),
-      excerpt: v.string(),
-    })),
-    error: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    await ctx.db.patch(args.id, {
-      lastRunSuccess: args.success,
-      lastRunFeedStatus: args.feedStatus,
-      lastRunCategoryStatus: args.categoryStatus,
-      lastRunArticlesFound: args.articlesFound,
-      lastRunArticlesQueued: args.articlesQueued,
-      lastRunArticles: args.articles,
-      lastRunError: args.error,
-      updatedAt: Date.now(),
-    });
-
-    return { success: true };
-  },
-});
-
-// Get RSS producers by category
-export const getProducersByCategory = query({
-  args: { categoryId: v.id("categories") },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("rss_producer")
-      .withIndex("by_category", (q) => q.eq("categoryId", args.categoryId))
-      .collect();
-  },
-});
-
-// Get active RSS producers for polling
-export const getActiveProducersForPolling = query({
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("rss_producer")
-      .withIndex("by_active", (q) => q.eq("isActive", true))
-      .collect();
-  },
-});
-
-// Get all producers with their category data (including keywords)
-export const getAllProducersWithCategories = query({
-  handler: async (ctx) => {
-    const producers = await ctx.db
-      .query("rss_producer")
-      .order("desc", "_creationTime")
-      .collect();
-
-    // Fetch category data for each producer
-    const producersWithCategories = await Promise.all(
-      producers.map(async (producer) => {
-        const category = await ctx.db.get(producer.categoryId);
-        return {
-          ...producer,
-          category: category ? {
-            _id: category._id,
-            name: category.name,
-            slug: category.slug,
-            keywords: category.keywords || [],
-          } : null,
-        };
-      })
-    );
-
-    return producersWithCategories;
-  },
-});
-
-// Get producer with category data by ID
-export const getProducerWithCategoryById = query({
-  args: { id: v.id("rss_producer") },
-  handler: async (ctx, args) => {
-    const producer = await ctx.db.get(args.id);
-    if (!producer) return null;
-
-    const category = await ctx.db.get(producer.categoryId);
-    return {
-      ...producer,
-      category: category ? {
-        _id: category._id,
-        name: category.name,
-        slug: category.slug,
-        keywords: category.keywords || [],
-      } : null,
-    };
-  },
-});
 
 // Run producer now - fetch RSS, filter by keywords, and add to queue
-// Internal action to check and run scheduled producers (called by cron job)
-export const checkAndRunScheduledProducers = action({
-  handler: async (ctx) => {
-    const now = Date.now();
-    
-    // Get all active producers that are due to run
-    const producersDue = await ctx.runQuery("rssProducer:getProducersDueForRun", { currentTime: now });
-    
-    console.log(`🕐 Cron check: ${producersDue.length} producers due for run`);
-    
-    // Run each producer that's due
-    for (const producer of producersDue) {
-      try {
-        console.log(`🚀 Auto-running producer: ${producer.name}`);
-        await ctx.runAction("rssProducer:runProducerNow", { producerId: producer._id });
-      } catch (error) {
-        console.error(`❌ Failed to auto-run producer ${producer.name}:`, error);
-      }
-    }
-    
-    return { producersRun: producersDue.length };
-  },
-});
 
-// Get producers that are due to run
-export const getProducersDueForRun = query({
-  args: { currentTime: v.number() },
-  handler: async (ctx, args) => {
-    return await ctx.db
-      .query("rss_producer")
-      .withIndex("by_next_run", (q) => q.lt("nextRunTime", args.currentTime))
-      .filter((q) => q.eq(q.field("isActive"), true))
-      .collect();
-  },
-});
 
 export const runProducerNow = action({
   args: { producerId: v.id("rss_producer") },
   handler: async (ctx, args) => {
-    // Get producer and category data
-    const producer = await ctx.runQuery("rssProducer:getProducerWithCategoryById", {
-      id: args.producerId
+    // Get producer and category data using unified function
+    const producer = await ctx.runQuery("rssProducer:getProducers", {
+      id: args.producerId,
+      includeCategory: true
     });
     
     if (!producer) {
@@ -663,23 +510,8 @@ export const runProducerNow = action({
       numberOfArticles: producer.numberOfArticles,
     });
 
-    // Update producer last polled timestamp and set next run time
     const now = Date.now();
-    await ctx.runMutation("rssProducer:updateProducerLastPolled", {
-      id: args.producerId,
-      timestamp: now,
-    });
     
-    // Set next run time based on poll frequency (only if producer is still active)
-    const currentProducer = await ctx.runQuery("rssProducer:getProducerById", { id: args.producerId });
-    if (currentProducer?.isActive) {
-      const nextRunTime = now + (currentProducer.pollFrequency * 60 * 1000); // Convert minutes to milliseconds
-      await ctx.runMutation("rssProducer:updateProducerNextRunTime", {
-        id: args.producerId,
-        nextRunTime: nextRunTime,
-      });
-    }
-
     // If feed was successful and articles found, add to queue
     if (feedResult.status === 'success' && feedResult.articles.length > 0) {
       const queueResult = await ctx.runMutation("rssQueue:addArticlesToQueue", {
@@ -693,15 +525,16 @@ export const runProducerNow = action({
         })),
       });
 
-      // Save run results to database
-      await ctx.runMutation("rssProducer:updateProducerRunResults", {
+      // Update producer with run results using unified function
+      await ctx.runMutation("rssProducer:updateProducer", {
         id: args.producerId,
-        success: true,
-        feedStatus: 'live',
-        categoryStatus: feedResult.articles.length > 0 ? 'found' : 'not_found',
-        articlesFound: feedResult.articles.length,
-        articlesQueued: queueResult.insertedCount,
-        articles: feedResult.articles.map(article => ({
+        lastPolled: now,
+        lastRunSuccess: true,
+        lastRunFeedStatus: 'live',
+        lastRunCategoryStatus: feedResult.articles.length > 0 ? 'found' : 'not_found',
+        lastRunArticlesFound: feedResult.articles.length,
+        lastRunArticlesQueued: queueResult.insertedCount,
+        lastRunArticles: feedResult.articles.map(article => ({
           title: article.title,
           url: article.url,
           publishedAt: article.publishedAt,
@@ -716,19 +549,20 @@ export const runProducerNow = action({
         articlesFound: feedResult.articles.length,
         articlesQueued: queueResult.insertedCount,
         articles: feedResult.articles,
-        lastRun: Date.now(),
+        lastRun: now,
       };
     } else {
-      // Save run results to database
-      await ctx.runMutation("rssProducer:updateProducerRunResults", {
+      // Update producer with error results using unified function
+      await ctx.runMutation("rssProducer:updateProducer", {
         id: args.producerId,
-        success: feedResult.status === 'success',
-        feedStatus: feedResult.status === 'success' ? 'live' : 'not_live',
-        categoryStatus: feedResult.status === 'success' ? 'not_found' : undefined,
-        articlesFound: 0,
-        articlesQueued: 0,
-        articles: [],
-        error: feedResult.error,
+        lastPolled: now,
+        lastRunSuccess: feedResult.status === 'success',
+        lastRunFeedStatus: feedResult.status === 'success' ? 'live' : 'not_live',
+        lastRunCategoryStatus: feedResult.status === 'success' ? 'not_found' : undefined,
+        lastRunArticlesFound: 0,
+        lastRunArticlesQueued: 0,
+        lastRunArticles: [],
+        lastRunError: feedResult.error,
       });
 
       return {
@@ -738,7 +572,7 @@ export const runProducerNow = action({
         articlesFound: 0,
         articlesQueued: 0,
         articles: [],
-        lastRun: Date.now(),
+        lastRun: now,
         error: feedResult.error,
       };
     }
