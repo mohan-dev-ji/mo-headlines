@@ -49,10 +49,10 @@ export function FeaturedArticle() {
               {featuredArticle.title}
             </h1>
             <p className="text-white/80">
-              {Date.now() - featuredArticle.createdAt < 24 * 60 * 60 * 1000 ? (
-                <TimeAgo date={featuredArticle.createdAt} />
+              {Date.now() - featuredArticle._creationTime < 24 * 60 * 60 * 1000 ? (
+                <TimeAgo date={featuredArticle._creationTime} />
               ) : (
-                new Date(featuredArticle.createdAt).toLocaleDateString('en-US', {
+                new Date(featuredArticle._creationTime).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric'

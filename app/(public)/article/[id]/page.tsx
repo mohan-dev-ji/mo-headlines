@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { CommentSection } from "@/components/public/CommentSection";
+import ReactMarkdown from "react-markdown";
 
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -32,6 +33,24 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   const { user } = useUser();
   const router = useRouter();
 
+  // Normalize a token: trim and strip leading/trailing non-token chars; allow internal -, +, ., #
+  const normalizeToken = (input: string): string => {
+    return (input || "")
+      .trim()
+      .replace(/^[^A-Za-z0-9#+.-]+|[^A-Za-z0-9#+.-]+$/g, "");
+  };
+
+  // Recursively extract text from React nodes (handles nested elements)
+  const extractText = (node: any): string => {
+    if (node == null) return "";
+    if (typeof node === "string" || typeof node === "number") return String(node);
+    if (Array.isArray(node)) return node.map(extractText).join("");
+    if (node && typeof node === "object" && (node as any).props && (node as any).props.children) {
+      return extractText((node as any).props.children);
+    }
+    return "";
+  };
+
   const handleDelete = async () => {
     try {
       await deleteArticle({ id: resolvedParams.id as Id<"articles"> });
@@ -39,6 +58,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
     } catch (error) {
       console.error("Error deleting article:", error);
     }
+  };
+
+  const topicSearch = (topic: string) => {
+    console.log("Topic search clicked:", topic);
+    // Future: Navigate to search page or filter articles by topic
   };
 
   if (!article) {
@@ -71,7 +95,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         <div className="flex items-center gap-4 text-gray-600 mb-8">
           <span className="capitalize">{article.category?.name}</span>
           <span>•</span>
-          <span>{new Date(article.createdAt).toLocaleDateString('en-US', {
+          <span>{new Date(article._creationTime).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
             day: 'numeric'
@@ -81,13 +105,13 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         {/* Topics */}
         {article.topics && article.topics.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-8">
-            {article.topics.map((topic) => (
+            {article.topics.map((topic, index) => (
               topic && (
                 <span
-                  key={topic._id}
+                  key={index}
                   className="px-3 py-1 bg-gray-100 rounded-full text-sm"
                 >
-                  {topic.name}
+                  {topic}
                 </span>
               )
             ))}
@@ -95,10 +119,84 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         )}
 
         {/* Article Body */}
-        <div 
-          className="prose prose-lg max-w-none [&>h1]:text-4xl [&>h1]:font-bold [&>h1]:mb-4 [&>h2]:text-3xl [&>h2]:font-bold [&>h2]:mb-4 [&>p]:mb-4 [&>ul]:list-disc [&>ul]:pl-6 [&>ol]:list-decimal [&>ol]:pl-6 [&>img]:rounded-lg [&>img]:my-4"
-          dangerouslySetInnerHTML={{ __html: article.body }}
-        />
+        <div className="prose prose-lg max-w-none">
+          {/* Fallback: If ReactMarkdown fails, show as formatted text */}
+          {!article.body && (
+            <div className="text-gray-500 italic">No article content available</div>
+          )}
+          
+          {article.body && (
+            <>
+              
+              {/* ReactMarkdown version */}
+              <ReactMarkdown
+            components={{
+              p: ({children, ...props}) => (
+                <p className="mb-4 leading-relaxed text-gray-700" {...props}>
+                  {children}
+                </p>
+              ),
+              strong: ({children, ...props}) => {
+                const rawText = extractText(children);
+                const token = normalizeToken(rawText);
+                const tokenLower = token.toLowerCase();
+                const topicsSet = new Set(
+                  (article.topics || [])
+                    .map((t: string) => normalizeToken(t).toLowerCase())
+                    .filter(Boolean)
+                );
+
+                if (token && topicsSet.has(tokenLower)) {
+                  return (
+                    <button
+                      onClick={() => topicSearch(token)}
+                      className={`font-bold text-blue-600 hover:text-blue-800 hover:underline cursor-pointer bg-transparent border-none p-0 inline ${
+                        (props as any)?.className || ""
+                      }`}
+                    >
+                      {children}
+                    </button>
+                  );
+                }
+                
+                return <strong className="font-bold text-gray-900" {...props}>{children}</strong>;
+              }
+            }}
+          >
+            {article.body}
+          </ReactMarkdown>
+            </>
+          )}
+        </div>
+
+        {/* Sources Section */}
+        {article.sourceUrls && article.sourceUrls.length > 0 && (
+          <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
+            <h3 className="text-lg font-semibold mb-4 text-gray-900">Sources</h3>
+            <div className="space-y-3">
+              {article.sourceUrls.map((url, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  <span className="text-sm text-gray-500 mt-1 font-medium">
+                    [{index + 1}]
+                  </span>
+                  <a
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline break-all text-sm leading-relaxed transition-colors"
+                  >
+                    {url}
+                  </a>
+                </div>
+              ))}
+            </div>
+            {article.isAutoGenerated && (
+              <p className="text-xs text-gray-500 mt-4 italic">
+                This article was fact-checked using AI verification across multiple sources.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Edit and Delete Buttons - Only visible to admin */}
         {isAdmin(user?.id) && (

@@ -3,9 +3,12 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Clock } from "lucide-react"
+import { Clock, Zap, CheckCircle, XCircle } from "lucide-react"
 import { Id } from "@/convex/_generated/dataModel"
 import { QueueActionsDropdown } from "./queue-actions-dropdown"
+import { useAction } from "convex/react"
+import { api } from "@/convex/_generated/api"
+import { useState } from "react"
 
 interface QueueItemProps {
   queueItem: {
@@ -16,20 +19,13 @@ interface QueueItemProps {
     url: string
     publishedAt: number
     processed: boolean
+    status: "waiting" | "processing" | "completed" | "failed"
     _creationTime: number
     categories?: string[]
-    producer: {
-      _id: Id<"rss_producer">
-      name: string
-      url: string
-      categoryId: Id<"categories">
-      isActive: boolean
-      pollFrequency: number
-      numberOfArticles: number
-      lastPolled?: number
-      createdAt: number
-      updatedAt: number
-    } | null
+      producer: {
+        _id: Id<"rss_producer">
+        name: string
+      } | null
   }
   isSelected: boolean
   onSelectChange: (isSelected: boolean) => void
@@ -37,6 +33,9 @@ interface QueueItemProps {
 }
 
 export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete }: QueueItemProps) {
+  const [isProcessing, setIsProcessing] = useState(false)
+  const processQueueItem = useAction(api.rssQueue.processQueueItem)
+
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
@@ -46,6 +45,66 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
       hour: '2-digit', 
       minute: '2-digit' 
     })
+  }
+
+  const handleProcessNow = async () => {
+    if (isProcessing) return
+    
+    setIsProcessing(true)
+    try {
+      await processQueueItem({ queueItemId: queueItem._id })
+      console.log('Successfully processed:', queueItem.title)
+    } catch (error) {
+      console.error('Processing failed:', error)
+      alert(`Processing failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const getStatusBadge = () => {
+    // Show processing state immediately when user clicks process
+    if (isProcessing) {
+      return (
+        <Badge variant="secondary" className="bg-blue-600/20 text-blue-400 border-blue-600/30">
+          <Zap className="w-3 h-3 mr-1" />
+          Processing...
+        </Badge>
+      )
+    }
+
+    // Show actual database status
+    switch (queueItem.status) {
+      case "processing":
+        return (
+          <Badge variant="secondary" className="bg-blue-600/20 text-blue-400 border-blue-600/30">
+            <Zap className="w-3 h-3 mr-1" />
+            Processing
+          </Badge>
+        )
+      case "completed":
+        return (
+          <Badge variant="secondary" className="bg-green-600/20 text-green-400 border-green-600/30">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Completed
+          </Badge>
+        )
+      case "failed":
+        return (
+          <Badge variant="secondary" className="bg-red-600/20 text-red-400 border-red-600/30">
+            <XCircle className="w-3 h-3 mr-1" />
+            Failed
+          </Badge>
+        )
+      case "waiting":
+      default:
+        return (
+          <Badge variant="secondary" className="bg-yellow-600/20 text-yellow-400 border-yellow-600/30">
+            <Clock className="w-3 h-3 mr-1" />
+            Pending
+          </Badge>
+        )
+    }
   }
 
   return (
@@ -77,13 +136,11 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
                     _id: queueItem._id,
                     title: queueItem.title
                   }}
-                  onProcessNow={() => {
-                    // TODO: Implement process now functionality
-                    console.log('Process now:', queueItem.title)
-                  }}
+                  onProcessNow={handleProcessNow}
                   onDelete={() => {
                     onDelete(queueItem._id)
                   }}
+                  isProcessing={isProcessing}
                 />
               </div>
             </div>
@@ -141,10 +198,7 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
 
           {/* Status Badge */}
           <div>
-            <Badge variant="secondary" className="bg-yellow-600/20 text-yellow-400 border-yellow-600/30">
-              <Clock className="w-3 h-3 mr-1" />
-              Pending
-            </Badge>
+            {getStatusBadge()}
           </div>
         </div>
       </CardContent>

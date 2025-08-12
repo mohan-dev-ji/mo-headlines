@@ -9,9 +9,8 @@ export const createTestArticle = mutation({
       title: "Test Article",
       body: "This is a test article body.",
       categoryId: "test-category" as Id<"categories">,
-      topicIds: [],
+      topics: ["Test Topic"],
       authorId: "me",
-      createdAt: Date.now(),
     });
   },
 });
@@ -28,7 +27,7 @@ export const createArticle = mutation({
     title: v.string(),
     body: v.string(),
     categoryId: v.id("categories"),
-    topicIds: v.array(v.id("topics")),
+    topics: v.array(v.string()),
     imageStorageId: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<{ articleId: Id<"articles"> }> => {
@@ -41,9 +40,8 @@ export const createArticle = mutation({
       title: args.title,
       body: args.body,
       categoryId: args.categoryId,
-      topicIds: args.topicIds,
+      topics: args.topics,
       authorId: identity.subject,
-      createdAt: Date.now(),
       imageStorageId: args.imageStorageId as Id<"_storage"> | undefined,
     });
 
@@ -61,10 +59,6 @@ export const getArticle = query({
       ? await ctx.db.get(article.categoryId)
       : null;
 
-    const topics = article.topicIds.length > 0
-      ? await Promise.all(article.topicIds.map(id => ctx.db.get(id)))
-      : [];
-
     let imageUrl = null;
     if (article.imageStorageId) {
       try {
@@ -81,7 +75,6 @@ export const getArticle = query({
     return {
       ...article,
       category,
-      topics,
       imageUrl,
     };
   },
@@ -93,7 +86,7 @@ export const updateArticle = mutation({
     title: v.string(),
     body: v.string(),
     categoryId: v.id("categories"),
-    topicIds: v.array(v.id("topics")),
+    topics: v.array(v.string()),
     imageStorageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
@@ -125,7 +118,7 @@ export const updateArticle = mutation({
       title: args.title,
       body: args.body,
       categoryId: args.categoryId,
-      topicIds: args.topicIds,
+      topics: args.topics,
       imageStorageId: args.imageStorageId,
     });
 
@@ -160,7 +153,7 @@ export const getAllArticles = query({
       })
     );
 
-    return articlesWithDetails.sort((a, b) => b.createdAt - a.createdAt);
+    return articlesWithDetails.sort((a, b) => b._creationTime - a._creationTime);
   },
 });
 
@@ -261,6 +254,6 @@ export const getArticlesByTopic = query({
       })
     );
 
-    return articlesWithDetails.sort((a, b) => b.createdAt - a.createdAt);
+    return articlesWithDetails.sort((a, b) => b._creationTime - a._creationTime);
   },
 });

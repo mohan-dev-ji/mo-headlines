@@ -100,14 +100,21 @@ function generateSimilarityHash(title: string): string {
 - Perplexity uses it's Deep Research mode to find between 3-5 news articles or blogs from reputable sources reporting the same story.
 - Perplexity Deep Research finds similarity vectors in the source and research material
 - Perplexity writes a well balanced journalistic article on these points
-- Perplexity writes a prompt for image generation based on the contents of the article
-- Perplexity generates the image
-- Perplexity returns the Article title, body, date, image, category, urls of fact checking articles into articles table with a Status of Pending
+- Perplexity writes a prompt and image generation for later on in the pipeline
+- Perplexity returns the Article title, body, date, category, urls of fact checking articles into articles table with a Status of Pending
 - Queue item status is set to Processed
 - AI generated article appears in the Admin dashboard/articles section/pending tab (this tab monitors the articles table)
-- The article can be opened in a preview window to Approve, Edit, Save or Delete
-- Once approved the article status is set to Approved where all approved articles appear on the live site.
 
+## Perplexity API with image generation
+'''
+{
+  "model": "sonar",
+  "return_images": true,
+  "messages": [
+    {"role": "user", "content": "generate an image of London cityscape"}
+  ]
+}
+'''
 
 
 ## Error Handling

@@ -220,65 +220,66 @@ export function QueueTab() {
 
   const isLoading = queueItems === undefined || queueStats === undefined
 
-  if (isLoading) {
-    return (
-      <div className="space-y-6">
-        <LoadingAnimation size={80} className="py-8" />
-      </div>
-    )
-  }
-
   return (
-    <div className="space-y-6">
-      {/* Search and Sort Controls */}
-      <QueueFilters
-        searchTerm={searchTerm}
-        sortBy={sortBy}
-        resultCount={queueItems?.length || 0}
-        onSearchChange={setSearchTerm}
-        onSortChange={setSortBy}
-        isLoading={isLoading || isDeleting || isDedupicating}
-        selectedCount={selectedCount}
-        totalCount={totalCount}
-        onSelectAll={handleSelectAll}
-        onBulkDelete={handleBulkDeleteClick}
-        onBulkDeduplicate={handleBulkDeduplicateClick}
-        onBulkProcess={() => {
-          // TODO: Implement bulk process functionality
-          console.log('Bulk process:', Array.from(selectedItems))
-        }}
-        queueCount={queueStats?.unprocessed}
-      />
+    <div className="flex flex-col gap-[var(--space-between-items)] h-[calc(100vh-200px)] overflow-hidden">
+      {/* Fixed filters/header under tabs */}
+      <div className="shrink-0">
+        <QueueFilters
+          searchTerm={searchTerm}
+          sortBy={sortBy}
+          resultCount={queueItems?.length || 0}
+          onSearchChange={setSearchTerm}
+          onSortChange={setSortBy}
+          isLoading={isLoading || isDeleting || isDedupicating}
+          selectedCount={selectedCount}
+          totalCount={totalCount}
+          onSelectAll={handleSelectAll}
+          onBulkDelete={handleBulkDeleteClick}
+          onBulkDeduplicate={handleBulkDeduplicateClick}
+          onBulkProcess={() => {
+            // TODO: Implement bulk process functionality
+            console.log('Bulk process:', Array.from(selectedItems))
+          }}
+          queueCount={queueStats?.unprocessed}
+        />
+      </div>
 
-      {queueItems.length === 0 ? (
-        <Card className="bg-brand-card-dark border-brand-line">
-          <CardHeader>
-            <CardTitle className="text-headline-primary">
-              {searchTerm.trim() ? 'No Search Results' : 'No Articles in Queue'}
-            </CardTitle>
-            <CardDescription className="text-body-primary">
-              {searchTerm.trim() 
-                ? `No articles found matching "${searchTerm}". Try a different search term.`
-                : 'There are currently no articles waiting for processing. Articles will appear here when RSS producers add new content.'
-              }
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {queueItems.map((item) => (
-            <QueueItemCard 
-              key={item._id} 
-              queueItem={item}
-              isSelected={selectedItems.has(item._id)}
-              onSelectChange={(isSelected) => handleSelectItem(item._id, isSelected)}
-              onDelete={handleDeleteItem}
-            />
-          ))}
-        </div>
-      )}
+      {/* Scrollable items area */}
+      <div className="flex-1 overflow-auto pr-1">
+        {isLoading ? (
+          <div className="py-8 flex justify-center">
+            <LoadingAnimation size={80} />
+          </div>
+        ) : queueItems.length === 0 ? (
+          <Card className="bg-brand-card-dark border-brand-line">
+            <CardHeader>
+              <CardTitle className="text-headline-primary">
+                {searchTerm.trim() ? 'No Search Results' : 'No Articles in Queue'}
+              </CardTitle>
+              <CardDescription className="text-body-primary">
+                {searchTerm.trim() 
+                  ? `No articles found matching "${searchTerm}". Try a different search term.`
+                  : 'There are currently no articles waiting for processing. Articles will appear here when RSS producers add new content.'
+                }
+              </CardDescription>
+            </CardHeader>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {queueItems.map((item) => (
+              <QueueItemCard 
+                key={item._id} 
+                queueItem={item}
+                isSelected={selectedItems.has(item._id)}
+                onSelectChange={(isSelected) => handleSelectItem(item._id, isSelected)}
+                onDelete={handleDeleteItem}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-      {/* Bulk Delete Confirmation Dialog */}
+      {/* Dialogs */}
       <BulkDeleteDialog
         isOpen={showDeleteDialog}
         selectedCount={selectedCount}
@@ -287,7 +288,6 @@ export function QueueTab() {
         onCancel={handleBulkDeleteCancel}
       />
 
-      {/* Deduplication Dialog */}
       <DeduplicationDialog
         isOpen={showDeduplicationDialog}
         articlesToDelete={articlesToDelete}

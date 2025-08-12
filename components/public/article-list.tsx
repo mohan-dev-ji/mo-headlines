@@ -15,10 +15,10 @@ interface Article {
     _id: Id<"categories">;
     name: string;
     slug: string;
-    createdAt: number;
+    _creationTime: number;
   } | null;
   authorId: string;
-  createdAt: number;
+  _creationTime: number;
   imageUrl: string | null;
 }
 
@@ -68,7 +68,7 @@ export function ArticleList() {
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span className="capitalize">{article.category?.name || 'Uncategorized'}</span>
                 <span>•</span>
-                <span>{formatDate(article.createdAt)}</span>
+                <span>{formatDate(article._creationTime)}</span>
               </div>
             </div>
           </Link>

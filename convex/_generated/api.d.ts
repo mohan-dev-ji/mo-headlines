@@ -13,6 +13,7 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
+import type * as aiProcessing from "../aiProcessing.js";
 import type * as articles from "../articles.js";
 import type * as categories from "../categories.js";
 import type * as comments from "../comments.js";
@@ -31,6 +32,7 @@ import type * as topics from "../topics.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  aiProcessing: typeof aiProcessing;
   articles: typeof articles;
   categories: typeof categories;
   comments: typeof comments;

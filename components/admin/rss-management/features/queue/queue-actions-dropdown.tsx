@@ -11,22 +11,26 @@ interface QueueActionsDropdownProps {
   }
   onProcessNow?: () => void
   onDelete?: () => void
+  isProcessing?: boolean
 }
 
 export function QueueActionsDropdown({ 
   queueItem, 
   onProcessNow, 
-  onDelete 
+  onDelete,
+  isProcessing = false 
 }: QueueActionsDropdownProps) {
   
   const dropdownItems: DropdownItem[] = [
     {
-      label: "Process Now",
+      label: isProcessing ? "Processing..." : "Process Now",
       onClick: () => {
-        console.log('Process now:', queueItem.title)
-        onProcessNow?.()
+        if (!isProcessing) {
+          onProcessNow?.()
+        }
       },
-      icon: <Play className="h-4 w-4" />
+      icon: <Play className="h-4 w-4" />,
+      disabled: isProcessing
     },
     {
       label: "Delete",

@@ -52,7 +52,9 @@ export function AdminSidebar() {
     <div className="flex flex-col w-64 bg-brand-background">
       {/* Logo section */}
       <div className="flex items-center px-[var(--padding-lg)] py-[var(--padding-lg)]">
-        <Logo className="h-8" />
+        <Link href="/" className="transition-opacity hover:opacity-80">
+          <Logo className="h-8" />
+        </Link>
       </div>
 
       {/* Navigation */}
