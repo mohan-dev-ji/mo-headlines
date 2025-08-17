@@ -77,8 +77,8 @@ export function CreateProducerModal({ isOpen, onClose }: CreateProducerModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-brand-card border-zinc-700 max-w-md">
-        <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b border-zinc-700">
+      <DialogContent className="bg-brand-card border-brand-line max-w-md">
+        <DialogHeader className="flex flex-row items-center justify-between pb-4 border-b border-brand-line">
           <DialogTitle className="text-headline-primary text-lg font-medium">
             Create Producer
           </DialogTitle>
@@ -86,7 +86,7 @@ export function CreateProducerModal({ isOpen, onClose }: CreateProducerModalProp
             variant="ghost"
             size="sm"
             onClick={handleClose}
-            className="h-6 w-6 p-0 text-zinc-400 hover:text-zinc-200"
+            className="h-6 w-6 p-0 text-headline-primary hover:text-brand-card-dark"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -108,7 +108,7 @@ export function CreateProducerModal({ isOpen, onClose }: CreateProducerModalProp
             <Input
               id="feedTitle"
               placeholder="e.g. TechCrunch AI News"
-              className="bg-brand-background border-zinc-600 text-headline-primary placeholder:text-zinc-500"
+              className="bg-brand-background border-brand-line text-headline-primary placeholder:text-zinc-500"
               {...form.register("feedTitle")}
             />
             {form.formState.errors.feedTitle && (
@@ -138,10 +138,10 @@ export function CreateProducerModal({ isOpen, onClose }: CreateProducerModalProp
               Category
             </Label>
             <Select onValueChange={(value) => form.setValue("categoryId", value)} value={form.watch("categoryId")}>
-              <SelectTrigger className="bg-brand-background border-zinc-600 text-headline-primary w-full">
+              <SelectTrigger className="bg-brand-background border-brand-line text-headline-primary w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
-              <SelectContent className="bg-brand-card border-zinc-700 w-full">
+              <SelectContent className="bg-brand-card border-brand-line w-full">
                 {categories?.map((category) => (
                   <SelectItem 
                     key={category._id} 
@@ -164,7 +164,7 @@ export function CreateProducerModal({ isOpen, onClose }: CreateProducerModalProp
               Refresh Interval
             </Label>
             <Select onValueChange={(value) => form.setValue("refreshInterval", parseInt(value))} value={form.watch("refreshInterval")?.toString()}>
-              <SelectTrigger className="bg-brand-background border-zinc-600 text-headline-primary w-full">
+              <SelectTrigger className="bg-brand-background border-brand-line text-headline-primary w-full">
                 <SelectValue placeholder="Select interval" />
               </SelectTrigger>
               <SelectContent className="bg-brand-card border-zinc-700 w-full">
