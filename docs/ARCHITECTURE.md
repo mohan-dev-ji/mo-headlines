@@ -103,7 +103,7 @@ create_rss: {
 create_research: {
   _id: Id<"create_research">
   title: string
-  researchQuery: string
+  concept: string
   status: "pending" | "processing" | "complete"
   createdBy: Id<"users">
   updatedAt?: number
@@ -130,8 +130,7 @@ create_queue: {
   status: "pending" | "processing" | "complete"
   title: string
   category: string
-  priority: number
-  processingInstructions: string
+  concept: string
   queuedAt: number
   processedAt?: number
   isProcessing: boolean
@@ -172,13 +171,13 @@ Articles (status: approved) → Public Website
 **Location**: `/components/admin/shared/tabs/`
 - **Purpose**: Consistent tab navigation for Create and Review sections
 - **Components**: TabContainer, TabButton, TabContent
-- **Used by**: Create section (RSS/Research/YouTube), Review section (Pending/Approved/Rejected)
+- **Used by**: Create section (RSS/Research/YouTube), Review section (Pending/Approved/Rejected/Drafts)
 
-#### 3. Universal Create Card
-**Location**: `/components/admin/shared/cards/`
-- **Purpose**: Displays source information consistently across all create types
-- **Components**: CreateCard, StatusIndicator, ActionMenu
-- **Variants**: RssCard, ResearchCard, YouTubeCard (extend base CreateCard)
+#### 3. Status Management Service
+**Location**: `/components/admin/shared/status/`
+- **Purpose**: Handles status display and transitions across all components
+- **Components**: StatusIndicator, StatusBadge, ActionDropdown
+- **Used by**: All source cards, queue items, review workflow
 
 #### 4. Article Status Management
 **Location**: `/components/admin/shared/status/`
@@ -193,16 +192,16 @@ Articles (status: approved) → Public Website
 ├── create/
 │   ├── rss/
 │   │   ├── RssTab.tsx
-│   │   ├── RssSourceForm.tsx
-│   │   └── RssSourceCard.tsx (extends CreateCard)
+│   │   ├── RssProducerCard.tsx (RSS-specific design)
+│   │   └── CreateRssModal.tsx
 │   ├── research/
 │   │   ├── ResearchTab.tsx
-│   │   ├── ResearchForm.tsx
-│   │   └── ResearchCard.tsx (extends CreateCard)
+│   │   ├── ResearchSourceCard.tsx (Research-specific design)
+│   │   └── CreateResearchModal.tsx
 │   ├── youtube/
 │   │   ├── YouTubeTab.tsx
-│   │   ├── YouTubeForm.tsx
-│   │   └── YouTubeCard.tsx (extends CreateCard)
+│   │   ├── YouTubeSourceCard.tsx (YouTube-specific design)
+│   │   └── CreateYouTubeModal.tsx
 │   └── CreateLayout.tsx (tab container)
 ├── review/
 │   ├── pending/
@@ -218,9 +217,31 @@ Articles (status: approved) → Public Website
 └── shared/
     ├── queue/
     ├── tabs/
-    ├── cards/
     └── status/
 ```
+
+### Source-Specific Components
+
+#### RSS Components
+- **RssProducerCard**: Displays feed status, polling frequency, category matching
+- **CreateRssModal**: RSS URL input, category selection, polling frequency
+- **Unique Features**: Dual status indicators (feed + category), automatic polling
+
+#### Research Components  
+- **ResearchSourceCard**: Manual creation status, concept preview, queue readiness
+- **CreateResearchModal**: Title, URL, research concept input
+- **Unique Features**: Manual workflow, research context display
+
+#### YouTube Components
+- **YouTubeSourceCard**: Video metadata, timecode display, transcript status
+- **CreateYouTubeModal**: Video URL, timecode inputs, category selection
+- **Unique Features**: Video-specific metadata, transcript generation status
+
+### Design Consistency Through Shared Utilities
+- **StatusIndicator**: Universal status display patterns
+- **ActionDropdown**: Standardized action menus with source-specific options
+- **Modal Patterns**: Consistent creation and editing interface structure
+- **Design Tokens**: Shared styling through brand color system
 
 ## AI Processing Pipeline
 
