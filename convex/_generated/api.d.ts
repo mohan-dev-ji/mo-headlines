@@ -13,15 +13,14 @@ import type {
   FilterApi,
   FunctionReference,
 } from "convex/server";
-import type * as aiProcessing from "../aiProcessing.js";
 import type * as articles from "../articles.js";
 import type * as categories from "../categories.js";
 import type * as comments from "../comments.js";
+import type * as createQueue from "../createQueue.js";
+import type * as createRss from "../createRss.js";
 import type * as migrations from "../migrations.js";
-import type * as rssProducer from "../rssProducer.js";
-import type * as rssQueue from "../rssQueue.js";
 import type * as seedCategories from "../seedCategories.js";
-import type * as topics from "../topics.js";
+import type * as users from "../users.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -32,15 +31,14 @@ import type * as topics from "../topics.js";
  * ```
  */
 declare const fullApi: ApiFromModules<{
-  aiProcessing: typeof aiProcessing;
   articles: typeof articles;
   categories: typeof categories;
   comments: typeof comments;
+  createQueue: typeof createQueue;
+  createRss: typeof createRss;
   migrations: typeof migrations;
-  rssProducer: typeof rssProducer;
-  rssQueue: typeof rssQueue;
   seedCategories: typeof seedCategories;
-  topics: typeof topics;
+  users: typeof users;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

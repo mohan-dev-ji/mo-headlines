@@ -22,10 +22,10 @@
 - **Authentication**: Clerk-based system with role separation
 
 ### Content Sources
-- **RSS Sources**: Automated feed monitoring with category filtering
+- **RSS Sources**: Automated feed monitoring with category filtering and article generation
 - **Research Sources**: Manual article creation with admin input
 - **YouTube Sources**: Video content with timecode-based processing
-- **Queue Items**: Unified processing pipeline for all source types
+- **Queue Items**: Unified processing pipeline for all source types with normalized attributes (title, URL, concept, createSource)
 
 ### User Engagement
 - **Comments**: User-generated content requiring approval
@@ -37,7 +37,7 @@
 - **Categories**: Each article belongs to one category
 - **Topics**: Bold hyperlinks directing to search page with matching articles
 - **Sources**: Multiple fact-checking URLs attributed per article
-- **Origin**: Clear attribution to RSS/Research/YouTube source
+- **Origin**: Clear attribution to RSS/Research/YouTube source via createSource field
 
 ### User Interactions
 - **Admin**: Full create, review, edit, approve permissions
@@ -52,9 +52,22 @@
 ## Business Rules
 
 ### Content Workflow
-- All content flows: Creation → Processing → Review → Publication
+- All content flows: Creation → Queue → Processing → Review → Publication
+- RSS sources find and generate articles that admin can review before adding to queue
 - Only approved articles visible to public
 - Admin approval required for all content publication
+
+### RSS Article Generation
+- **Feed Processing**: RSS sources test feeds and find matching articles based on category keywords
+- **Article Review**: Generated RSS articles appear in RSS tab for admin review
+- **Queue Addition**: Admin selects articles to add to universal processing queue
+- **Lifecycle**: RSS articles deleted after queue addition to prevent duplication
+
+### Universal Queue Processing
+- **Normalized Fields**: All sources provide title, URL, concept, createSource for consistent processing
+- **Single AI Prompt**: Universal prompt handles all source types using normalized queue data
+- **Processing Strategy**: Individual or batch processing with status tracking
+- **Result**: Articles created with pending status for review workflow
 
 ### Topic System
 - Topics must be single tokens (no spaces)
@@ -77,9 +90,22 @@
 
 ### Content Lifecycle
 1. **Creation**: Admin creates source (RSS/Research/YouTube)
-2. **Processing**: Content added to queue for AI fact-checking
-3. **Review**: Admin evaluates processed content
-4. **Publication**: Approved articles become publicly visible
+2. **Article Generation**: RSS finds articles, Research/YouTube create entries
+3. **Queue Addition**: Admin selects articles to add to universal queue
+4. **Processing**: AI processes queue items using normalized data structure
+5. **Review**: Admin evaluates processed content
+6. **Publication**: Approved articles become publicly visible
+
+### RSS Workflow
+1. **Source Creation**: Admin configures RSS feed with category selection
+2. **Article Discovery**: Feed tested and matching articles generated
+3. **Admin Review**: Articles appear in RSS tab for selection
+4. **Queue Integration**: Selected articles normalized and added to processing queue
+
+### Universal Processing
+- **Data Normalization**: All source types provide title, URL, concept, createSource
+- **AI Processing**: Single prompt handles all sources using normalized queue structure
+- **Quality Control**: Consistent fact-checking and content standards across all sources
 
 ### User Journey
 - **Discovery**: Browse by category or search by topic

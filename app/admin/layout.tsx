@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AdminSidebar } from "@/components/shared/navigation/AdminSidebar";
+import { AdminSidebar } from "@/components/admin/shared/AdminSidebar";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Toaster } from "@/components/ui/sonner";
 

@@ -8,6 +8,15 @@
 - Use const assertions for better type inference
 - Define clear interfaces for component props
 
+### 🚨 **CRITICAL: Always Fix TypeScript Errors**
+**NEVER leave TypeScript errors unresolved after coding.**
+
+1. **Run `npx tsc --noEmit --project .` after every coding session**
+2. **Convex API breaks** if `/convex/` files have TS errors
+3. **Add explicit types** instead of letting TypeScript infer `any`
+4. **Fix ID type mismatches** with proper `Id<"table">` or `as string` casting
+5. **Check imports/exports** are correctly named and paths are valid
+
 ### Component Structure
 - Follow consistent organization: hooks → derived state → handlers → early returns → JSX
 - Handle loading and error states in all data components

@@ -15,7 +15,6 @@ export default function Header() {
   const { isSignedIn } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const categories = useQuery(api.categories.getActiveCategories);
-  const topics = useQuery(api.topics.getAllTopics);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
 
@@ -68,16 +67,6 @@ export default function Header() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {category.name}
-                  </Link>
-                ))}
-                {topics && topics.map((topic) => (
-                  <Link
-                    key={topic._id}
-                    href={`/topic/${topic.slug}`}
-                    className="block py-2 hover:text-primary"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {topic.name}
                   </Link>
                 ))}
               </div>
