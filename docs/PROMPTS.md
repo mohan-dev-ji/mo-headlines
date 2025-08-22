@@ -95,17 +95,15 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 
 ## Processing Instructions
 
-### Individual Item Processing (Current Priority)
-- **Queue Status**: Waiting → Processing → Completed/Failed
-- **Error Handling**: Retry logic with failure tracking
-- **Status Updates**: Real-time processing state management
-- **Result Storage**: Article created with pending status for review
-
-### Bulk Processing (Future Enhancement)
-- **Batch Grouping**: Process similar content types together
-- **Context Sharing**: Related articles processed in single API call
-- **Cost Optimization**: Reduce API calls through intelligent batching
-- **Processing Efficiency**: Parallel processing of independent items
+### Universal Processing (Single or Bulk)
+- **Single Item**: Process one queue item individually 
+- **Bulk Processing**: Process multiple selected items in single API call
+- **Unified Function**: Same `processWithAIInternal` function handles both cases
+- **Queue Status**: Waiting → Processing → Completed/Failed for each item
+- **Error Handling**: Individual item retry logic with failure tracking
+- **Status Updates**: Real-time processing state management per item
+- **Result Storage**: Articles created with pending status for review
+- **Cost Optimization**: Bulk processing reduces API calls through intelligent batching
 
 ### Queue Field Structure
 **Current Fields**:

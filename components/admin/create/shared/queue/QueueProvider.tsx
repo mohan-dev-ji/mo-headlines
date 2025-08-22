@@ -1,7 +1,7 @@
 "use client"
 
 import { createContext, useContext, useMemo, useState, useCallback, ReactNode } from "react"
-import { useQuery, useMutation } from "convex/react"
+import { useQuery, useMutation, useAction } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
 import { toast } from "sonner"
@@ -24,6 +24,7 @@ type QueueContextValue = {
   setShowDeduplicationDialog: (v: boolean) => void
   isDeleting: boolean
   isDeduplicating: boolean
+  isBulkProcessing: boolean
   articlesToDelete: any[]
   setArticlesToDelete: (v: any[]) => void
 
@@ -45,6 +46,7 @@ type QueueContextValue = {
   handleBulkDeduplicateClick: () => void
   handleDeduplicationConfirm: () => Promise<void>
   handleDeduplicationCancel: () => void
+  handleBulkProcessClick: () => Promise<void>
   handleDeleteItem: (itemId: string) => Promise<void>
 }
 
@@ -64,6 +66,7 @@ export function QueueProvider({ children }: { children: ReactNode }) {
   const [showDeduplicationDialog, setShowDeduplicationDialog] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [isDeduplicating, setIsDeduplicating] = useState(false)
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false)
   const [articlesToDelete, setArticlesToDelete] = useState<any[]>([])
 
   // data - Updated to use universal create_queue
@@ -72,6 +75,7 @@ export function QueueProvider({ children }: { children: ReactNode }) {
 
   const bulkDeleteMutation = useMutation(api.createQueue.bulkDeleteQueueItems)
   const deleteQueueItemMutation = useMutation(api.createQueue.deleteQueueItem)
+  const batchProcessAction = useAction(api.createQueue.batchProcessQueueItems)
 
   // Deduplication query for universal queue
   const duplicatesQuery = useQuery(
@@ -153,6 +157,41 @@ export function QueueProvider({ children }: { children: ReactNode }) {
 
   const handleBulkDeleteCancel = useCallback(() => setShowDeleteDialog(false), [])
 
+  const handleBulkProcessClick = useCallback(async () => {
+    if (selectedItems.size === 0) {
+      toast.error('Please select items to process')
+      return
+    }
+    
+    setIsBulkProcessing(true)
+    try {
+      const itemIds = Array.from(selectedItems)
+      const result = await batchProcessAction({ queueItemIds: itemIds })
+      
+      if (result.successful.length > 0) {
+        toast.success(`Successfully processed ${result.successful.length} item${result.successful.length === 1 ? '' : 's'}`)
+      }
+      
+      if (result.failed.length > 0) {
+        if (result.successful.length > 0) {
+          toast.warning(`Processed ${result.successful.length} items, but ${result.failed.length} failed`)
+        } else {
+          toast.error(`Failed to process items: ${result.failed[0]?.error || 'Unknown error'}`)
+        }
+      }
+      
+      // Clear selection of successfully processed items
+      const remainingSelection = new Set(result.failed.map(f => f.itemId))
+      setSelectedItems(remainingSelection)
+      
+    } catch (error) {
+      console.error('Bulk processing failed:', error)
+      toast.error('Failed to process items')
+    } finally {
+      setIsBulkProcessing(false)
+    }
+  }, [selectedItems, batchProcessAction])
+
   const handleBulkDeduplicateClick = useCallback(() => {
     if (selectedItems.size < 2) {
       toast.error('Please select at least 2 articles to deduplicate')
@@ -227,7 +266,7 @@ export function QueueProvider({ children }: { children: ReactNode }) {
     selectedItems, setSelectedItems,
     showDeleteDialog, setShowDeleteDialog,
     showDeduplicationDialog, setShowDeduplicationDialog,
-    isDeleting, isDeduplicating,
+    isDeleting, isDeduplicating, isBulkProcessing,
     articlesToDelete, setArticlesToDelete,
     queueStats,
     queueItems,
@@ -242,6 +281,7 @@ export function QueueProvider({ children }: { children: ReactNode }) {
     handleBulkDeduplicateClick,
     handleDeduplicationConfirm,
     handleDeduplicationCancel,
+    handleBulkProcessClick,
     handleDeleteItem,
   }
 

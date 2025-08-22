@@ -138,10 +138,17 @@ export const setItemProcessing = internalMutation({
     isProcessing: v.boolean(),
   },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.queueItemId, {
+    const updateData: any = {
       isProcessing: args.isProcessing,
       status: args.isProcessing ? "processing" : "pending",
-    });
+    };
+    
+    // Clear error message when starting to process
+    if (args.isProcessing) {
+      updateData.errorMessage = undefined;
+    }
+    
+    await ctx.db.patch(args.queueItemId, updateData);
   },
 });
 
@@ -158,6 +165,7 @@ export const setItemComplete = internalMutation({
       isProcessing: false,
       processedAt: now,
       generatedArticleId: args.articleId,
+      errorMessage: undefined, // Clear any previous error messages
     });
   },
 });
@@ -263,30 +271,41 @@ interface ProcessedArticle {
   topics: string[];
 }
 
-// Normalize and constrain topics to single-token proper nouns only
+// Normalize and constrain topics to 1-2 word proper nouns only
 function sanitizeTopics(topics: string[]): string[] {
   // Generic terms to filter out - these are not proper nouns
   const genericTerms = new Set([
     'ai', 'ml', 'coding', 'software', 'technology', 'tech', 'innovation', 'startup', 'startups',
     'robotics', 'automation', 'cloud', 'data', 'analytics', 'security', 'privacy', 'blockchain',
     'crypto', 'web3', 'digital', 'mobile', 'internet', 'online', 'platform', 'app', 'api',
-    'development', 'programming', 'algorithm', 'database', 'network', 'system', 'framework'
+    'development', 'programming', 'algorithm', 'database', 'network', 'system', 'framework',
+    'machine learning', 'artificial intelligence'
   ]);
 
   const allowToken = (raw: string): string | null => {
     if (!raw) return null;
-    // Trim and strip leading/trailing non-token chars; allow internal -, +, ., # (e.g., GPT-4, C++, Web3, C#)
-    const trimmed = raw.trim().replace(/^[^A-Za-z0-9#+.-]+|[^A-Za-z0-9#+.-]+$/g, "");
+    const trimmed = raw.trim();
     if (!trimmed) return null;
-    if (/\s/.test(trimmed)) return null; // must be a single token, no spaces
-    if (trimmed.length < 2) return null; // avoid single-letter junk
+    
+    // Allow 1-2 words only, convert spaces to hyphens
+    const words = trimmed.split(/\s+/);
+    if (words.length > 2) return null;
+    if (words.length < 1) return null;
+    
+    // Each word should be valid (letters, numbers, basic punctuation)
+    for (const word of words) {
+      if (!/^[A-Za-z0-9#+.-]+$/.test(word)) return null;
+      if (word.length < 2) return null;
+    }
+    
+    // Convert to hyphenated version for URLs
+    const hyphenated = words.join('-');
     
     // Filter out generic terms (case-insensitive)
     if (genericTerms.has(trimmed.toLowerCase())) return null;
     
-    // Prefer tokens that start with capital letter (proper nouns)
-    // But allow some exceptions for well-known products (iOS, macOS, etc.)
-    return trimmed;
+    // Return hyphenated version for URL compatibility
+    return hyphenated;
   };
 
   const seen = new Set<string>();
@@ -311,20 +330,34 @@ function boldTopicsInBody(body: string, topics: string[]): string {
 
   for (const topic of topics) {
     if (!topic) continue;
-    const escaped = topic.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    
+    // Convert hyphenated topic back to spaced version for text matching
+    const textVersion = topic.replace(/-/g, ' ');
+    const escapedText = textVersion.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     // Already bolded? (matches **Topic** case-insensitively)
-    const boldRegex = new RegExp(`\\*\\*${escaped}\\*\\*`, "i");
+    const boldRegex = new RegExp(`\\*\\*${escapedText}\\*\\*`, "i");
     if (boldRegex.test(updated)) continue;
 
-    // Standalone token boundaries: start or non-token char, then token, then end or non-token char
-    // NOTE: '.' is treated as a boundary to allow matches before sentence punctuation like 'Mars.'
-    const boundary = "[^A-Za-z0-9#+-]";
-    const standaloneRegex = new RegExp(`(^|${boundary})(${escaped})(?=($|${boundary}))`, "i");
+    // For multi-word topics, look for the full phrase
+    // For single-word topics, use word boundaries
+    let standaloneRegex;
+    if (textVersion.includes(' ')) {
+      // Multi-word: match full phrase with word boundaries
+      standaloneRegex = new RegExp(`\\b(${escapedText})\\b`, "i");
+    } else {
+      // Single word: use original logic
+      const boundary = "[^A-Za-z0-9#+-]";
+      standaloneRegex = new RegExp(`(^|${boundary})(${escapedText})(?=($|${boundary}))`, "i");
+    }
 
     if (standaloneRegex.test(updated)) {
-      // Replace first occurrence only; keep original casing via capture group 2
-      updated = updated.replace(standaloneRegex, (_m, p1: string) => `${p1}**${topic}**`);
+      // Replace first occurrence, bolding the original spaced version
+      if (textVersion.includes(' ')) {
+        updated = updated.replace(standaloneRegex, `**${textVersion}**`);
+      } else {
+        updated = updated.replace(standaloneRegex, (_m, p1: string) => `${p1}**${textVersion}**`);
+      }
     }
   }
 
@@ -399,14 +432,16 @@ IMAGE GENERATION PROMPT REQUIREMENTS:
 
 TOPIC GENERATION REQUIREMENTS:
 - Return 5-10 topics
-- Each topic MUST be exactly one token with no spaces (a single word). Internal hyphens/plus signs are allowed (e.g., "GPT-4", "C++").
-- Topics MUST be unique (deduplicate case-insensitively)
+- Each topic can be 1-2 words maximum for proper nouns only
+- Topics MUST be unique (deduplicate case-insensitively)  
 - ONLY return proper nouns: company names, product names, people names, or specific technologies
-- GOOD examples: "OpenAI", "Tesla", "GPT-4", "Meta", "ChatGPT", "iPhone", "AWS", "Microsoft", "Google", "Nvidia"
-- BAD examples: "AI", "coding", "startups", "robotics", "cloud", "technology", "innovation", "software"
+- SINGLE WORDS: "OpenAI", "Tesla", "Meta", "ChatGPT", "iPhone", "AWS", "Microsoft", "Google", "Nvidia"
+- TWO WORDS ALLOWED: People names ("Elon Musk", "Donald Trump"), product names ("Adobe Express", "Microsoft Office", "Acrobat Studio")
+- NO generic terms, categories, or descriptive phrases
+- GOOD examples: "OpenAI", "Tesla", "GPT-4", "Meta", "Elon Musk", "Donald Trump", "Adobe Express", "Microsoft Office", "Tim Cook"
+- BAD examples: "AI", "coding", "startups", "robotics", "cloud", "technology", "innovation", "software", "machine learning", "artificial intelligence"
 - Do NOT return generic concepts, categories, or descriptive terms
-- Do NOT return multi-word phrases (e.g., not "AI models" or "machine learning")
-- Focus on entities that readers would recognize as specific names, brands, or products
+- Focus on entities that readers would recognize as specific names, brands, products, or people
 
 MARKDOWN FORMATTING INSTRUCTIONS:
 - Write as a flowing, natural article without section headings or subheadings
@@ -463,7 +498,7 @@ RESPONSE FORMAT (JSON ARRAY):
             }
           ],
           temperature: 0.2,
-          max_tokens: itemCount * 1500, // Scale max_tokens with number of articles
+          max_tokens: itemCount * 2000, // Increased tokens for bulk processing
         }),
       });
 
@@ -483,13 +518,17 @@ RESPONSE FORMAT (JSON ARRAY):
       // Try to extract JSON from the response
       let jsonContent = content;
       
-      // If response contains extra text, try to find the JSON object
-      if (!content.startsWith('{')) {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[0];
+      // If response contains extra text, try to find the JSON array/object
+      if (!content.startsWith('[') && !content.startsWith('{')) {
+        const arrayMatch = content.match(/\[[\s\S]*\]/);
+        const objectMatch = content.match(/\{[\s\S]*\}/);
+        
+        if (arrayMatch) {
+          jsonContent = arrayMatch[0];
+        } else if (objectMatch) {
+          jsonContent = objectMatch[0];
         } else {
-          throw new Error(`No JSON object found in response: ${content.substring(0, 500)}...`);
+          throw new Error(`No JSON found in response: ${content.substring(0, 500)}...`);
         }
       }
       
@@ -500,7 +539,10 @@ RESPONSE FORMAT (JSON ARRAY):
         // Handle both single object and array responses
         processedArticles = Array.isArray(parsed) ? parsed : [parsed];
       } catch (parseError) {
-        throw new Error(`Failed to parse Perplexity response as JSON: ${jsonContent.substring(0, 500)}...`);
+        // Check if response was likely truncated
+        const isLikelyTruncated = !jsonContent.includes('}]') && !jsonContent.endsWith('}') && !jsonContent.endsWith(']');
+        const errorPrefix = isLikelyTruncated ? 'Response appears truncated - try processing fewer items at once. ' : '';
+        throw new Error(`${errorPrefix}Failed to parse Perplexity response as JSON: ${jsonContent.substring(0, 500)}...`);
       }
 
       console.log(`✅ AI processing complete for ${processedArticles.length} article${processedArticles.length === 1 ? '' : 's'}`);
@@ -527,7 +569,17 @@ RESPONSE FORMAT (JSON ARRAY):
         }
 
         // Enforce single-token, proper noun topics regardless of model behavior
+        const originalTopics = article.topics;
         article.topics = sanitizeTopics(article.topics);
+        
+        // Remove bold formatting from topics that were filtered out
+        const filteredOutTopics = originalTopics.filter(topic => !article.topics.includes(topic));
+        for (const filteredTopic of filteredOutTopics) {
+          const escapedTopic = filteredTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const boldRegex = new RegExp(`\\*\\*${escapedTopic}\\*\\*`, 'gi');
+          article.body = article.body.replace(boldRegex, filteredTopic);
+        }
+        
         // Ensure each topic is bolded at least once as standalone token
         article.body = boldTopicsInBody(article.body, article.topics);
 

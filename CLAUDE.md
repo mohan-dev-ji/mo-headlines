@@ -10,14 +10,16 @@ All project documentation is centralized in `/docs/`:
 
 ## 🎯 Current Development Phase
 - **Phase**: Create Queue UI Implementation (ADR 2)
-- **Previous**: AI processing with proper noun topics completed ✅
-- **Current Focus**: Build complete queue management interface with filters, stats, and batch operations
+- **Previous**: New architecture with shared queue implemented ✅
+- **Current Issues**:
+  1. **AI Topic Selection**: Perplexity is selecting 2-word proper nouns ("Acrobat Studio", "Adobe Express") - need single-word only
+  2. **Bulk Processing**: Dropdown filter bulk processing not working in create queue
 - **Priority Order**:
-  1. Fix queue stats display (currently shows "loading")
-  2. Implement deduplication functionality for queue items
-  3. Build batch processing operations (bulk delete, bulk process)
-  4. Complete search and filter functionality
-  5. Test all queue management features end-to-end
+  1. Fix AI prompt to only select single-word proper noun topics
+  2. Fix bulk processing from dropdown filter in create queue
+  3. Fix queue stats display (currently shows "loading")
+  4. Implement deduplication functionality for queue items
+  5. Complete search and filter functionality
 
 ## 🔧 Implementation Context
 

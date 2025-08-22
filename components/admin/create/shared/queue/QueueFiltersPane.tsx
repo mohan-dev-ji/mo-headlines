@@ -15,6 +15,8 @@ export function QueueFiltersPane() {
     handleSelectAll,
     handleBulkDeleteClick,
     handleBulkDeduplicateClick,
+    handleBulkProcessClick,
+    isBulkProcessing,
     queueStats,
   } = useQueue()
 
@@ -26,16 +28,13 @@ export function QueueFiltersPane() {
         resultCount={totalCount}
         onSearchChange={setSearchTerm}
         onSortChange={setSortBy}
-        isLoading={isLoading}
+        isLoading={isLoading || isBulkProcessing}
         selectedCount={selectedCount}
         totalCount={totalCount}
         onSelectAll={handleSelectAll}
         onBulkDelete={handleBulkDeleteClick}
         onBulkDeduplicate={handleBulkDeduplicateClick}
-        onBulkProcess={() => {
-          // TODO: implement bulk process
-          console.log("Bulk process pending")
-        }}
+        onBulkProcess={handleBulkProcessClick}
         queueCount={queueStats?.pending}
       />
     </div>
