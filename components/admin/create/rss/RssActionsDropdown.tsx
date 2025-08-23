@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { CustomDropdown, DropdownItem } from "@/components/ui/custom-dropdown"
-import { MoreVertical, Edit, Plus, Trash2, Power } from "lucide-react"
+import { MoreVertical, Edit, Plus, Trash2, Power, RefreshCw } from "lucide-react"
 
 interface RssActionsDropdownProps {
   producer: {
@@ -14,6 +14,7 @@ interface RssActionsDropdownProps {
   onAddToQueue?: () => void
   onDelete?: () => void
   onToggleStatus?: () => void
+  onRefresh?: () => void
 }
 
 export function RssActionsDropdown({ 
@@ -21,7 +22,8 @@ export function RssActionsDropdown({
   onEdit, 
   onAddToQueue, 
   onDelete, 
-  onToggleStatus 
+  onToggleStatus,
+  onRefresh
 }: RssActionsDropdownProps) {
   
   const dropdownItems: DropdownItem[] = [
@@ -32,6 +34,14 @@ export function RssActionsDropdown({
         onEdit?.()
       },
       icon: <Edit className="h-4 w-4" />
+    },
+    {
+      label: "Refresh Feed",
+      onClick: () => {
+        console.log('Refresh RSS feed:', producer.name)
+        onRefresh?.()
+      },
+      icon: <RefreshCw className="h-4 w-4" />
     },
     {
       label: "Add to Queue",

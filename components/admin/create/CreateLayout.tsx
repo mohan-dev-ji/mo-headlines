@@ -31,31 +31,38 @@ export function CreateLayout() {
             <TabsTrigger value="queue">Queue</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="rss" className="mt-[var(--space-between-items)]">
-            <RssTab />
-          </TabsContent>
-
-          <TabsContent value="research" className="mt-[var(--space-between-items)]">
-            <div className="flex justify-center py-12">
-              <div className="text-body-secondary">Research workflow coming soon...</div>
+          {/* RSS, Research, YouTube tabs - only show wrapper when one of these is active */}
+          {(currentTab === "rss" || currentTab === "research" || currentTab === "youtube") && (
+            <div className="mt-[var(--space-between-items)] flex flex-col h-[calc(100vh-145px)]">
+              <TabsContent value="rss" className="p-0 flex-1 min-h-0 overflow-hidden">
+                <RssTab />
+              </TabsContent>
+              
+              <TabsContent value="research" className="p-0 flex-1 min-h-0 overflow-hidden">
+                <div className="h-full flex justify-center items-center">
+                  <div className="text-body-secondary">Research workflow coming soon...</div>
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="youtube" className="p-0 flex-1 min-h-0 overflow-hidden">
+                <div className="h-full flex justify-center items-center">
+                  <div className="text-body-secondary">YouTube workflow coming soon...</div>
+                </div>
+              </TabsContent>
             </div>
-          </TabsContent>
-
-          <TabsContent value="youtube" className="mt-[var(--space-between-items)]">
-            <div className="flex justify-center py-12">
-              <div className="text-body-secondary">YouTube workflow coming soon...</div>
-            </div>
-          </TabsContent>
+          )}
           
-          {/* Queue split panes: filters and items in separate contents */}
-          <div className="mt-[var(--space-between-items)] flex flex-col h-[calc(100vh-145px)]">
-            <TabsContent value="queue" className="p-0 h-auto overflow-visible shrink-0">
-              <QueueFiltersPane />
-            </TabsContent>
-            <TabsContent value="queue" className="p-0 mt-[var(--space-between-items)] flex-1 min-h-0 h-auto overflow-hidden">
-              <QueueItemsPane />
-            </TabsContent>
-          </div>
+          {/* Queue split panes - only show wrapper when queue is active */}
+          {currentTab === "queue" && (
+            <div className="mt-[var(--space-between-items)] flex flex-col h-[calc(100vh-145px)]">
+              <TabsContent value="queue" className="p-0 h-auto overflow-visible shrink-0">
+                <QueueFiltersPane />
+              </TabsContent>
+              <TabsContent value="queue" className="p-0 mt-[var(--space-between-items)] flex-1 min-h-0 h-auto overflow-hidden">
+                <QueueItemsPane />
+              </TabsContent>
+            </div>
+          )}
         </Tabs>
       </div>
     </QueueProvider>

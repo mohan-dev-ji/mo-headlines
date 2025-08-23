@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useState } from "react"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
@@ -17,7 +17,7 @@ import { Plus } from "lucide-react"
 import { CreateRssModal } from "./CreateRssModal"
 import { EditRssModal } from "./EditRssModal"
 import { RssProducerCard } from "./RssProducerCard"
-import { useQuery, useMutation } from "convex/react"
+import { useQuery, useMutation, useAction } from "convex/react"
 import { toast } from "sonner"
 import { api } from "@/convex/_generated/api"
 import { Id } from "@/convex/_generated/dataModel"
@@ -30,15 +30,13 @@ export function RssTab() {
   const [editingProducer, setEditingProducer] = useState<any>(null)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [producerToDelete, setProducerToDelete] = useState<any>(null)
-  const [runningProducers, setRunningProducers] = useState<Set<string>>(new Set())
+  const [runningProducers] = useState<Set<string>>(new Set())
   const producers = useQuery(api.createRss.getRssSources, { includeCategory: true })
   const deleteProducer = useMutation(api.createRss.deleteRssSource)
   const updateProducer = useMutation(api.createRss.updateRssSource)
   const addToQueue = useMutation(api.createRss.addRssMatchesToQueue)
+  const refreshFeed = useAction(api.createRss.testAndUpdateRssSource)
   
-  // Development: Clear tables for ADR 2 implementation
-  const clearRssProducers = useMutation(api.createRss.clearAllRssSources)
-  const clearRssQueue = useMutation(api.createQueue.clearAllQueueItems)
 
   const handleEditProducer = (producerId: string) => {
     if (!producers || !Array.isArray(producers)) return
@@ -127,28 +125,33 @@ export function RssTab() {
     }
   }
 
-  // Development: Clear RSS tables for ADR 2 implementation
-  const handleClearTables = async () => {
-    if (!confirm("⚠️ DEVELOPMENT: This will delete ALL RSS producers and queue items. Continue?")) {
-      return;
-    }
-    
+  const handleRefresh = async (producerId: string) => {
+    if (!producers || !Array.isArray(producers)) return
+    const producer = producers.find(p => p._id === producerId)
+    if (!producer) return
+
     try {
-      const producersResult = await clearRssProducers();
-      const queueResult = await clearRssQueue();
+      console.log('Refreshing RSS feed:', producer.name)
+      toast.loading('Refreshing feed...', { id: `refresh-${producerId}` })
       
-      console.log(`Cleared ${producersResult.cleared} RSS producers`);
-      console.log(`Cleared ${queueResult.cleared} RSS queue items`);
-      alert(`✅ Cleared ${producersResult.cleared} producers and ${queueResult.cleared} queue items`);
+      await refreshFeed({
+        sourceId: producerId as Id<"create_rss">,
+        feedUrl: producer.feedUrl || producer.url || "",
+        maxArticles: 10,
+      })
+      
+      console.log(`✅ Refreshed feed: ${producer.name}`)
+      toast.success(`Refreshed feed "${producer.name}"`, { id: `refresh-${producerId}` })
     } catch (error) {
-      console.error('Failed to clear tables:', error);
-      alert('❌ Failed to clear tables. Check console for details.');
+      console.error('Failed to refresh RSS feed:', error)
+      toast.error('Failed to refresh feed. Please try again.', { id: `refresh-${producerId}` })
     }
   }
 
+
   return (
-    <div className="h-full">
-      <div className="flex justify-center mb-6 gap-4">
+    <div className="h-full min-h-0 overflow-auto bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)]">
+      <div className="flex justify-center mb-6">
         <Button 
           variant="outline" 
           className="flex items-center gap-2 bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50"
@@ -156,16 +159,6 @@ export function RssTab() {
         >
           <Plus className="h-4 w-4" />
           Create New RSS Source
-        </Button>
-        
-        {/* Development: Clear tables button */}
-        <Button 
-          variant="destructive" 
-          size="sm"
-          className="text-xs"
-          onClick={handleClearTables}
-        >
-          🧹 Clear Tables (Dev)
         </Button>
       </div>
       
@@ -202,6 +195,7 @@ export function RssTab() {
                   onDelete={handleDeleteProducer}
                   onToggleStatus={handleToggleStatus}
                   onAddToQueue={handleAddToQueue}
+                  onRefresh={handleRefresh}
                   isRunning={runningProducers.has(producer._id)}
                 />
               )

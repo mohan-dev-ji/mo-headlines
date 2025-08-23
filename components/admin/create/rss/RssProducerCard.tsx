@@ -40,10 +40,11 @@ interface RssProducerCardProps {
   onDelete: (producerId: string) => void
   onToggleStatus: (producerId: string) => void
   onAddToQueue: (producerId: string) => void
+  onRefresh: (producerId: string) => void
   isRunning?: boolean
 }
 
-export function RssProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onAddToQueue, isRunning }: RssProducerCardProps) {
+export function RssProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onAddToQueue, onRefresh, isRunning }: RssProducerCardProps) {
   return (
     <Card className="bg-brand-card border-brand-line">
       <CardContent className="p-6">
@@ -67,6 +68,7 @@ export function RssProducerCard({ producer, category, onEdit, onDelete, onToggle
                 onAddToQueue={() => onAddToQueue(producer._id)}
                 onDelete={() => onDelete(producer._id)}
                 onToggleStatus={() => onToggleStatus(producer._id)}
+                onRefresh={() => onRefresh(producer._id)}
               />
             </div>
           </div>

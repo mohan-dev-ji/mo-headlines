@@ -158,15 +158,9 @@ export const setItemComplete = internalMutation({
     articleId: v.id("articles"),
   },
   handler: async (ctx, args) => {
-    const now = Date.now();
-    await ctx.db.patch(args.queueItemId, {
-      status: "complete",
-      processed: true,
-      isProcessing: false,
-      processedAt: now,
-      generatedArticleId: args.articleId,
-      errorMessage: undefined, // Clear any previous error messages
-    });
+    // Delete the queue item after successful processing
+    // Per architecture: "queue items deleted after processing"
+    await ctx.db.delete(args.queueItemId);
   },
 });
 
