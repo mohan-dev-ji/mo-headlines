@@ -262,101 +262,9 @@ interface ProcessedArticle {
   category: string;
   sourceUrls: string[];
   imageGenPrompts: string[];
-  topics: string[];
 }
 
-// Normalize and constrain topics to 1-2 word proper nouns only
-function sanitizeTopics(topics: string[]): string[] {
-  // Generic terms to filter out - these are not proper nouns
-  const genericTerms = new Set([
-    'ai', 'ml', 'coding', 'software', 'technology', 'tech', 'innovation', 'startup', 'startups',
-    'robotics', 'automation', 'cloud', 'data', 'analytics', 'security', 'privacy', 'blockchain',
-    'crypto', 'web3', 'digital', 'mobile', 'internet', 'online', 'platform', 'app', 'api',
-    'development', 'programming', 'algorithm', 'database', 'network', 'system', 'framework',
-    'machine learning', 'artificial intelligence'
-  ]);
 
-  const allowToken = (raw: string): string | null => {
-    if (!raw) return null;
-    const trimmed = raw.trim();
-    if (!trimmed) return null;
-    
-    // Allow 1-2 words only, convert spaces to hyphens
-    const words = trimmed.split(/\s+/);
-    if (words.length > 2) return null;
-    if (words.length < 1) return null;
-    
-    // Each word should be valid (letters, numbers, basic punctuation)
-    for (const word of words) {
-      if (!/^[A-Za-z0-9#+.-]+$/.test(word)) return null;
-      if (word.length < 2) return null;
-    }
-    
-    // Convert to hyphenated version for URLs
-    const hyphenated = words.join('-');
-    
-    // Filter out generic terms (case-insensitive)
-    if (genericTerms.has(trimmed.toLowerCase())) return null;
-    
-    // Return hyphenated version for URL compatibility
-    return hyphenated;
-  };
-
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const t of topics || []) {
-    const token = allowToken(t);
-    if (!token) continue;
-    const key = token.toLowerCase();
-    if (seen.has(key)) continue;
-    seen.add(key);
-    result.push(token);
-  }
-  // Keep at most 10 topics
-  return result.slice(0, 10);
-}
-
-// Ensure each topic appears at least once as a bolded standalone token in the body
-function boldTopicsInBody(body: string, topics: string[]): string {
-  if (!body) return body;
-
-  let updated = body;
-
-  for (const topic of topics) {
-    if (!topic) continue;
-    
-    // Convert hyphenated topic back to spaced version for text matching
-    const textVersion = topic.replace(/-/g, ' ');
-    const escapedText = textVersion.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    // Already bolded? (matches **Topic** case-insensitively)
-    const boldRegex = new RegExp(`\\*\\*${escapedText}\\*\\*`, "i");
-    if (boldRegex.test(updated)) continue;
-
-    // For multi-word topics, look for the full phrase
-    // For single-word topics, use word boundaries
-    let standaloneRegex;
-    if (textVersion.includes(' ')) {
-      // Multi-word: match full phrase with word boundaries
-      standaloneRegex = new RegExp(`\\b(${escapedText})\\b`, "i");
-    } else {
-      // Single word: use original logic
-      const boundary = "[^A-Za-z0-9#+-]";
-      standaloneRegex = new RegExp(`(^|${boundary})(${escapedText})(?=($|${boundary}))`, "i");
-    }
-
-    if (standaloneRegex.test(updated)) {
-      // Replace first occurrence, bolding the original spaced version
-      if (textVersion.includes(' ')) {
-        updated = updated.replace(standaloneRegex, `**${textVersion}**`);
-      } else {
-        updated = updated.replace(standaloneRegex, (_m, p1: string) => `${p1}**${textVersion}**`);
-      }
-    }
-  }
-
-  return updated;
-}
 
 // Internal AI processing function - handles single item or batch
 async function processWithAIInternal(args: {
@@ -406,8 +314,6 @@ For each article:
 4. Identify any conflicting reports or uncertain details
 5. Create a compelling excerpt
 6. Generate 3 detailed image generation prompts for visual content related to the article
-7. Generate 5-10 relevant topics for content grouping and discoverability
-8. When writing the article, make the topic words **bold** when they naturally appear in the text
 
 REQUIREMENTS:
 - Article should be 400-800 words
@@ -424,28 +330,23 @@ IMAGE GENERATION PROMPT REQUIREMENTS:
 - Avoid copyrighted characters, logos, or specific people
 - Include style suggestions where appropriate (e.g., "digital art", "photorealistic", "minimalist")
 
-TOPIC GENERATION REQUIREMENTS:
-- Return 5-10 topics
-- Each topic can be 1-2 words maximum for proper nouns only
-- Topics MUST be unique (deduplicate case-insensitively)  
-- ONLY return proper nouns: company names, product names, people names, or specific technologies
-- SINGLE WORDS: "OpenAI", "Tesla", "Meta", "ChatGPT", "iPhone", "AWS", "Microsoft", "Google", "Nvidia"
-- TWO WORDS ALLOWED: People names ("Elon Musk", "Donald Trump"), product names ("Adobe Express", "Microsoft Office", "Acrobat Studio")
-- NO generic terms, categories, or descriptive phrases
-- GOOD examples: "OpenAI", "Tesla", "GPT-4", "Meta", "Elon Musk", "Donald Trump", "Adobe Express", "Microsoft Office", "Tim Cook"
-- BAD examples: "AI", "coding", "startups", "robotics", "cloud", "technology", "innovation", "software", "machine learning", "artificial intelligence"
-- Do NOT return generic concepts, categories, or descriptive terms
-- Focus on entities that readers would recognize as specific names, brands, products, or people
-
 MARKDOWN FORMATTING INSTRUCTIONS:
-- Write as a flowing, natural article without section headings or subheadings
-- NO bullet points, NO numbered lists, NO ## headings - just natural paragraph text
+- Start with 1 introductory paragraph that outlines the main story - no subheading for this opening section
+- Follow with exactly 3 subheadings that are specific to the article content, not generic terms
+- Use ### format for subheadings (e.g., ### Tesla's New Battery Technology, ### Impact on EV Market)
+- Each section under a subheading should be 2-3 paragraphs long
 - Break into new paragraphs every 2-3 sentences at natural narrative breaks
-- Only use **bold text** for the specific topics you generate
-- Each topic MUST appear at least once as a standalone token in the body and be bolded exactly as **<topic>** (e.g., **AI**, **OpenAI**). Do not bold anything else.
 - Write in a natural, journalistic style with smooth transitions between ideas
-- Ensure proper spacing between paragraphs for readability
-- Focus on narrative flow rather than structured sections
+- Make subheading titles highly specific to the actual story content rather than generic categories
+
+SOURCE CITATION REQUIREMENTS:
+- Include source citations as bold hyperlinks where the bracketed number itself is the clickable link
+- Use markdown format: [**[1]**](url), [**[2]**](url), [**[3]**](url) - this makes **[1]**, **[2]**, **[3]** bold and clickable
+- Place citations naturally within sentences where claims are made, not at the end
+- Example: "According to recent reports [**[1]**](https://example.com/source1), the new technology has shown promising results."
+- Use the same URLs that you include in the sourceUrls array
+- Ensure each source URL in sourceUrls corresponds to a numbered citation in the body
+- Citations should feel natural and not disrupt the reading flow
 
 RESPONSE FORMAT (JSON ARRAY):
 [
@@ -459,15 +360,8 @@ RESPONSE FORMAT (JSON ARRAY):
       "First detailed image generation prompt describing a visual concept related to the article",
       "Second detailed image generation prompt with different visual angle or component", 
       "Third detailed image generation prompt focusing on another key aspect"
-    ],
-    "topics": [
-      "Relevant Topic 1",
-      "Relevant Topic 2",
-      "Relevant Topic 3",
-      "Relevant Topic 4",
-      "Relevant Topic 5"
     ]
-  }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": ["url1", "url2", "url3"],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"],\n    "topics": ["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]\n  }\n  // ... repeat for each article' : ''}
+  }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": ["url1", "url2", "url3"],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"]\n  }\n  // ... repeat for each article' : ''}
 ]`;
 
     try {
@@ -488,7 +382,7 @@ RESPONSE FORMAT (JSON ARRAY):
             },
             {
               role: "user",
-              content: prompt + `\n\nCRITICAL: You must return a JSON ARRAY with exactly ${itemCount} article${itemCount === 1 ? '' : 's'}. Each article must include ALL fields:\n- title, body, excerpt, category, sourceUrls, imageGenPrompts, topics\n- imageGenPrompts: array of exactly 3 strings\n- topics: array of 5-10 strings\n\nRespond with ONLY the JSON array. No additional text, explanations, or formatting.`
+              content: prompt + `\n\nCRITICAL: You must return a JSON ARRAY with exactly ${itemCount} article${itemCount === 1 ? '' : 's'}. Each article must include ALL fields:\n- title, body, excerpt, category, sourceUrls, imageGenPrompts\n- imageGenPrompts: array of exactly 3 strings\n\nRespond with ONLY the JSON array. No additional text, explanations, or formatting.`
             }
           ],
           temperature: 0.2,
@@ -555,29 +449,6 @@ RESPONSE FORMAT (JSON ARRAY):
           console.warn(`Article ${i + 1}: imageGenPrompts missing or invalid, setting empty array`);
           article.imageGenPrompts = [];
         }
-
-        // Ensure topics is an array
-        if (!article.topics || !Array.isArray(article.topics)) {
-          console.warn(`Article ${i + 1}: topics missing or invalid, setting empty array`);
-          article.topics = [];
-        }
-
-        // Enforce single-token, proper noun topics regardless of model behavior
-        const originalTopics = article.topics;
-        article.topics = sanitizeTopics(article.topics);
-        
-        // Remove bold formatting from topics that were filtered out
-        const filteredOutTopics = originalTopics.filter(topic => !article.topics.includes(topic));
-        for (const filteredTopic of filteredOutTopics) {
-          const escapedTopic = filteredTopic.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-          const boldRegex = new RegExp(`\\*\\*${escapedTopic}\\*\\*`, 'gi');
-          article.body = article.body.replace(boldRegex, filteredTopic);
-        }
-        
-        // Ensure each topic is bolded at least once as standalone token
-        article.body = boldTopicsInBody(article.body, article.topics);
-
-        console.log(`🏷️ Article ${i + 1} sanitized topics: [${article.topics.join(', ')}]`);
       }
 
       return processedArticles;
@@ -622,7 +493,6 @@ export const createArticleFromProcessed = internalMutation({
       category: v.string(),
       sourceUrls: v.array(v.string()),
       imageGenPrompts: v.array(v.string()),
-      topics: v.array(v.string()),
     }),
     queueItemId: v.id("create_queue"),
   },
@@ -642,12 +512,9 @@ export const createArticleFromProcessed = internalMutation({
       title: args.processedData.title,
       body: args.processedData.body,
       categoryId: category._id,
-      topics: args.processedData.topics,
       authorId: "ai-system", // System-generated
       status: "pending", // Enters review workflow
-      isAutoGenerated: true,
       sourceUrls: args.processedData.sourceUrls,
-      rssSourceOrigin: [], // Universal queue doesn't use RSS-specific field
       excerpt: args.processedData.excerpt,
       slug: args.processedData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
       imageGenPrompts: args.processedData.imageGenPrompts,

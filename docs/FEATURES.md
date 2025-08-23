@@ -8,9 +8,10 @@
 - **Actions**: Add articles to queue or delete
 
 ### Research Tab
-- **Create Research Modal**: Input title, URL, research concept, select category
-- **Article Review**: Created research appears as cards for admin review
-- **Actions**: Add articles to queue or delete
+- **Create Research Modal**: Input title, URL (optional), research concept, select category
+- **Research Sources**: Created research sources appear as cards showing title, URL, and concept
+- **Actions**: Edit research sources, add to queue (removes from research tab), or delete
+- **Workflow**: Research sources are deleted when added to queue, preventing duplicates
 
 ### YouTube Tab
 - **Create YouTube Modal**: Input video URL, set timecodes, extract transcript

@@ -12,7 +12,7 @@ import { LoadingAnimation } from "@/components/ui/loading-animation"
 import { Id } from "@/convex/_generated/dataModel"
 import { toast } from "sonner"
 
-type SortOption = 'newest' | 'oldest' | 'title' | 'source' | 'published'
+type SortOption = 'newest' | 'oldest' | 'title' | 'source' | 'category'
 
 export function QueueTab() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -64,8 +64,8 @@ export function QueueTab() {
           return a.title.localeCompare(b.title)
         case 'source': 
           return a.createSource.localeCompare(b.createSource)
-        case 'published':
-          return b.queuedAt - a.queuedAt
+        case 'category':
+          return a.category.localeCompare(b.category)
         default: 
           return 0
       }

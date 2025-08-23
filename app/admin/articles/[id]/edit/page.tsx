@@ -21,7 +21,6 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
   const article = useQuery(api.articles.getArticle, { id: resolvedParams.id as Id<"articles"> });
   const updateArticle = useMutation(api.articles.updateArticle);
   const generateUploadUrl = useMutation(api.articles.generateUploadUrl);
-  const createTopic = useMutation(api.topics.createTopic);
   const { user } = useUser();
   const router = useRouter();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -79,23 +78,13 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
     try {
       const formData = new FormData(e.currentTarget);
       const title = formData.get("title") as string;
-      const topicNames = (formData.get("topics") as string).split(",").map(tag => tag.trim());
       const body = bodyContent;
 
       console.log("Submitting article with:", {
         title,
         body,
-        topicNames,
         categoryId,
       });
-
-      // Get or create topics and collect their IDs
-      const topicIds = await Promise.all(
-        topicNames.map(async (name) => {
-          const { topicId } = await createTopic({ name });
-          return topicId;
-        })
-      );
 
       let imageStorageId = article.imageStorageId;
       
@@ -123,7 +112,6 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         id: article._id,
         title,
         categoryId,
-        topicIds,
         body,
         imageStorageId,
       });
@@ -257,16 +245,6 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
           />
         </div>
 
-         {/* Topics */}
-         <div className="space-y-2">
-          <Label htmlFor="topics">Topics (comma-separated)</Label>
-          <Input
-            id="topics"
-            name="topics"
-            defaultValue={article.topics?.map(topic => topic?.name || "").join(", ")}
-            placeholder="Enter topics, separated by commas"
-          />
-        </div>
 
         {/* Category */}
         <div className="space-y-2">

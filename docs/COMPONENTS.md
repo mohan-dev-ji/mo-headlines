@@ -7,8 +7,10 @@
 - **RssArticleCard**: Shows title, URL, excerpt, feed source, add-to-queue action
 
 ### Research Components
-- **CreateResearchModal**: Title, URL, concept input, category selection
-- **ResearchSourceCard**: Shows title, URL, concept preview, add-to-queue action
+- **CreateResearchModal**: Title, URL (optional), concept input, category selection
+- **EditResearchModal**: Edit existing research sources
+- **ResearchProducerCard**: Shows title, URL, concept preview, last updated timestamp
+- **ResearchActionsDropdown**: Edit, Add to Queue (deletes from research tab), Delete actions
 
 ### YouTube Components
 - **CreateYouTubeModal**: Video URL, timecode inputs, transcript generation

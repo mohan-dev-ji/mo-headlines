@@ -16,9 +16,8 @@ interface Article {
       _creationTime: number;
     } | null;
     authorId: string;
-    createdAt: number;
-    imageUrl: string | null;
     _creationTime: number;
+    imageUrl: string | null;
   }
 
 interface FilteredArticleListProps {
@@ -69,7 +68,7 @@ export function FilteredArticleList({ articles }: FilteredArticleListProps) {
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 <span className="capitalize">{article.category?.name || 'Uncategorized'}</span>
                 <span>•</span>
-                <span>{formatDate(article.createdAt)}</span>
+                <span>{formatDate(article._creationTime)}</span>
               </div>
             </div>
           </Link>

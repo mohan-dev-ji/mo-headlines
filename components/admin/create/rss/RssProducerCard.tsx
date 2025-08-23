@@ -46,7 +46,7 @@ interface RssProducerCardProps {
 
 export function RssProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onAddToQueue, onRefresh, isRunning }: RssProducerCardProps) {
   return (
-    <Card className="bg-brand-card border-brand-line">
+    <Card className="bg-brand-card-dark border-brand-line">
       <CardContent className="p-6">
         <div className="space-y-4">
           {/* Title with Actions */}
