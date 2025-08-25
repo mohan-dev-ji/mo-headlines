@@ -50,6 +50,16 @@
 - **Hover States**: Subtle background lightening
 - **Content Spacing**: Use `padding-md` for standard cards
 
+### Review Workflow Components
+- **Review Cards**: Universal card component with status-based border styling
+  - **Pending**: `--indicator-pending` left border
+  - **Approved**: `--indicator-approved` left border  
+  - **Rejected**: `--indicator-rejected` left border
+  - **Drafts**: `--indicator-drafts` left border
+- **Preview Integration**: Embedded live article page with editorial overlay
+- **Edit Interface**: Form-based editing with `brand-card-dark` backgrounds
+- **Image Generation Modal**: Multi-step workflow (prompt selection → generation → preview → save)
+
 ### Forms & Modals
 - **Modal Container**: `brand-card` background with `brand-line` borders
 - **Input Fields**: `brand-background` with `brand-line` borders
@@ -109,14 +119,35 @@
 - **Visual Hierarchy**: Most important status first
 - **Consistent Icons**: Use same icons across similar states
 
-## Design References
-
 ### Figma Links
-- **[Admin Dashboard Layout](https://figma.com/design/Mo-Headlines-Admin)** - Overall interface structure
-- **[Create Workflow](https://figma.com/design/Mo-Headlines-Create)** - Tab systems and card layouts
-- **[Review Workflow](https://figma.com/design/Mo-Headlines-Review)** - Status indicators and approval flow
-- **[Component Library](https://figma.com/design/Mo-Headlines-Components)** - Buttons, forms, modals
-- **[Responsive Patterns](https://figma.com/design/Mo-Headlines-Responsive)** - Mobile and desktop variations
+- **[Admin Dashboard Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5043&t=qDk6WcgOLP0HMkjl-1)** - Overall admin interface structure
+
+### Create RSS Source Flow
+2. **[Empty RSS section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4815&t=qDk6WcgOLP0HMkjl-1)** - Empty RSS section showing no sources
+3. **[Create RSS source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4839&t=qDk6WcgOLP0HMkjl-1)** - Feed details input form
+4. **[RSS source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4978&t=qDk6WcgOLP0HMkjl-1)** - New RSS source appears in list
+
+### Create Research Source Flow
+2. **[Empty Research section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4823&t=qDk6WcgOLP0HMkjl-1)** - Empty Research section showing no sources
+3. **[Create Research source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4923&t=qDk6WcgOLP0HMkjl-1)** - Enter URL or title to be researched
+4. **[Research source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5015&t=qDk6WcgOLP0HMkjl-1)** - New Research source appears in list
+
+### Create YouTube Source Flow
+1. **[Empty Youtube section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4831&t=qDk6WcgOLP0HMkjl-1)** - Empty YouTube section showing no sources
+2. **[Create YouTube source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4880&t=qDk6WcgOLP0HMkjl-1)** - Video URL and timecode input
+3. **[YouTube source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4987&t=qDk6WcgOLP0HMkjl-1)** - New source appears in list
+
+### Create Queue
+- **[Create Queue Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4721&t=qDk6WcgOLP0HMkjl-1)** - Shared Queue for all created sources
+
+### Review Workflow
+- **[Review Pending Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5471&t=85oVoQlA9tmvqKG3-1)** - Pending articles awaiting review
+- **[Review Approved Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5491&t=85oVoQlA9tmvqKG3-1)** - Published articles
+- **[Review Drafts Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5511&t=85oVoQlA9tmvqKG3-1)** - Draft articles in progress
+- **[Review Rejected Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-6107&t=85oVoQlA9tmvqKG3-1)** - Rejected articles
+- **[Article Preview Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5596&t=85oVoQlA9tmvqKG3-1)** - Live article preview with editorial actions
+- **[Article Edit Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5531&t=85oVoQlA9tmvqKG3-1)** - Field editing and image generation integration
+- **[Image Generation Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5567&t=85oVoQlA9tmvqKG3-1)** - Prompt selection and DALL-E workflow
 
 ## Implementation Guidelines
 
@@ -144,91 +175,6 @@
 - Test all interactions on touch devices
 - Ensure adequate tap targets (minimum 44px)
 - Use appropriate font sizes for different screen sizes
-
-## Layout Patterns
-
-### Admin Interface Structure
-
-```
-┌─────────────────────────────────────────────────────┐
-│ Navbar (brand-card background)                     │
-├─────────────┬───────────────────────────────────────┤
-│ Sidebar     │ Main Content Area                     │
-│ (transparent│ (brand-card background)               │
-│ with brand- │                                       │
-│ background  │ ┌─────────────────────────────────┐   │
-│ showing     │ │ Tab System                      │   │
-│ through)    │ │ (brand-card background)         │   │
-│             │ └─────────────────────────────────┘   │
-│             │                                       │
-│             │ ┌─────────────────────────────────┐   │
-│             │ │ Item Cards                      │   │
-│             │ │ (brand-card-dark background)    │   │
-│             │ │ (stacked vertically)            │   │
-│             │ └─────────────────────────────────┘   │
-└─────────────┴───────────────────────────────────────┘
-```
-
-### Create/Review Workflow Layout
-
-#### Desktop Layout (Horizontal Cards)
-```
-┌─────────────────────────────────────────────────────┐
-│ Tab System: [RSS] [Research] [YouTube] [Queue]     │
-├─────────────────────────────────────────────────────┤
-│ ┌─────────────┬─────────────┬─────────────────────┐ │
-│ │ Details     │ Status      │ Actions            │ │
-│ │ • Name      │ Last run:   │        ⋮           │ │
-│ │ • URL       │ • Feed: ✓   │                     │ │
-│ │ • Category  │ • Category: │                     │ │
-│ │ • Frequency │   📰 Found  │                     │ │
-│ └─────────────┴─────────────┴─────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-```
-
-#### Mobile/Tablet Layout (Vertical Cards)
-```
-┌─────────────────────────────────────┐
-│ Tab System (scrollable)             │
-├─────────────────────────────────────┤
-│ ┌─────────────────────────────────┐ │
-│ │ Details                         │ │
-│ │ • Name                          │ │
-│ │ • URL                           │ │
-│ │ • Category                      │ │
-│ │ • Frequency                     │ │
-│ ├─────────────────────────────────┤ │
-│ │ Status                          │ │
-│ │ Last run: 2min ago              │ │
-│ │ • Feed: ✓ Live                  │ │
-│ │ • Category: 📰 Found            │ │
-│ ├─────────────────────────────────┤ │
-│ │ Actions              ⋮          │ │
-│ └─────────────────────────────────┘ │
-└─────────────────────────────────────┘
-```
-
-### Public Website Layout
-```
-┌─────────────────────────────────────────────────────┐
-│ Navbar (brand-card background)                     │
-├─────────────────────────────────────────────────────┤
-│ Header Section (brand-primary background)          │
-│ ┌─────────────┬─────────────┬─────────────────────┐ │
-│ │ Featured    │ Featured    │ Featured            │ │
-│ │ Article 1   │ Article 2   │ Article 3           │ │
-│ └─────────────┴─────────────┴─────────────────────┘ │
-├─────────────────────────────────────────────────────┤
-│ Main Content (brand-alt-background)                │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Article Card (chronological order)             │ │
-│ │ • Title • Excerpt • Image                      │ │
-│ └─────────────────────────────────────────────────┘ │
-│ ┌─────────────────────────────────────────────────┐ │
-│ │ Article Card                                    │ │
-│ └─────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────┘
-```
 
 ## Responsive Design Guidelines
 
@@ -285,8 +231,17 @@ For detailed visual specifications, refer to the Figma designs:
 ### Create Queue
 - **[Create Queue Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4721&t=qDk6WcgOLP0HMkjl-1)** - Shared Queue for all created sources
 
-### Component Consistency
+### Review Workflow
+- **[Review Pending Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5471&t=85oVoQlA9tmvqKG3-1)** - Pending articles awaiting review
+- **[Review Approved Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5491&t=85oVoQlA9tmvqKG3-1)** - Published articles
+- **[Review Drafts Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5511&t=85oVoQlA9tmvqKG3-1)** - Draft articles in progress
+- **[Review Rejected Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-6107&t=85oVoQlA9tmvqKG3-1)** - Rejected articles
+- **[Article Preview Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5596&t=85oVoQlA9tmvqKG3-1)** - Live article preview with editorial actions
+- **[Article Edit Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5531&t=85oVoQlA9tmvqKG3-1)** - Field editing and image generation integration
+- **[Image Generation Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5567&t=85oVoQlA9tmvqKG3-1)** - Prompt selection and DALL-E workflow
+
+## Component Consistency
 - Always use semantic color variables, never hardcoded values
 - Follow established component structure from DEVELOPMENT.md
 - Implement proper loading and error states for all interactive components
-- Ensure accessibility with proper contrast ratios and focus indicators
+- Ensure accessibility with proper contrast ratios and focus indicators 

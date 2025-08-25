@@ -27,7 +27,28 @@
 
 ### Pending Tab
 - **New Articles**: AI-processed articles awaiting editorial review
-- **Actions**: Approve, reject, edit, save as draft
+- **Preview**: Click cards to open live article preview page
+- **Actions**: Approve, Edit, Reject, Save as Draft, Cancel
+
+### Article Preview Page
+- **Live Preview**: Uses actual public article page for realistic preview
+- **Editorial Actions**: Approve (moves to Approved tab + goes live), Edit, Reject, Save as Draft
+
+### Article Edit Page
+- **Field Editing**: All article fields editable (title, body, excerpt, category, etc.)
+- **Image Generation**: Generate Image button when no image present
+- **Save Options**: Save as Draft (moves to Drafts tab), return to Preview
+
+### Image Generation Page
+- **Prompt Selection**: Choose AI-generated prompts or create custom prompts
+- **DALL-E Integration**: Generate images via OpenAI API
+- **Preview & Iterate**: Generate multiple images until satisfied
+- **Save**: Insert selected image into article, return to Edit page
+
+### Create Tab
+- **Manual Creation**: Empty edit page for entirely hand-written articles
+- **Custom Input**: Full editorial control over all article fields
+- **Integration**: Links to preview and image generation pages like other tabs
 
 ### Approved Tab
 - **Published Content**: Live articles visible on public website
@@ -35,7 +56,7 @@
 
 ### Rejected Tab
 - **Declined Articles**: Archive for potential recovery
-- **Actions**: Delete permanently, edit and resubmit
+- **Actions**: Delete permanently, edit and resubmit for review
 
 ### Drafts Tab
 - **Work in Progress**: Articles requiring further development

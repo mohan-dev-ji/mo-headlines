@@ -19,6 +19,7 @@ import type * as comments from "../comments.js";
 import type * as createQueue from "../createQueue.js";
 import type * as createResearch from "../createResearch.js";
 import type * as createRss from "../createRss.js";
+import type * as createYoutube from "../createYoutube.js";
 import type * as migrations from "../migrations.js";
 import type * as seedCategories from "../seedCategories.js";
 import type * as users from "../users.js";
@@ -38,6 +39,7 @@ declare const fullApi: ApiFromModules<{
   createQueue: typeof createQueue;
   createResearch: typeof createResearch;
   createRss: typeof createRss;
+  createYoutube: typeof createYoutube;
   migrations: typeof migrations;
   seedCategories: typeof seedCategories;
   users: typeof users;

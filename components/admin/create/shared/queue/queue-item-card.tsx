@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ExpandableText } from "@/components/ui/expandable-text"
 import { Clock, Zap, CheckCircle, XCircle } from "lucide-react"
 import { Id } from "@/convex/_generated/dataModel"
 import { QueueActionsDropdown } from "./queue-actions-dropdown"
@@ -151,9 +152,11 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
 
           {/* Concept/Description */}
           <div>
-            <p className="text-body-primary text-sm leading-relaxed">
-              {queueItem.concept}
-            </p>
+            <ExpandableText 
+              text={queueItem.concept}
+              maxLines={2}
+              className="text-body-primary text-sm leading-relaxed"
+            />
           </div>
 
           {/* Source, Category, Added Info */}

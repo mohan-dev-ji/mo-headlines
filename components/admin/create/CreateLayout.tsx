@@ -4,6 +4,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { RssTab } from "./rss/RssTab"
 import { ResearchTab } from "./research/ResearchTab"
+import { YouTubeTab } from "./youtube/YouTubeTab"
 import { QueueProvider } from "./shared/queue/QueueProvider"
 import { QueueFiltersPane } from "./shared/queue/QueueFiltersPane"
 import { QueueItemsPane } from "./shared/queue/QueueItemsPane"
@@ -44,9 +45,7 @@ export function CreateLayout() {
               </TabsContent>
               
               <TabsContent value="youtube" className="p-0 flex-1 min-h-0 overflow-hidden">
-                <div className="h-full flex justify-center items-center">
-                  <div className="text-body-secondary">YouTube workflow coming soon...</div>
-                </div>
+                <YouTubeTab />
               </TabsContent>
             </div>
           )}

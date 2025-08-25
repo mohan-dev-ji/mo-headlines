@@ -114,10 +114,8 @@ export default defineSchema({
   create_youtube: defineTable({
     videoUrl: v.string(),
     videoTitle: v.optional(v.string()),
-    concept: v.string(),
-    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("complete")),
-    duration: v.optional(v.number()),
-    category: v.string(),
+    transcript: v.string(),
+    categoryId: v.id("categories"),
     timecodeStart: v.optional(v.number()),
     timecodeEnd: v.optional(v.number()),
     createdBy: v.id("users"),

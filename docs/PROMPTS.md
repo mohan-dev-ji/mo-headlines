@@ -69,6 +69,30 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 
 **Alternative**: Use YouTube URL with clear timecode parameters - let Perplexity research the video topic rather than content analysis
 
+## Image Generation Pipeline
+
+### DALL-E 3 Integration
+- **Model**: DALL-E 3 for high-quality article images  
+- **Prompt Sources**: AI-generated prompts from Perplexity analysis or user-created prompts
+- **Specifications**: 1024x576 resolution, 16:9 aspect ratio, JPEG format
+- **Workflow Integration**: Accessible from article edit pages when no image present
+- **Iterative Generation**: Multiple generation attempts until satisfactory result
+- **Content Relevance**: Prompts based on article content analysis for visual coherence
+
+### Image Generation Workflow
+- **Access Point**: Generate Image button appears on edit pages without images
+- **Prompt Selection**: Choose from AI-generated prompts or create custom prompts
+- **Generation Process**: Send selected prompt to DALL-E 3 API
+- **Preview System**: Display generated image for user review
+- **Iteration Support**: Generate multiple variations until satisfied
+- **Integration**: Save approved image to article, return to edit workflow
+
+### Prompt Generation Strategy
+- **Content Analysis**: Extract visual themes from article content
+- **Style Guidelines**: Consistent visual aesthetic across all generated images
+- **Technical Specifications**: Optimize prompts for 16:9 aspect ratio
+- **Brand Alignment**: Ensure generated imagery aligns with Mo Headlines visual identity
+
 ## Content Quality Standards
 
 ### Article Requirements
@@ -77,15 +101,6 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 - **Objectivity**: Professional journalism tone, avoid sensationalism
 - **Accuracy**: Specific facts, dates, figures when available
 - **Discrepancy Handling**: Note conflicting reports between sources
-
-### Topic Generation Strategy
-**Current Issue**: Topics often too generic or multi-word phrases
-**Improved Approach**:
-- **Single Tokens Only**: No spaces, hyphens allowed (e.g., "GPT-4", "Meta")
-- **Proper Nouns**: Company names, product names, people names in TitleCase
-- **Recognizable Terms**: Well-known tech buzzwords, acronyms
-- **Search Integration**: Topics link to category keyword search
-- **Bold Formatting**: Each topic appears bolded at least once in article text
 
 ### Source Citation Standards
 - **Minimum Sources**: 3-5 reputable sources per article

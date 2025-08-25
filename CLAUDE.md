@@ -10,91 +10,98 @@ All project documentation is centralized in `/docs/`:
 - **Supadata Integration**: [YouTube Transcript Guide](docs/supadata-guide.md)
 
 ## 🎯 Current Development Phase
-- **Phase**: Create YouTube Source Feature Implementation
-- **Previous**: Article Schema Cleanup ✅ Complete
-- **API Setup**: Supadata.ai account created, API key configured ✅ Ready
+- **Phase**: Review Section Implementation
+- **Previous**: YouTube Feature Implementation ✅ Complete
+- **Focus**: Building comprehensive Review workflow with editorial controls
 
-## 🎬 **YouTube Feature Implementation Plan**
+## 🔍 **Review Section Implementation Plan**
 
-### **Goal**: Add YouTube video processing with timecode-based transcript extraction
+### **Goal**: Build complete Review section with article management, editing, and image generation
 
-**Implementation Reference**: See [supadata-guide.md](docs/supadata-guide.md) for detailed API integration examples and error handling patterns.
+**Implementation Reference**: See updated [FEATURES.md](docs/FEATURES.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [UX.md](docs/UX.md) for detailed workflow specifications and Figma designs.
 
-### **Step 1: Convex Functions**
-Create `/convex/createYoutube.ts` file with:
+### **Step 1: Review Tab System & Layout**
+Create `/app/admin/review/` pages and `/components/admin/review/` folder:
 
-- **extractYouTubeData** (action): 
-  - Parse YouTube URL to extract video ID
-  - Call Supadata API for transcript + metadata  
-  - Store in create_youtube table
-  - *Reference*: supadata-guide.md sections on API calls and error handling
+- **ReviewLayout.tsx**: Main review section layout
+  - Tab system: Pending/Approved/Rejected/Drafts/Create
+  - Filter system shared across all tabs
+  - Follows established Create workflow patterns
 
-- **listYouTubeSources** (query):
-  - Return YouTube sources for YouTubeTab display
-  - Filter by category support
+- **ReviewTabSystem.tsx**: Tab navigation component
+  - Status-based tab indicators with counts
+  - Active/inactive states matching design system
+  - *Reference*: UX.md Review Workflow Components
 
-- **updateTimecodes** (mutation): Edit timecode selection
-- **addYouTubeToQueue** (mutation): Normalize to queue format and delete source  
-- **deleteYouTubeSource** (mutation): Remove YouTube source
+### **Step 2: Review Cards & Article Display**
+- **ReviewCard.tsx**: Universal card component
+  - Status-based left border styling (pending/approved/rejected/drafts)
+  - Article preview with title, excerpt, category, status
+  - Click to open preview page
+  - *Reference*: Figma Review Tab designs
 
-*Follow the same pattern as `createQueue.ts` and `createResearch.ts`*
+- **PendingTab.tsx**: List pending articles awaiting review
+- **ApprovedTab.tsx**: List published articles  
+- **RejectedTab.tsx**: List rejected articles
+- **DraftsTab.tsx**: List draft articles
+- **CreateTab.tsx**: Empty state for manual article creation
 
-### **Step 2: React Components**
-Create `/components/admin/create/youtube/` folder with:
+### **Step 3: Article Preview Integration**
+- **ArticlePreviewPage**: Live article preview with editorial overlay
+  - Embed actual public article page for realistic preview
+  - Editorial action buttons: Approve, Edit, Reject, Save as Draft, Cancel
+  - Status transition handling with immediate updates
+  - *Reference*: Figma Article Preview Page design
 
-- **CreateYouTubeModal.tsx**: URL input modal
-  - YouTube URL validation (see supadata-guide.md for URL parsing patterns)
-  - Category selection dropdown
-  - Loading states and error handling
+### **Step 4: Article Edit Interface**
+- **ArticleEditPage**: Full article editing capabilities
+  - All fields editable: title, body, excerpt, category, etc.
+  - Generate Image button when no image present
+  - Save options: Save as Draft, Return to Preview
+  - Form validation and error handling
+  - *Reference*: Figma Article Edit Page design
 
-- **EditYouTubeModal.tsx**: Edit existing YouTube source
-  - Update timecode start/end times
-  - Edit category selection
-  - Regenerate transcript option
+### **Step 5: Image Generation Pipeline**
+- **ImageGenerationPage**: Complete DALL-E integration workflow
+  - Prompt selection: AI-generated vs custom prompts
+  - Image generation with DALL-E 3 API
+  - Preview system with regeneration capability
+  - Save and return to edit page
+  - *Reference*: Figma Image Generation Page design + PROMPTS.md
 
-- **YouTubeSourceCard.tsx**: Video source display
-  - Show video metadata (title, channel, duration)
-  - Transcript preview with timecode inputs
-  - Actions dropdown: Edit, Add to Queue, Delete
+### **Step 6: Convex Functions**
+Create `/convex/review.ts` file with:
 
-- **YouTubeTab.tsx**: Main tab container
-  - YouTube sources list
-  - Empty state with create button
-  - Follow RSS/Research tab patterns
+- **listArticlesByStatus** (query): Get articles by status with filtering
+- **updateArticleStatus** (mutation): Change article status (pending → approved/rejected/draft)
+- **updateArticle** (mutation): Edit article fields
+- **createArticle** (mutation): Manual article creation from Create tab
+- **generateImage** (action): DALL-E API integration for image generation
+- **deleteArticle** (mutation): Remove articles (rejected articles only)
 
-### **Step 3: Timecode Segment Extraction**
-- **Function**: Extract transcript segments based on timecodes
-- **Input**: Full transcript + start/end times in seconds
-- **Output**: Text segment for AI processing
-- *Reference*: supadata-guide.md section on "Extracting Specific Video Segments"
+### **Step 7: Status Management & Workflows**
+- **Status Transitions**: Implement all status change flows
+  - Pending → Approved (publish + move to Approved tab)
+  - Pending → Rejected (archive + move to Rejected tab)
+  - Pending → Draft (save + move to Drafts tab)
+  - Any status → Edit workflow → Preview → Approve flow
+- **Instant Updates**: Real-time status changes with Sonner toast notifications
+- **Filter Integration**: Status-based filtering across all tabs
 
-### **Step 4: Queue Integration**  
-- **Normalize**: YouTube sources to universal queue format
-- **Fields**: `{ title, url, concept, createSource }`
-- **Concept**: Timecode segment text or full transcript
-- **Source**: `"YouTube: ${channelName}"`
-
-### **Step 5: UI Integration**
-- **CreateLayout**: Add YouTube tab to existing tab system
-- **Tab Navigation**: Follow established RSS/Research patterns
-- **Error States**: Handle Supadata API errors and missing transcripts
-- *Reference*: supadata-guide.md sections on error handling and caching
-
-### **Technical Notes**
-- **Supadata Integration**: Server-side Convex actions only (see supadata-guide.md)
-- **Caching**: Store full transcript, extract segments on-demand
-- **Rate Limits**: 100 free requests/month, implement caching strategy
-- **AI Processing**: No changes needed - existing prompt handles normalized queue data
-
-## ✅ Recent Fixes
+## ✅ Completed Features
 - ~~**Article Schema Cleanup**: Removed topics, rssSourceOrigin, isAutoGenerated fields and related functions~~ ✅ Fixed
 - ~~**UI Scrolling Bug**: Fixed excessive scrolling in RSS, Research, and YouTube sections using conditional rendering~~ ✅ Fixed
 - ~~**Queue Item Cleanup**: Completed queue items are now deleted after AI processing~~ ✅ Fixed
 - ~~**Bulk Processing**: Dropdown filter bulk processing not working in create queue~~ ✅ Fixed
 - ~~**RSS UI Cleanup**: Removed development "Clear Tables" button from RSS section~~ ✅ Fixed
 - ~~**RSS Refresh Feature**: Added refresh button to RSS actions dropdown using existing update function~~ ✅ Fixed
+- ~~**YouTube Feature Implementation**: Complete YouTube source creation with Supadata.ai transcript extraction~~ ✅ Complete
+  - ~~YouTube URL input and validation~~ ✅ Complete
+  - ~~Timecode-based transcript segment extraction~~ ✅ Complete
+  - ~~Integration with universal queue processing~~ ✅ Complete
+  - ~~Component structure following established patterns~~ ✅ Complete
 
-## 🔧 Implementation Context
+## 📧 Implementation Context
 
 ### Architecture Decisions
 - **ADR 1**: Workflow-based admin (Create → Review) ✅ Accepted
@@ -102,16 +109,39 @@ Create `/components/admin/create/youtube/` folder with:
 - See [ADR Documentation](docs/adr/README.md) for full rationale
 
 ### Development Workflow
-1. **Phase 1**: Implement Convex schema and functions
-2. **Phase 2**: Create React components following established patterns  
-3. **Phase 3**: Integrate with existing CreateLayout and queue system
-4. **Phase 4**: Test end-to-end workflow: YouTube → Queue → AI → Review
-5. **Phase 5**: Add timecode editing and segment preview features
+1. **Phase 1**: Implement Review layout and tab system
+2. **Phase 2**: Create ReviewCard component and tab pages following UX specifications
+3. **Phase 3**: Build ArticlePreviewPage with live article integration
+4. **Phase 4**: Implement ArticleEditPage with full field editing
+5. **Phase 5**: Add Image Generation workflow with DALL-E integration
+6. **Phase 6**: Create all Convex functions for article management
+7. **Phase 7**: Test complete workflow: Create → Queue → AI → Review → Publish
 
 ## 🚨 **Development Rule: Zero TypeScript Errors**
 Always run `npx tsc --noEmit --project .` and fix ALL errors after coding. TypeScript errors in `/convex/` files break API generation.
 
+## 📊 Technical Implementation Notes
+
+### Review Workflow Architecture
+- **Universal ReviewCard**: Single component handles all status types with styling variations
+- **Status-Based Routing**: Each tab filters articles by status using Convex queries
+- **Live Preview Integration**: ArticlePreviewPage embeds public article page for authentic preview
+- **Image Generation**: Seamless DALL-E integration within edit workflow
+- **Real-time Updates**: Convex reactive queries update UI instantly on status changes
+
+### Key Design Patterns
+- **Status Indicators**: Consistent color coding across all review components
+- **Progressive Enhancement**: Review → Edit → Image Gen → Save workflow
+- **Error Boundaries**: Comprehensive error handling for API failures and edge cases
+- **Loading States**: Smooth transitions between workflow states
+
+### API Integration Requirements
+- **Convex Queries**: Real-time article filtering and status management
+- **DALL-E API**: Image generation with error handling and retry logic  
+- **Status Management**: Atomic status transitions with rollback capability
+- **Validation**: Comprehensive form validation for article editing
+
 ---
 
-**Tech Stack**: Next.js 15.3, Convex, Clerk, Perplexity API, Supadata.ai  
+**Tech Stack**: Next.js 15.3, Convex, Clerk, Perplexity API, Supadata.ai, OpenAI DALL-E 3  
 **Last Updated**: August 2025
