@@ -28,7 +28,7 @@ export function CommentSection({ articleId }: CommentSectionProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Comments</h2>
+        <h2 className="text-2xl font-bold text-headline-primary">Comments</h2>
         {!user && (
           <Link href={`/sign-in?redirect_url=${encodeURIComponent(window.location.href + '#comments')}`}>
             <Button variant="outline" className="gap-2">

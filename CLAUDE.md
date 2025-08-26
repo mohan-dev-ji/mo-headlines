@@ -25,8 +25,7 @@ Create `/app/admin/review/` pages and `/components/admin/review/` folder:
 
 - **ReviewLayout.tsx**: Main review section layout
   - Tab system: Pending/Approved/Rejected/Drafts/Create
-  - Filter system shared across all tabs
-  - Follows established Create workflow patterns
+  - Each tab has queue system similar to the shared Create Queue
 
 - **ReviewTabSystem.tsx**: Tab navigation component
   - Status-based tab indicators with counts
@@ -35,16 +34,13 @@ Create `/app/admin/review/` pages and `/components/admin/review/` folder:
 
 ### **Step 2: Review Cards & Article Display**
 - **ReviewCard.tsx**: Universal card component
-  - Status-based left border styling (pending/approved/rejected/drafts)
+  - Status-based border styling (pending/approved/rejected/drafts)
   - Article preview with title, excerpt, category, status
   - Click to open preview page
   - *Reference*: Figma Review Tab designs
 
 - **PendingTab.tsx**: List pending articles awaiting review
-- **ApprovedTab.tsx**: List published articles  
-- **RejectedTab.tsx**: List rejected articles
-- **DraftsTab.tsx**: List draft articles
-- **CreateTab.tsx**: Empty state for manual article creation
+  - perfect the Pending tab first and leave the other tabs to be connected on step 7.
 
 ### **Step 3: Article Preview Integration**
 - **ArticlePreviewPage**: Live article preview with editorial overlay

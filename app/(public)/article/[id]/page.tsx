@@ -9,7 +9,7 @@ import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
-import { Pencil, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import {
@@ -53,10 +53,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="min-h-screen bg-brand-card">
+      <div className="max-w-2xl mx-auto px-4 py-8 bg-brand-background">
       {/* Banner Image */}
       {article.imageUrl && (
-        <div className="relative w-full h-[300px] mb-8 rounded-lg overflow-hidden">
+        <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
           <Image
             src={article.imageUrl}
             alt={article.title}
@@ -69,9 +70,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
       {/* Article Content */}
       <article className="prose prose-lg max-w-none">
-        <h1 className="text-4xl font-extrabold mb-4">{article.title}</h1>
+        <h1 className="text-4xl font-extrabold mb-4 text-headline-primary">{article.title}</h1>
         
-        <div className="flex items-center gap-4 text-gray-600 mb-8">
+        <div className="flex items-center gap-4 text-body-primary mb-8">
           <span className="capitalize">{article.category?.name}</span>
           <span>•</span>
           <span>{new Date(article._creationTime).toLocaleDateString('en-US', {
@@ -86,7 +87,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         <div className="prose prose-lg max-w-none">
           {/* Fallback: If ReactMarkdown fails, show as formatted text */}
           {!article.body && (
-            <div className="text-gray-500 italic">No article content available</div>
+            <div className="text-body-primary italic">No article content available</div>
           )}
           
           {article.body && (
@@ -96,17 +97,22 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
               <ReactMarkdown
             components={{
               p: ({children, ...props}) => (
-                <p className="mb-4 leading-relaxed text-gray-700" {...props}>
+                <p className="mb-4 leading-relaxed text-body-primary" {...props}>
                   {children}
                 </p>
               ),
               h3: ({children, ...props}) => (
-                <h3 className="text-lg font-semibold mt-6 mb-4 text-gray-900" {...props}>
+                <h3 className="text-lg font-semibold mt-6 mb-4 text-headline-primary" {...props}>
                   {children}
                 </h3>
               ),
+              h2: ({children, ...props}) => (
+                <h2 className="text-xl font-semibold mt-6 mb-4 text-headline-primary" {...props}>
+                  {children}
+                </h2>
+              ),
               strong: ({children, ...props}) => {
-                return <strong className="font-bold text-gray-900" {...props}>{children}</strong>;
+                return <strong className="font-bold text-body-primary" {...props}>{children}</strong>;
               }
             }}
           >
@@ -118,19 +124,19 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
 
         {/* Sources Section */}
         {article.sourceUrls && article.sourceUrls.length > 0 && (
-          <div className="mt-8 p-6 bg-gray-50 rounded-lg border">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900">Sources</h3>
+          <div className="mt-8 p-6 bg-brand-card rounded-lg border-brand-line">
+            <h3 className="text-lg font-semibold mb-4 text-headline-primary">Sources</h3>
             <div className="space-y-3">
               {article.sourceUrls.map((url, index) => (
                 <div key={index} className="flex items-start gap-3">
-                  <span className="text-sm text-gray-500 mt-1 font-medium">
+                  <span className="text-sm text-body-primary mt-1 font-medium">
                     [{index + 1}]
                   </span>
                   <a
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 underline break-all text-sm leading-relaxed transition-colors"
+                    className="text-body-primary hover:text-headline-primary underline break-all text-sm leading-relaxed transition-colors"
                   >
                     {url}
                   </a>
@@ -139,45 +145,11 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
             </div>
           </div>
         )}
-
-        {/* Edit and Delete Buttons - Only visible to admin */}
-        {isAdmin(user?.id) && (
-          <div className="mt-8 flex justify-end gap-4">
-            <Link href={`/admin/articles/${resolvedParams.id}/edit`}>
-              <Button variant="outline" className="gap-2">
-                <Pencil className="h-4 w-4" />
-                Edit Article
-              </Button>
-            </Link>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" className="gap-2">
-                  <Trash2 className="h-4 w-4" />
-                  Delete Article
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete the article
-                    and remove the data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
-        )}
       </article>
 
       <div className="max-w-3xl mx-auto mt-16">
         <CommentSection articleId={article._id} />
+      </div>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Placeholder from "@tiptap/extension-placeholder";
 import Link from "@tiptap/extension-link";
-import Image from "@tiptap/extension-image";
 import { Button } from "@/components/ui/button";
 import {
   Bold,
@@ -15,23 +14,28 @@ import {
   Redo,
   Undo,
   Link as LinkIcon,
-  Image as ImageIcon,
   Heading1,
   Heading2,
+  Heading3,
 } from "lucide-react";
 import { useEffect, useCallback } from "react";
 
 interface RichTextEditorProps {
-  content: string;
   onChange: (content: string) => void;
+  initialContent?: string;
+  content?: string;
 }
 
-export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
+export function RichTextEditor({
+  onChange,
+  initialContent,
+  content,
+}: RichTextEditorProps) {
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2],
+          levels: [1, 2, 3],
           HTMLAttributes: {
             class: 'font-semibold',
           },
@@ -57,12 +61,12 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
         },
         paragraph: {
           HTMLAttributes: {
-            class: 'mb-4',
+            class: 'mb-4 leading-relaxed',
           },
         },
       }),
       Placeholder.configure({
-        placeholder: "Write your article content here...",
+        placeholder: "Start writing your article...",
       }),
       Link.configure({
         openOnClick: false,
@@ -70,31 +74,32 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           class: 'text-blue-500 underline',
         },
       }),
-      Image.configure({
-        HTMLAttributes: {
-          class: 'rounded-lg my-4',
-        },
-        allowBase64: true,
-      }),
     ],
-    content,
+    content: content || initialContent || "<p>Start writing your article...</p>",
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML();
-      onChange(html);
+      onChange(editor.getHTML());
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm max-w-none p-4 min-h-[300px] focus:outline-none [&>h1]:text-3xl [&>h1]:font-semibold [&>h1]:mb-4 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:mb-4',
+        class: 'p-4 min-h-[300px] focus:outline-none',
+        style: 'line-height: 1.6;',
       },
     },
   });
 
-  // Only update content when it changes from outside the editor
+  // Update editor content when content changes
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
+    if (editor && content !== undefined && content !== editor.getHTML()) {
       editor.commands.setContent(content);
     }
   }, [editor, content]);
+
+  // Legacy support for initialContent
+  useEffect(() => {
+    if (editor && initialContent !== undefined && !content) {
+      editor.commands.setContent(initialContent);
+    }
+  }, [editor, initialContent, content]);
 
   const handleButtonClick = useCallback((callback: () => void) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -112,22 +117,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
     editor.chain().focus().toggleHeading({ level: 2 }).run();
   }, [editor]);
 
-  const handleBulletList = useCallback(() => {
+  const handleHeading3 = useCallback(() => {
     if (!editor) return;
-    editor.chain().focus().toggleBulletList().run();
-  }, [editor]);
-
-  const handleOrderedList = useCallback(() => {
-    if (!editor) return;
-    editor.chain().focus().toggleOrderedList().run();
-  }, [editor]);
-
-  const handleImage = useCallback(() => {
-    if (!editor) return;
-    const url = window.prompt("Enter image URL");
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
+    editor.chain().focus().toggleHeading({ level: 3 }).run();
   }, [editor]);
 
   if (!editor) {
@@ -143,6 +135,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={handleButtonClick(handleHeading1)}
           data-active={editor.isActive("heading", { level: 1 })}
           type="button"
+          className="text-headline-secondary"
         >
           <Heading1 className="h-4 w-4" />
         </Button>
@@ -152,8 +145,19 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={handleButtonClick(handleHeading2)}
           data-active={editor.isActive("heading", { level: 2 })}
           type="button"
+          className="text-headline-secondary"
         >
           <Heading2 className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleButtonClick(handleHeading3)}
+          data-active={editor.isActive("heading", { level: 3 })}
+          type="button"
+          className="text-headline-secondary"
+        >
+          <Heading3 className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
@@ -161,6 +165,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={handleButtonClick(() => editor.chain().focus().toggleBold().run())}
           data-active={editor.isActive("bold")}
           type="button"
+          className="text-headline-secondary"
         >
           <Bold className="h-4 w-4" />
         </Button>
@@ -170,24 +175,27 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={handleButtonClick(() => editor.chain().focus().toggleItalic().run())}
           data-active={editor.isActive("italic")}
           type="button"
+          className="text-headline-secondary"
         >
           <Italic className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleButtonClick(handleBulletList)}
+          onClick={handleButtonClick(() => editor.chain().focus().toggleBulletList().run())}
           data-active={editor.isActive("bulletList")}
           type="button"
+          className="text-headline-secondary"
         >
           <List className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleButtonClick(handleOrderedList)}
+          onClick={handleButtonClick(() => editor.chain().focus().toggleOrderedList().run())}
           data-active={editor.isActive("orderedList")}
           type="button"
+          className="text-headline-secondary"
         >
           <ListOrdered className="h-4 w-4" />
         </Button>
@@ -197,6 +205,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           onClick={handleButtonClick(() => editor.chain().focus().toggleBlockquote().run())}
           data-active={editor.isActive("blockquote")}
           type="button"
+          className="text-headline-secondary"
         >
           <Quote className="h-4 w-4" />
         </Button>
@@ -210,16 +219,9 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
             }
           })}
           type="button"
+          className="text-headline-secondary"
         >
           <LinkIcon className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleButtonClick(handleImage)}
-          type="button"
-        >
-          <ImageIcon className="h-4 w-4" />
         </Button>
         <div className="flex-1" />
         <Button
@@ -227,6 +229,7 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           size="sm"
           onClick={handleButtonClick(() => editor.chain().focus().undo().run())}
           type="button"
+          className="text-headline-secondary"
         >
           <Undo className="h-4 w-4" />
         </Button>
@@ -235,11 +238,14 @@ export function RichTextEditor({ content, onChange }: RichTextEditorProps) {
           size="sm"
           onClick={handleButtonClick(() => editor.chain().focus().redo().run())}
           type="button"
+          className="text-headline-secondary"
         >
           <Redo className="h-4 w-4" />
         </Button>
       </div>
-      <EditorContent editor={editor} />
+      <div className="prose prose-sm max-w-none [&_.ProseMirror]:p-4 [&_.ProseMirror]:min-h-[300px] [&_.ProseMirror]:focus:outline-none [&_.ProseMirror_h1]:text-3xl [&_.ProseMirror_h1]:font-bold [&_.ProseMirror_h1]:my-6 [&_.ProseMirror_h2]:text-2xl [&_.ProseMirror_h2]:font-semibold [&_.ProseMirror_h2]:my-5 [&_.ProseMirror_h3]:text-xl [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:my-4 [&_.ProseMirror_p]:mb-4 [&_.ProseMirror_p]:leading-relaxed">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
-} 
+}

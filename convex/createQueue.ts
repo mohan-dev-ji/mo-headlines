@@ -357,9 +357,9 @@ RESPONSE FORMAT (JSON ARRAY):
     "category": "One of: ${categoryNames.join(", ")}",
     "sourceUrls": ["url1", "url2", "url3"],
     "imageGenPrompts": [
-      "First detailed image generation prompt describing a visual concept related to the article",
-      "Second detailed image generation prompt with different visual angle or component", 
-      "Third detailed image generation prompt focusing on another key aspect"
+      "Abstract conceptual imagery with symbolic elements related to the article - NO text, words, or real-world logos",
+      "Geometric and architectural composition conveying the article's themes through shapes, colors, and visual metaphors", 
+      "Cinematic lighting and atmospheric scene that captures the mood and essence of the topic through environmental storytelling"
     ]
   }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": ["url1", "url2", "url3"],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"]\n  }\n  // ... repeat for each article' : ''}
 ]`;
@@ -497,6 +497,12 @@ export const createArticleFromProcessed = internalMutation({
     queueItemId: v.id("create_queue"),
   },
   handler: async (ctx, args) => {
+    // Get the queue item to access createSource
+    const queueItem = await ctx.db.get(args.queueItemId);
+    if (!queueItem) {
+      throw new Error("Queue item not found");
+    }
+
     // Find category ID
     const category = await ctx.db
       .query("categories")
@@ -513,6 +519,7 @@ export const createArticleFromProcessed = internalMutation({
       body: args.processedData.body,
       categoryId: category._id,
       authorId: "ai-system", // System-generated
+      createSource: queueItem.createSource, // Get from queue item
       status: "pending", // Enters review workflow
       sourceUrls: args.processedData.sourceUrls,
       excerpt: args.processedData.excerpt,

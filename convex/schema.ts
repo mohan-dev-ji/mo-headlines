@@ -8,6 +8,9 @@ export default defineSchema({
     categoryId: v.id("categories"),
     authorId: v.string(),
     imageStorageId: v.optional(v.id("_storage")), // Field for storing file storage ID
+    imageGenPromptUsed: v.optional(v.string()), // The actual prompt used to generate the current image
+    // Source identification
+    createSource: v.string(),
     // AI Processing System fields
     status: v.union(v.literal("draft"), v.literal("pending"), v.literal("approved"), v.literal("rejected")),
     isEdited: v.optional(v.boolean()),
