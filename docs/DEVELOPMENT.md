@@ -24,11 +24,11 @@
 - Implement proper error boundaries
 
 ### Naming Conventions
-- **Components**: PascalCase (`CreateRssModal`, `ProducerCard`)
-- **Files**: kebab-case matching component names (`create-rss-modal.tsx`)
-- **Functions**: camelCase (`handleFormSubmit`, `validateRssUrl`)
-- **Constants**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS`, `MAX_QUEUE_SIZE`)
-- **Types**: PascalCase (`CreateRssFormData`, `QueueItem`)
+- **Components**: PascalCase (`CreateRssModal`, `ProducerCard`, `ImagesGallery`, `EditPromptModal`)
+- **Files**: kebab-case matching component names (`create-rss-modal.tsx`, `images-gallery.tsx`, `edit-prompt-modal.tsx`)
+- **Functions**: camelCase (`handleFormSubmit`, `validateRssUrl`, `updateImageRating`, `editPromptText`)
+- **Constants**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS`, `MAX_QUEUE_SIZE`, `IMAGE_RATINGS`, `PROMPT_SOURCES`)
+- **Types**: PascalCase (`CreateRssFormData`, `QueueItem`, `ImageMetadata`, `PromptSource`)
 
 ## State Management
 
@@ -72,6 +72,7 @@
   /admin           # Admin dashboard pages
     /create        # Create workflow pages
     /review        # Review workflow pages
+    /images        # Images workflow pages
   /(public)        # Public website pages
 
 /components
@@ -87,7 +88,14 @@
       /rejected    # Rejected components
       /drafts      # Draft components
       /shared      # Shared review components
+    /images
+      /gallery     # Image grid and filtering components
+      /detail      # Individual image page components 
+      /shared      # Image workflow utilities
     /shared        # Cross-workflow components
+      /prompts     # Prompt editing and management components
+      /addimage    # Add Image components for article editing and image gallery
+      /sidebar     # Admin interface sidebar
   /public          # Public website components
   /ui              # shadcn/ui components
 
@@ -100,6 +108,8 @@
 /convex
   /create          # Create workflow functions
   /review          # Review workflow functions
+  /images          # Images workflow functions
+  /prompts         # Prompts workflow functions
   /shared          # Shared functions
 ```
 
@@ -118,11 +128,25 @@
 - Use useMemo for expensive calculations
 - Minimize component re-renders
 
+### Image Handling
+- Leverage Cloudflare CDN for optimal image delivery
+- Implement proper loading states for image grids
+- Use appropriate image sizes for thumbnails vs. full display
+- Handle failed image loads gracefully
+
+### Data Relationships
+- Use efficient queries for normalized data (articles → prompts → images)
+- Implement proper indexing for prompt and image filtering
+- Cache frequently accessed prompt patterns
+- Optimize gallery queries with pagination
+
 ### Security Practices
 - Validate all inputs with Zod schemas
-- Sanitize user-generated content
+- Sanitize user-generated content including prompts
 - Validate environment variables
 - Use proper authentication checks
+- Secure Cloudflare Workers bucket access
+- Validate prompt content before API calls
 
 ## Development Workflow
 
@@ -140,9 +164,21 @@
 - Use shared utilities for common patterns
 - Maintain design consistency through shared design tokens
 - Implement proper validation for each source type
+- Follow established patterns for image handling and display
+- Normalize prompt data handling across components
+
+### Data Migration Considerations
+- Plan careful migration from existing articles table structure
+- Remove deprecated fields (imageGenPrompts, imageStorageId) safely
+- Migrate existing images to Cloudflare storage with proper metadata
+- Ensure data integrity during prompt table population
+- Test relationships between articles, prompts, and images thoroughly
 
 ### Testing Approach
 - Focus on critical user journeys
 - Test error states and edge cases
 - Validate form submissions and API integrations
 - Ensure responsive design works across breakpoints
+- Test image upload and display functionality
+- Verify prompt editing and generation workflows
+- Test data relationships and referential integrity

@@ -38,13 +38,46 @@
 - **DraftsTab**: List of draft articles with edit/approve actions
 
 ### Editing Components
-- **EditArticleModal**: Article editing with image generation pipeline
-- **ImageGenerationPipeline**: AI prompt selection, image generation, storage
+- **EditArticleModal**: Article editing with add image page integration
+- **AddImagePage**: Context-aware image workflow with generate and select tabs
+- **PromptSelector**: Choose from AI-generated prompts (article context) or create new (gallery context)
+- **PromptModal**: Simple textarea interface for creating and editing prompts
 
 ### Shared Review Components
 - **ReviewTabSystem**: Tab navigation for Pending/Approved/Rejected/Drafts
 - **FilterSystem**: Shared filtering across all review tabs
 - **BulkActions**: Multi-select operations
 
+## Images Components
+
+### Gallery Components
+- **ImagesGallery**: Google Drive-style grid layout with thumbnail previews
+- **ImageThumbnail**: Individual image cards with hover metadata, rating display
+- **GalleryFilters**: Dropdown sorting by rating, status, date, category, model, prompt source
+- **BulkActions**: Multi-select operations for rating and status changes
+
+### Detail Components
+- **ImageDetailPage**: Full-size image display with editable metadata (rating, status, article association)
+- **ImageMetadata**: Complete metadata display with edit capabilities
+- **PromptHistory**: Display original prompt and edit history
+- **StatusToggle**: Approve/reject status management
+
+### Add Image Components
+- **AddImagePage**: Unified image workflow for article editing and gallery contexts
+- **GenerateTab**: Prompt selection, editing, and DALL-E 3 generation with preview
+- **SelectTab**: Gallery browser (article context) and device upload with metadata input
+- **ImagePreview**: Universal preview component for generated, uploaded, and selected images
+
+### Prompt Components
+- **PromptModal**: Simple textarea interface for creating and editing prompts with save/cancel
+- **PromptLibrary**: Browse and manage all prompts with usage analytics
+- **PromptAnalytics**: Track effectiveness of different prompt types
+- **PromptSourceBadge**: Visual indicator for AI-generated, custom, or edited prompts
+
+### Shared Images Components
+- **ImageStatusBadge**: Visual status indicators (approved/rejected/pending)
+- **RatingDisplay**: Consistent rating visualization across components
+- **PromptPreview**: Truncated prompt display with expand option
+
 ## Shared Admin Components
-- **AdminSidebar**: Navigation between Create and Review workflows
+- **AdminSidebar**: Navigation between Create, Review, and Images workflows

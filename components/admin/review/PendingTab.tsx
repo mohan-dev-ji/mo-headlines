@@ -34,7 +34,14 @@ export function PendingTab() {
   }
 
   return (
-    <div className="h-full overflow-auto">
+    <div className="space-y-4 p-4 h-full overflow-auto">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-headline-primary">
+          Pending Articles ({articles.length})
+        </h2>
+      </div>
+
+    
       <div className="p-4 space-y-4">
         {articles.map((article) => (
           <ReviewCard

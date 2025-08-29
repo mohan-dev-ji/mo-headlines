@@ -8,136 +8,179 @@ All project documentation is centralized in `/docs/`:
 - **Features**: [Create & Review Workflows](docs/FEATURES.md)
 - **Components**: [Admin & Public Components](docs/COMPONENTS.md)
 - **Supadata Integration**: [YouTube Transcript Guide](docs/supadata-guide.md)
+- **ADR 3**: [Images & Prompts Architecture Decision](docs/adr/README.md)
 
 ## 🎯 Current Development Phase
-- **Phase**: Review Section Implementation
+- **Phase**: Major Architecture Overhaul - Images & Prompts System
 - **Previous**: YouTube Feature Implementation ✅ Complete
-- **Focus**: Building comprehensive Review workflow with editorial controls
+- **External Services**: Supadata.ai ✅ Ready, Cloudflare Workers R2 bucket setup required
 
-## 🔍 **Review Section Implementation Plan**
+## 🖼️ **Images & Prompts Architecture Implementation**
 
-### **Goal**: Build complete Review section with article management, editing, and image generation
+### **Goal**: Implement unified image and prompt management system with context-aware workflows
 
-**Implementation Reference**: See updated [FEATURES.md](docs/FEATURES.md), [ARCHITECTURE.md](docs/ARCHITECTURE.md), [UX.md](docs/UX.md) for detailed workflow specifications and Figma designs.
+**Major Changes**: This is a significant architectural overhaul covered by ADR 3, involving:
+- New `prompts` table for AI-generated, custom, and edited prompts with article relationships
+- New `images` table with Cloudflare R2 storage integration and optional article linking
+- Article table cleanup (remove imageGenPrompts, imageStorageId fields)
+- Third admin section: Images workflow alongside Create and Review
+- Unified Add Image page that works contextually for article editing and gallery workflows
 
-### **Step 1: Review Tab System & Layout**
-Create `/app/admin/review/` pages and `/components/admin/review/` folder:
+### **Implementation Architecture Overview**
 
-- **ReviewLayout.tsx**: Main review section layout
-  - Tab system: Pending/Approved/Rejected/Drafts/Create
-  - Each tab has queue system similar to the shared Create Queue
+**Add Image Page (Context-Aware):**
+- **Article Edit Context**: `/admin/images/add?articleId=xyz` with AI prompts and gallery browse
+- **Gallery Context**: `/admin/images/add` with custom prompts and upload only
+- **Generate Tab**: AI generation with prompt management (context determines available prompts)
+- **Select Tab**: Gallery browser (conditional) and device upload with metadata input
+- **Unified Preview**: Same interface for generated, uploaded, and selected images
 
-- **ReviewTabSystem.tsx**: Tab navigation component
-  - Status-based tab indicators with counts
-  - Active/inactive states matching design system
-  - *Reference*: UX.md Review Workflow Components
+### **Phase 1: Database Schema Migration**
+**Convex Schema Updates** (`/convex/schema.ts`):
 
-### **Step 2: Review Cards & Article Display**
-- **ReviewCard.tsx**: Universal card component
-  - Status-based border styling (pending/approved/rejected/drafts)
-  - Article preview with title, excerpt, category, status
-  - Click to open preview page
-  - *Reference*: Figma Review Tab designs
+```typescript
+// New prompts table
+prompts: defineTable({
+  articleId: v.id("articles"),
+  text: v.string(),
+  source: v.union(v.literal("ai-generated"), v.literal("custom"), v.literal("edited")),
+  isUsed: v.boolean(),
+  editedFrom: v.optional(v.id("prompts")),
+})
+.index("by_article", ["articleId"])
+.index("by_usage", ["isUsed"])
 
-- **PendingTab.tsx**: List pending articles awaiting review
-  - perfect the Pending tab first and leave the other tabs to be connected on step 7.
+// Updated images table  
+images: defineTable({
+  articleId: v.id("articles"),
+  promptId: v.id("prompts"),
+  cloudflareUrl: v.string(),
+  cloudflareKey: v.string(),
+  status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("unused")),
+  rating: v.optional(v.number()),
+  model: v.string(),
+  generationCost: v.optional(v.number()),
+  articleTitle: v.string(),
+  categoryId: v.id("categories"),
+})
+.index("by_article", ["articleId"])
+.index("by_status", ["status"])
+.index("by_rating", ["rating"])
 
-### **Step 3: Article Preview Integration**
-- **ArticlePreviewPage**: Live article preview with editorial overlay
-  - Embed actual public article page for realistic preview
-  - Editorial action buttons: Approve, Edit, Reject, Save as Draft, Cancel
-  - Status transition handling with immediate updates
-  - *Reference*: Figma Article Preview Page design
+// Updated articles table (remove imageGenPrompts, imageStorageId)
+articles: defineTable({
+  // ... existing fields
+  imageId: v.optional(v.id("images")), // Keep this
+  // Remove: imageGenPrompts, imageStorageId
+})
+```
 
-### **Step 4: Article Edit Interface**
-- **ArticleEditPage**: Full article editing capabilities
-  - All fields editable: title, body, excerpt, category, etc.
-  - Generate Image button when no image present
-  - Save options: Save as Draft, Return to Preview
-  - Form validation and error handling
-  - *Reference*: Figma Article Edit Page design
+### **Phase 2: Convex Functions Implementation**
+Create new function files:
 
-### **Step 5: Image Generation Pipeline**
-- **ImageGenerationPage**: Complete DALL-E integration workflow
-  - Prompt selection: AI-generated vs custom prompts
-  - Image generation with DALL-E 3 API
-  - Preview system with regeneration capability
-  - Save and return to edit page
-  - *Reference*: Figma Image Generation Page design + PROMPTS.md
+**`/convex/prompts.ts`**:
+- `createPromptsForArticle` (mutation): Store 3 AI-generated prompts from Perplexity
+- `getPromptsForArticle` (query): Retrieve prompts for Generate tab dropdown
+- `createCustomPrompt` (mutation): Create new prompts via PromptModal
+- `editPrompt` (mutation): Create edited version with relationship tracking
+- `markPromptAsUsed` (mutation): Mark prompt when used for image generation
 
-### **Step 6: Convex Functions**
-Create `/convex/review.ts` file with:
+**`/convex/images.ts`**:
+- `createImage` (mutation): Store metadata after generation/upload with prompt relationship
+- `updateImageMetadata` (mutation): Edit rating, status, article association on detail page
+- `listImages` (query): Gallery display with comprehensive filtering
+- `getImageById` (query): Individual image detail with editable fields
+- `getImagesAnalytics` (query): Prompt effectiveness and usage analytics
 
-- **listArticlesByStatus** (query): Get articles by status with filtering
-- **updateArticleStatus** (mutation): Change article status (pending → approved/rejected/draft)
-- **updateArticle** (mutation): Edit article fields
-- **createArticle** (mutation): Manual article creation from Create tab
-- **generateImage** (action): DALL-E API integration for image generation
-- **deleteArticle** (mutation): Remove articles (rejected articles only)
+### **Phase 3: Cloudflare Workers R2 Integration**
+**Setup Requirements**:
+- Cloudflare Workers account and R2 bucket configuration
+- API keys and bucket access configuration
+- Upload/retrieval utilities in `/lib/cloudflare.ts`
 
-### **Step 7: Status Management & Workflows**
-- **Status Transitions**: Implement all status change flows
-  - Pending → Approved (publish + move to Approved tab)
-  - Pending → Rejected (archive + move to Rejected tab)
-  - Pending → Draft (save + move to Drafts tab)
-  - Any status → Edit workflow → Preview → Approve flow
-- **Instant Updates**: Real-time status changes with Sonner toast notifications
-- **Filter Integration**: Status-based filtering across all tabs
+**Integration Points**:
+- Image upload during generation process
+- CDN URL generation for public serving
+- Asset cleanup and management utilities
 
-## ✅ Completed Features
-- ~~**Article Schema Cleanup**: Removed topics, rssSourceOrigin, isAutoGenerated fields and related functions~~ ✅ Fixed
-- ~~**UI Scrolling Bug**: Fixed excessive scrolling in RSS, Research, and YouTube sections using conditional rendering~~ ✅ Fixed
-- ~~**Queue Item Cleanup**: Completed queue items are now deleted after AI processing~~ ✅ Fixed
-- ~~**Bulk Processing**: Dropdown filter bulk processing not working in create queue~~ ✅ Fixed
-- ~~**RSS UI Cleanup**: Removed development "Clear Tables" button from RSS section~~ ✅ Fixed
-- ~~**RSS Refresh Feature**: Added refresh button to RSS actions dropdown using existing update function~~ ✅ Fixed
-- ~~**YouTube Feature Implementation**: Complete YouTube source creation with Supadata.ai transcript extraction~~ ✅ Complete
-  - ~~YouTube URL input and validation~~ ✅ Complete
-  - ~~Timecode-based transcript segment extraction~~ ✅ Complete
-  - ~~Integration with universal queue processing~~ ✅ Complete
-  - ~~Component structure following established patterns~~ ✅ Complete
+### **Phase 4: AI Processing Updates**
+**Update Perplexity Integration**:
+- Modify AI processing to generate 3 prompts per article
+- Store prompts in prompts table instead of articles table
+- Update processing pipeline to handle prompt generation
 
-## 📧 Implementation Context
+**Update Image Generation**:
+- Use prompts from prompts table instead of articles table
+- Link generated images to specific prompts
+- Upload to Cloudflare instead of Convex storage
 
-### Architecture Decisions
-- **ADR 1**: Workflow-based admin (Create → Review) ✅ Accepted
-- **ADR 2**: Universal queue processing ✅ Accepted
-- See [ADR Documentation](docs/adr/README.md) for full rationale
+### **Phase 5: Admin Interface Implementation**
 
-### Development Workflow
-1. **Phase 1**: Implement Review layout and tab system
-2. **Phase 2**: Create ReviewCard component and tab pages following UX specifications
-3. **Phase 3**: Build ArticlePreviewPage with live article integration
-4. **Phase 4**: Implement ArticleEditPage with full field editing
-5. **Phase 5**: Add Image Generation workflow with DALL-E integration
-6. **Phase 6**: Create all Convex functions for article management
-7. **Phase 7**: Test complete workflow: Create → Queue → AI → Review → Publish
+**New Images Section** (`/app/admin/images/`):
+- `/app/admin/images/page.tsx` - Gallery interface
+- `/app/admin/images/[imageId]/page.tsx` - Detail page
+
+**Components** (`/components/admin/images/`):
+- `AddImagePage.tsx` - Context-aware workflow with generate/select tabs
+- `GenerateTab.tsx` - Prompt management and AI generation with preview
+- `SelectTab.tsx` - Gallery browser (conditional) and device upload
+- `PromptModal.tsx` - Simple textarea interface for prompt creation/editing
+- `ImagesGallery.tsx` - Grid display with comprehensive filtering
+- `ImageDetailPage.tsx` - Full view with editable metadata (rating, status, article link)
+
+**Update Review Components**:
+- Modify article editing to integrate with unified Add Image page
+- Update navigation between article edit and image workflows
+- Ensure proper context passing for article association
+
+### **Phase 6: Data Migration**
+**Migration Strategy**:
+1. **Backup**: Export existing data before schema changes
+2. **Prompts**: Extract imageGenPrompts from articles into prompts table  
+3. **Images**: Migrate existing images to Cloudflare storage
+4. **Cleanup**: Remove deprecated fields from articles table
+5. **Testing**: Verify all relationships and functionality
+
+**Migration Scripts** (`/scripts/migrate/`):
+- `extract-prompts.ts` - Move imageGenPrompts to prompts table
+- `migrate-images.ts` - Upload images to Cloudflare, update URLs
+- `cleanup-articles.ts` - Remove deprecated fields safely
+
+### **Phase 7: Integration & Testing**
+**Key Integration Points**:
+- AdminSidebar navigation to include Images section
+- Cross-workflow data consistency (articles ↔ prompts ↔ images)
+- Permission and authentication for new admin section
+- Performance optimization for gallery and filtering
+
+**Testing Priorities**:
+- End-to-end workflow: Create → Queue → Process → Review → Image Generation
+- Data integrity across normalized tables
+- Cloudflare storage reliability and performance
+- Admin interface usability and responsiveness
+
+## ✅ Previous Fixes & Features
+- ~~**Article Schema Cleanup**: Removed topics, rssSourceOrigin, isAutoGenerated fields~~ ✅ Fixed
+- ~~**YouTube Feature**: Complete implementation with Supadata.ai integration~~ ✅ Fixed
+- ~~**Queue Processing**: Bulk operations and cleanup~~ ✅ Fixed
+- ~~**RSS Management**: Full CRUD operations and refresh capabilities~~ ✅ Fixed
 
 ## 🚨 **Development Rule: Zero TypeScript Errors**
 Always run `npx tsc --noEmit --project .` and fix ALL errors after coding. TypeScript errors in `/convex/` files break API generation.
 
-## 📊 Technical Implementation Notes
-
-### Review Workflow Architecture
-- **Universal ReviewCard**: Single component handles all status types with styling variations
-- **Status-Based Routing**: Each tab filters articles by status using Convex queries
-- **Live Preview Integration**: ArticlePreviewPage embeds public article page for authentic preview
-- **Image Generation**: Seamless DALL-E integration within edit workflow
-- **Real-time Updates**: Convex reactive queries update UI instantly on status changes
-
-### Key Design Patterns
-- **Status Indicators**: Consistent color coding across all review components
-- **Progressive Enhancement**: Review → Edit → Image Gen → Save workflow
-- **Error Boundaries**: Comprehensive error handling for API failures and edge cases
-- **Loading States**: Smooth transitions between workflow states
-
-### API Integration Requirements
-- **Convex Queries**: Real-time article filtering and status management
-- **DALL-E API**: Image generation with error handling and retry logic  
-- **Status Management**: Atomic status transitions with rollback capability
-- **Validation**: Comprehensive form validation for article editing
+## 🔄 **Migration Checklist**
+- [ ] Update Convex schema with prompts and images tables
+- [ ] Create new Convex functions for prompts and images
+- [ ] Set up Cloudflare Workers R2 bucket and API integration
+- [ ] Update AI processing to use prompts table
+- [ ] Implement Images admin section components
+- [ ] Update existing review workflow for prompt management
+- [ ] Create data migration scripts
+- [ ] Test end-to-end workflows
+- [ ] Update AdminSidebar navigation
+- [ ] Performance testing and optimization
 
 ---
 
-**Tech Stack**: Next.js 15.3, Convex, Clerk, Perplexity API, Supadata.ai, OpenAI DALL-E 3  
+**Tech Stack**: Next.js 15.3, Convex, Clerk, Perplexity API, Supadata.ai, Cloudflare Workers R2  
 **Last Updated**: August 2025

@@ -21,34 +21,14 @@
 ### Queue Tab
 - **Universal Processing**: All source types normalized (title, URL, concept, createSource)
 - **Management**: Filter, sort, process individually or in bulk
-- **AI Processing**: Single prompt handles all source types
+- **AI Processing**: Single prompt handles all source types, generates 3 image prompts per article
 
 ## Review Workflow
 
 ### Pending Tab
 - **New Articles**: AI-processed articles awaiting editorial review
-- **Preview**: Click cards to open live article preview page
-- **Actions**: Approve, Edit, Reject, Save as Draft, Cancel
-
-### Article Preview Page
-- **Live Preview**: Uses actual public article page for realistic preview
-- **Editorial Actions**: Approve (moves to Approved tab + goes live), Edit, Reject, Save as Draft
-
-### Article Edit Page
-- **Field Editing**: All article fields editable (title, body, excerpt, category, etc.)
-- **Image Generation**: Generate Image button when no image present
-- **Save Options**: Save as Draft (moves to Drafts tab), return to Preview
-
-### Image Generation Page
-- **Prompt Selection**: Choose AI-generated prompts or create custom prompts
-- **DALL-E Integration**: Generate images via OpenAI API
-- **Preview & Iterate**: Generate multiple images until satisfied
-- **Save**: Insert selected image into article, return to Edit page
-
-### Create Tab
-- **Manual Creation**: Empty edit page for entirely hand-written articles
-- **Custom Input**: Full editorial control over all article fields
-- **Integration**: Links to preview and image generation pages like other tabs
+- **Prompt Access**: AI-generated prompts available for image creation
+- **Actions**: Approve, reject, edit, save as draft
 
 ### Approved Tab
 - **Published Content**: Live articles visible on public website
@@ -56,8 +36,34 @@
 
 ### Rejected Tab
 - **Declined Articles**: Archive for potential recovery
-- **Actions**: Delete permanently, edit and resubmit for review
+- **Actions**: Delete permanently, edit and resubmit
 
 ### Drafts Tab
 - **Work in Progress**: Articles requiring further development
 - **Actions**: Continue editing, approve, delete
+
+### Add Image Interface
+- **Generate Tab**: Select prompts (AI-generated if from article, empty if from gallery), create/edit prompts via modal, generate with DALL-E 3
+- **Select Tab**: Browse gallery (article context) or upload from device, add custom prompts and ratings  
+- **Context Awareness**: Same interface works for article editing and standalone gallery workflows
+- **Prompt Modal**: Simple textarea with save/cancel for creating and editing prompts
+
+## Images Workflow
+
+### Gallery View
+- **Image Grid**: Google Drive-style thumbnail gallery showing all generated images
+- **Sorting Options**: Dropdown filters by rating (1-10), status (approved/rejected), date, category, model
+- **Prompt Analytics**: View which prompt types (AI-generated, custom, edited) perform best
+- **Quick Actions**: Rate images, approve/reject status, bulk operations
+
+### Image Detail
+- **Full Display**: Click thumbnail opens dedicated page with full-size image view
+- **Editable Metadata**: Rating (1-10), status (approved/rejected), article association
+- **Prompt History**: View original prompt and any edits made before generation
+- **Status Management**: Approve/reject workflow independent of article usage
+
+### Prompt Management
+- **Edit Prompts**: Refine AI-generated or custom prompts before image generation
+- **Prompt Library**: Track all prompts (AI-generated, custom, edited) with usage analytics
+- **Effectiveness Tracking**: See which prompts lead to high-rated, approved images
+- **Reusability**: Save and reuse successful prompt patterns across articles
