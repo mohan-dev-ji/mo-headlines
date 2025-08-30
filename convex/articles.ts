@@ -16,7 +16,7 @@ export const createArticle = mutation({
     title: v.string(),
     body: v.string(),
     categoryId: v.id("categories"),
-    imageStorageId: v.optional(v.id("_storage")),
+    imageId: v.optional(v.id("images")),
     excerpt: v.optional(v.string()),
     slug: v.string(),
     createSource: v.optional(v.string()),
@@ -33,13 +33,13 @@ export const createArticle = mutation({
       body: args.body,
       categoryId: args.categoryId,
       authorId: identity.subject,
-      imageStorageId: args.imageStorageId,
+      imageId: args.imageId,
       status: "draft",
       createSource: args.createSource || "Manual",
       sourceUrls: args.sourceUrls || [],
       excerpt: args.excerpt || "",
       slug: args.slug,
-      imageGenPrompts: [],
+      updatedAt: Date.now(),
     });
 
     return { articleId };
@@ -57,12 +57,11 @@ export const getArticle = query({
       : null;
 
     let imageUrl = null;
-    if (article.imageStorageId) {
+    if (article.imageId) {
       try {
-        imageUrl = await ctx.storage.getUrl(article.imageStorageId);
-        // Ensure the URL is absolute
-        if (imageUrl && !imageUrl.startsWith('http')) {
-          imageUrl = `https://${imageUrl}`;
+        const image = await ctx.db.get(article.imageId);
+        if (image) {
+          imageUrl = image.cloudflareUrl;
         }
       } catch (error) {
         console.error("Error getting image URL:", error);
@@ -83,7 +82,7 @@ export const updateArticle = mutation({
     title: v.string(),
     body: v.string(),
     categoryId: v.id("categories"),
-    imageStorageId: v.optional(v.id("_storage")),
+    imageId: v.optional(v.id("images")),
     excerpt: v.optional(v.string()),
     slug: v.optional(v.string()),
     createSource: v.optional(v.string()),
@@ -101,20 +100,12 @@ export const updateArticle = mutation({
     }
 
 
-    // If there's a new image and the article had an old image, delete the old one
-    if (args.imageStorageId && article.imageStorageId && args.imageStorageId !== article.imageStorageId) {
-      try {
-        await ctx.storage.delete(article.imageStorageId);
-      } catch (error) {
-        console.error("Error deleting old image:", error);
-      }
-    }
-
     const updateData: any = {
       title: args.title,
       body: args.body,
       categoryId: args.categoryId,
-      imageStorageId: args.imageStorageId,
+      imageId: args.imageId,
+      updatedAt: Date.now(),
     };
     
     if (args.excerpt !== undefined) {
@@ -144,12 +135,11 @@ export const getAllArticles = query({
       articles.map(async (article) => {
         const category = await ctx.db.get(article.categoryId);
         let imageUrl = null;
-        if (article.imageStorageId) {
+        if (article.imageId) {
           try {
-            imageUrl = await ctx.storage.getUrl(article.imageStorageId);
-            // Ensure the URL is absolute
-            if (imageUrl && !imageUrl.startsWith('http')) {
-              imageUrl = `https://${imageUrl}`;
+            const image = await ctx.db.get(article.imageId);
+            if (image) {
+              imageUrl = image.cloudflareUrl;
             }
           } catch (error) {
             console.error("Error getting image URL:", error);
@@ -187,14 +177,7 @@ export const deleteArticle = mutation({
       throw new Error("Not authorized to delete this article");
     }
 
-    // Delete the article's image if it exists
-    if (article.imageStorageId) {
-      try {
-        await ctx.storage.delete(article.imageStorageId);
-      } catch (error) {
-        console.error("Error deleting article image:", error);
-      }
-    }
+    // Note: Image cleanup will be handled by the images table
 
     // Delete the article
     await ctx.db.delete(args.id);
@@ -217,8 +200,11 @@ export const getArticlesByCategory = query({
       articles.map(async (article) => {
         const category = await ctx.db.get(article.categoryId);
         let imageUrl = null;
-        if (article.imageStorageId) {
-          imageUrl = await ctx.storage.getUrl(article.imageStorageId);
+        if (article.imageId) {
+          const image = await ctx.db.get(article.imageId);
+          if (image) {
+            imageUrl = image.cloudflareUrl;
+          }
         }
         return {
           ...article,
@@ -246,11 +232,11 @@ export const getArticlesByStatus = query({
       articles.map(async (article) => {
         const category = await ctx.db.get(article.categoryId);
         let imageUrl = null;
-        if (article.imageStorageId) {
+        if (article.imageId) {
           try {
-            imageUrl = await ctx.storage.getUrl(article.imageStorageId);
-            if (imageUrl && !imageUrl.startsWith('http')) {
-              imageUrl = `https://${imageUrl}`;
+            const image = await ctx.db.get(article.imageId);
+            if (image) {
+              imageUrl = image.cloudflareUrl;
             }
           } catch (error) {
             console.error("Error getting image URL:", error);
@@ -292,17 +278,16 @@ export const updateArticleStatus = mutation({
   },
 });
 
-// Internal mutation to update article with image
+// Internal mutation to update article with image - Updated for new architecture
 export const updateArticleImage = internalMutation({
   args: {
     articleId: v.id("articles"),
-    storageId: v.id("_storage"),
-    promptUsed: v.string(),
+    imageId: v.id("images"),
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.articleId, {
-      imageStorageId: args.storageId,
-      imageGenPromptUsed: args.promptUsed,
+      imageId: args.imageId,
+      updatedAt: Date.now(),
     });
     return { success: true };
   },
@@ -340,12 +325,8 @@ export const saveGeneratedImage = action({
 
       const { storageId } = await uploadResponse.json();
 
-      // Update article with new image using internal mutation
-      await ctx.runMutation(internal.articles.updateArticleImage, {
-        articleId: args.articleId,
-        storageId: storageId,
-        promptUsed: args.promptUsed,
-      });
+      // TODO: Update for new architecture - create image record first, then link to article
+      // This function needs to be updated once the images table functions are created
 
       return { success: true, storageId };
     } catch (error) {

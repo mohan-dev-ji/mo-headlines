@@ -444,7 +444,7 @@ RESPONSE FORMAT (JSON ARRAY):
           throw new Error(`Missing required fields in article ${i + 1} of Perplexity response`);
         }
 
-        // Ensure imageGenPrompts is an array
+        // Ensure imageGenPrompts is an array - each will be stored as separate entries in prompts table
         if (!article.imageGenPrompts || !Array.isArray(article.imageGenPrompts)) {
           console.warn(`Article ${i + 1}: imageGenPrompts missing or invalid, setting empty array`);
           article.imageGenPrompts = [];
@@ -524,8 +524,18 @@ export const createArticleFromProcessed = internalMutation({
       sourceUrls: args.processedData.sourceUrls,
       excerpt: args.processedData.excerpt,
       slug: args.processedData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-      imageGenPrompts: args.processedData.imageGenPrompts,
+      updatedAt: Date.now(),
     });
+
+    // Store each AI-generated prompt as separate entries in prompts table
+    for (const promptText of args.processedData.imageGenPrompts) {
+      await ctx.db.insert("prompts", {
+        articleId,
+        prompt: promptText,
+        source: "ai-generated",
+        isUsed: false,
+      });
+    }
 
     return articleId;
   },

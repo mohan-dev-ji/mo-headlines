@@ -86,7 +86,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         categoryId,
       });
 
-      let imageStorageId = article.imageStorageId;
+      let imageId = article.imageId;
       
       // If a new image was selected, upload it
       if (selectedImageFile) {
@@ -102,10 +102,11 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         }
         
         const { storageId } = await response.json();
-        imageStorageId = storageId;
+        // TODO: Create image record in new architecture
+        imageId = undefined;
       } else if (!showCurrentImage) {
-        // If the current image was removed, set imageStorageId to undefined
-        imageStorageId = undefined;
+        // If the current image was removed, set imageId to undefined
+        imageId = undefined;
       }
 
       await updateArticle({
@@ -113,7 +114,7 @@ export default function EditArticlePage({ params }: { params: Promise<{ id: stri
         title,
         categoryId,
         body,
-        imageStorageId,
+        imageId,
       });
 
       // On success, redirect to the article page

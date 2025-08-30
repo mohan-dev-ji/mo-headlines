@@ -7,8 +7,7 @@ export default defineSchema({
     body: v.string(),
     categoryId: v.id("categories"),
     authorId: v.string(),
-    imageStorageId: v.optional(v.id("_storage")), // Field for storing file storage ID
-    imageGenPromptUsed: v.optional(v.string()), // The actual prompt used to generate the current image
+    imageId: v.optional(v.id("images")), // Link to selected image
     // Source identification
     createSource: v.string(),
     // AI Processing System fields
@@ -18,10 +17,37 @@ export default defineSchema({
     viewCount: v.optional(v.number()),
     excerpt: v.optional(v.string()),
     slug: v.string(),
-    imageGenPrompts: v.array(v.string()), // AI-generated image prompts for Midjourney/OpenAI
+    publishedAt: v.optional(v.number()),
+    updatedAt: v.number(),
   })
   .index("by_category", ["categoryId"])
   .index("by_status", ["status"]),
+
+  prompts: defineTable({
+    articleId: v.optional(v.id("articles")), // Optional for standalone prompts
+    prompt: v.string(),
+    source: v.union(v.literal("ai-generated"), v.literal("custom"), v.literal("edited")),
+    isUsed: v.boolean(),
+    editedFrom: v.optional(v.id("prompts")),
+  })
+  .index("by_article", ["articleId"])
+  .index("by_usage", ["isUsed"]),
+
+  images: defineTable({
+    articleId: v.optional(v.id("articles")), // Optional for standalone images
+    promptId: v.id("prompts"),
+    cloudflareUrl: v.string(),
+    cloudflareKey: v.string(),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("unused")),
+    rating: v.optional(v.number()),
+    model: v.string(),
+    generationCost: v.optional(v.number()),
+    articleTitle: v.optional(v.string()), // Optional for standalone images
+    categoryId: v.optional(v.id("categories")), // Optional for standalone images
+  })
+  .index("by_article", ["articleId"])
+  .index("by_status", ["status"])
+  .index("by_rating", ["rating"]),
 
   categories: defineTable({
     name: v.string(),

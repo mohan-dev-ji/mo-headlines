@@ -20,7 +20,9 @@ import type * as createQueue from "../createQueue.js";
 import type * as createResearch from "../createResearch.js";
 import type * as createRss from "../createRss.js";
 import type * as createYoutube from "../createYoutube.js";
+import type * as images from "../images.js";
 import type * as migrations from "../migrations.js";
+import type * as prompts from "../prompts.js";
 import type * as seedCategories from "../seedCategories.js";
 import type * as users from "../users.js";
 
@@ -40,7 +42,9 @@ declare const fullApi: ApiFromModules<{
   createResearch: typeof createResearch;
   createRss: typeof createRss;
   createYoutube: typeof createYoutube;
+  images: typeof images;
   migrations: typeof migrations;
+  prompts: typeof prompts;
   seedCategories: typeof seedCategories;
   users: typeof users;
 }>;

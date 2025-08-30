@@ -65,3 +65,35 @@ export const migrateArticleCategories = mutation({
     return { success: true, migratedCount };
   },
 });
+
+// Fix old image URLs that used the wrong CDN domain
+export const fixImageUrls = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const oldDomain = "https://images.mo-headlines.com";
+    const newDomain = "https://pub-8692bb544f234fd3a288bc9e584974e2.r2.dev";
+    
+    // Get all images
+    const allImages = await ctx.db.query("images").collect();
+    
+    console.log(`Checking ${allImages.length} images for URL updates`);
+    
+    let updatedCount = 0;
+    
+    for (const image of allImages) {
+      if (image.cloudflareUrl && image.cloudflareUrl.startsWith(oldDomain)) {
+        const newUrl = image.cloudflareUrl.replace(oldDomain, newDomain);
+        
+        await ctx.db.patch(image._id, {
+          cloudflareUrl: newUrl
+        });
+        
+        updatedCount++;
+        console.log(`Updated image ${image._id}: ${image.cloudflareUrl} -> ${newUrl}`);
+      }
+    }
+    
+    console.log(`Updated ${updatedCount} image URLs`);
+    return { updatedCount, totalChecked: allImages.length };
+  },
+});

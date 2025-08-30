@@ -67,7 +67,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
       // Reset image states when article changes (e.g., when returning from image generation)
       setPreviewUrl(null)
       setSelectedImageFile(null)
-      setShowCurrentImage(!!article.imageStorageId)
+      setShowCurrentImage(!!article.imageId)
     }
   }, [article])
 
@@ -123,7 +123,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
     setIsSubmitting(true)
     try {
       // Handle image upload if needed
-      let imageStorageId = article.imageStorageId
+      let imageId = article.imageId
       
       if (selectedImageFile) {
         const uploadUrl = await generateUploadUrl()
@@ -138,9 +138,10 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
         }
         
         const { storageId } = await response.json()
-        imageStorageId = storageId
+        // TODO: Create image record in new architecture
+        imageId = undefined // Temporary placeholder
       } else if (!showCurrentImage) {
-        imageStorageId = undefined
+        imageId = undefined
       }
 
       // Update article
@@ -149,7 +150,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
         title: formData.title,
         body: formData.body,
         categoryId: formData.categoryId,
-        imageStorageId,
+        imageId,
         excerpt: formData.excerpt,
         createSource: formData.createSource,
         sourceUrls: formData.sourceUrls,

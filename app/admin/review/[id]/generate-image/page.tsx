@@ -43,10 +43,9 @@ export default function GenerateImagePage({ params }: PageProps) {
       if (article.imageUrl) {
         setGeneratedImage(article.imageUrl);
       }
-      if (article.imageGenPromptUsed) {
-        setCurrentPrompt(article.imageGenPromptUsed);
-        setSelectedPrompt(article.imageGenPromptUsed);
-      }
+      // TODO: Load prompts from new prompts table
+      setCurrentPrompt("");
+      setSelectedPrompt("");
     }
   }, [article]);
 
@@ -143,11 +142,7 @@ export default function GenerateImagePage({ params }: PageProps) {
                       <SelectValue placeholder="Select option" />
                     </SelectTrigger>
                     <SelectContent className="w-full max-w-none">
-                      {article.imageGenPrompts.map((prompt, index) => (
-                        <SelectItem key={index} value={prompt}>
-                          {prompt.length > 60 ? prompt.substring(0, 60) + "..." : prompt}
-                        </SelectItem>
-                      ))}
+                      {/* TODO: Load prompts from new prompts table */}
                       <SelectItem value="custom">
                         Create Custom Prompt
                       </SelectItem>

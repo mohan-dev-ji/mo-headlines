@@ -10,6 +10,7 @@ import {
   LayoutDashboard,
   Plus,
   FileCheck,
+  Image,
   BarChart3,
   Settings,
   LogOut,
@@ -31,6 +32,11 @@ const navigation = [
     name: "Review",
     href: "/admin/review",
     icon: FileCheck,
+  },
+  {
+    name: "Images",
+    href: "/admin/images",
+    icon: Image,
   },
   {
     name: "Analytics",
