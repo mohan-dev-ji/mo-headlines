@@ -209,7 +209,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
                         className="relative w-full aspect-video cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation()
-                          router.push(`/admin/review/${resolvedParams.id}/generate-image`)
+                          router.push(`/admin/images/add?articleId=${resolvedParams.id}&returnUrl=${encodeURIComponent(`/admin/review/edit/${resolvedParams.id}`)}`)
                         }}
                       >
                         <Image
@@ -231,7 +231,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
                         className="relative w-full aspect-video cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation()
-                          router.push(`/admin/review/${resolvedParams.id}/generate-image`)
+                          router.push(`/admin/images/add?articleId=${resolvedParams.id}&returnUrl=${encodeURIComponent(`/admin/review/edit/${resolvedParams.id}`)}`)
                         }}
                       >
                         <Image
@@ -265,10 +265,10 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
                           className="text-headline-secondary border-brand-line hover:bg-zinc-200"
                           onClick={(e) => {
                             e.stopPropagation()
-                            router.push(`/admin/review/${resolvedParams.id}/generate-image`)
+                            router.push(`/admin/images/add?articleId=${resolvedParams.id}&returnUrl=${encodeURIComponent(`/admin/review/edit/${resolvedParams.id}`)}`)
                           }}
                         >
-                          Generate Image
+                          Add Image
                         </Button>
                       </div>
                     )}

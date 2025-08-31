@@ -6,10 +6,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
+import { ImageGalleryModal } from "../ImageGalleryModal";
 
 interface SelectTabProps {
   articleId?: Id<"articles">;
@@ -56,12 +57,39 @@ export function SelectTab({
 }: SelectTabProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [uploadPreview, setUploadPreview] = useState<string | null>(null);
+  const [galleryPreview, setGalleryPreview] = useState<string | null>(null);
   const [customRating, setCustomRating] = useState<string>("5");
   const [customPrompt, setCustomPrompt] = useState("");
   const [customModel, setCustomModel] = useState<string>("");
   const [isUploading, setIsUploading] = useState(false);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+  const [hasLoadedInitialImage, setHasLoadedInitialImage] = useState(false);
+
+  // Query article data to load existing image (only if articleId provided)
+  const article = useQuery(
+    api.articles.getArticle,
+    articleId ? { id: articleId } : "skip"
+  );
 
   const generateUploadUrl = useMutation(api.articles.generateUploadUrl);
+
+  // Load existing article image when SelectTab first loads (Option 3 UX)
+  useEffect(() => {
+    if (article && article.imageUrl && !hasLoadedInitialImage && !galleryPreview && !uploadPreview) {
+      // Article has an existing image, load it into the preview initially
+      setGalleryPreview(article.imageUrl);
+      
+      // Pre-fill form with existing image metadata if available
+      if (article.imageRating) {
+        setCustomRating(article.imageRating.toString());
+      }
+      if (article.imageModel) {
+        setCustomModel(article.imageModel);
+      }
+      
+      setHasLoadedInitialImage(true);
+    }
+  }, [article, hasLoadedInitialImage, galleryPreview, uploadPreview]);
 
   // Helper function to update parent when we have valid data
   const updateParentIfValid = (prompt: string, rating: string, model: string) => {
@@ -85,6 +113,13 @@ export function SelectTab({
     const file = event.target.files?.[0];
     if (file) {
       setUploadedFile(file);
+      
+      // Clear gallery preview since we're uploading from device
+      setGalleryPreview(null);
+      
+      // Mark that user has made a selection (overrides initial image)
+      setHasLoadedInitialImage(true);
+      
       const reader = new FileReader();
       reader.onload = (e) => {
         setUploadPreview(e.target?.result as string);
@@ -154,8 +189,67 @@ export function SelectTab({
     }
   };
 
+  const handleBrowseGallery = () => {
+    setShowGalleryModal(true);
+  };
+
+  const handleGalleryImageSelected = (imageData: {
+    id: Id<"images">;
+    url: string;
+    rating?: number;
+    model?: string;
+    promptText?: string;
+  }) => {
+    // Set the gallery preview
+    setGalleryPreview(imageData.url);
+    
+    // Clear device upload preview since we're selecting from gallery
+    setUploadPreview(null);
+    setUploadedFile(null);
+    
+    // Mark that user has made a selection (overrides initial image)
+    setHasLoadedInitialImage(true);
+    
+    // Pre-fill form with image metadata
+    if (imageData.rating) {
+      setCustomRating(imageData.rating.toString());
+    }
+    if (imageData.model) {
+      setCustomModel(imageData.model);
+    }
+    if (imageData.promptText) {
+      setCustomPrompt(imageData.promptText);
+    }
+    
+    // Notify parent of selection
+    onImageSelected({
+      id: imageData.id,
+      url: imageData.url,
+      source: "selected",
+      metadata: {
+        rating: imageData.rating,
+        promptText: imageData.promptText,
+      },
+    });
+    
+    setShowGalleryModal(false);
+  };
+
   return (
     <div className="space-y-6">
+      {/* Browse Image Gallery Button - Only show when editing article */}
+      {showGalleryBrowser && (
+        <div>
+          <Button
+            onClick={handleBrowseGallery}
+            className="w-full bg-white hover:bg-gray-50 text-gray-900 border border-gray-300"
+            variant="outline"
+          >
+            Browse Image Gallery
+          </Button>
+        </div>
+      )}
+
       {/* Browse Device Button */}
       <div>
         <Button
@@ -167,13 +261,13 @@ export function SelectTab({
         </Button>
       </div>
 
-      {/* Preview Section */}
+      {/* Preview Section - Shows images selected in Select tab only */}
       <div>
         <Label className="text-body-primary text-sm font-medium">Preview</Label>
         <div className="mt-2 aspect-[16/10] bg-gray-300 rounded-lg flex items-center justify-center">
-          {(selectedImage && selectedImage.url) || uploadPreview ? (
+          {galleryPreview || uploadPreview ? (
             <img
-              src={selectedImage?.url || uploadPreview!}
+              src={galleryPreview || uploadPreview!}
               alt="Selected preview"
               className="w-full h-full object-cover rounded-lg"
             />
@@ -232,6 +326,13 @@ export function SelectTab({
           className="mt-2 border border-brand-line text-body-primary"
         />
       </div>
+
+      {/* Image Gallery Modal */}
+      <ImageGalleryModal
+        isOpen={showGalleryModal}
+        onClose={() => setShowGalleryModal(false)}
+        onImageSelected={handleGalleryImageSelected}
+      />
     </div>
   );
 }

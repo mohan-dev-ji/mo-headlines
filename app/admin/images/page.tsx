@@ -105,7 +105,7 @@ export default function ImagesPage() {
           
           {/* Queue Count Display */}
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="shrink-0">
+            <Badge variant="outline" className="shrink-0 text-blue-600">
               {totalImages} images
             </Badge>
             <Badge variant="secondary" className="shrink-0 bg-green-600/20 text-green-400 border-green-600/30">

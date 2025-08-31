@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,7 +9,7 @@ import { GenerateTab } from "./GenerateTab";
 import { SelectTab } from "./SelectTab";
 import { Id } from "@/convex/_generated/dataModel";
 import { toast } from "sonner";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 interface AddImagePageProps {
@@ -53,11 +53,33 @@ export function AddImagePage({
   const [selectedImage, setSelectedImage] = useState<SelectedImageData | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // Query article data when in article context to load existing image
+  const article = useQuery(
+    api.articles.getArticle,
+    isArticleContext ? { id: contextArticleId } : "skip"
+  );
+
   // Mutations
   const createStandaloneImage = useMutation(api.images.createStandaloneImage);
   const createStandalonePrompt = useMutation(api.prompts.createStandalonePrompt);
+  const attachImageToArticle = useMutation(api.articles.attachImageToArticle);
 
-  // Keep Generate tab as default for all contexts
+  // Load existing article image when in article context
+  useEffect(() => {
+    if (article && article.imageUrl && !selectedImage) {
+      // Article has an existing image, load it into the preview
+      setSelectedImage({
+        url: article.imageUrl,
+        source: "selected",
+        id: article.imageId || undefined,
+        metadata: {
+          rating: article.imageRating || undefined,
+          model: article.imageModel || undefined,
+          promptText: "Previously generated image", // Placeholder - could get from prompt table
+        }
+      });
+    }
+  }, [article, selectedImage]);
 
   const handleImageGenerated = (imageData: SelectedImageData) => {
     console.log("handleImageGenerated called with:", imageData);
@@ -155,41 +177,46 @@ export function AddImagePage({
         const uploadResult = await uploadResponse.json();
         
         // Create image record in database with R2 URLs
-        if (isGalleryContext) {
-          toast.info("Saving image to database...");
-          
-          console.log("About to save image with rating:", selectedImage.metadata?.rating);
-          
-          // For uploaded images without promptId, we need to create a standalone prompt first
-          let promptIdToUse = selectedImage.promptId;
-          if (!promptIdToUse && selectedImage.metadata?.promptText) {
-            console.log("Creating standalone prompt for uploaded image");
-            const promptResult = await createStandalonePrompt({
-              prompt: selectedImage.metadata.promptText,
-            });
-            promptIdToUse = promptResult.promptId;
-          }
-          
-          if (promptIdToUse) {
-            const imageResult = await createStandaloneImage({
-              promptId: promptIdToUse,
-              cloudflareUrl: uploadResult.cloudflareUrl,
-              cloudflareKey: uploadResult.cloudflareKey,
-              model: selectedImage.metadata?.model || (selectedImage.source === "uploaded" ? "Unknown" : "DALL-E 3"),
-              rating: selectedImage.metadata?.rating,
-            });
-            
-            finalImageId = imageResult.imageId;
-          }
-          
-          toast.success("Image saved successfully!");
-        } else {
-          console.log("Image uploaded to R2:", uploadResult);
-          toast.success("Image uploaded successfully!");
+        toast.info("Saving image to database...");
+        
+        console.log("About to save image with rating:", selectedImage.metadata?.rating);
+        
+        // For uploaded images without promptId, we need to create a standalone prompt first
+        let promptIdToUse = selectedImage.promptId;
+        if (!promptIdToUse && selectedImage.metadata?.promptText) {
+          console.log("Creating standalone prompt for uploaded image");
+          const promptResult = await createStandalonePrompt({
+            prompt: selectedImage.metadata.promptText,
+          });
+          promptIdToUse = promptResult.promptId;
         }
+        
+        if (promptIdToUse) {
+          const imageResult = await createStandaloneImage({
+            promptId: promptIdToUse,
+            cloudflareUrl: uploadResult.cloudflareUrl,
+            cloudflareKey: uploadResult.cloudflareKey,
+            model: selectedImage.metadata?.model || (selectedImage.source === "uploaded" ? "Unknown" : "DALL-E 3"),
+            rating: selectedImage.metadata?.rating,
+          });
+          
+          finalImageId = imageResult.imageId;
+        }
+        
+        toast.success("Image saved successfully!");
       }
 
       if (finalImageId) {
+        // If we're in article context, attach the image to the article
+        if (isArticleContext && contextArticleId) {
+          toast.info("Attaching image to article...");
+          await attachImageToArticle({
+            articleId: contextArticleId,
+            imageId: finalImageId,
+          });
+          toast.success("Image attached to article!");
+        }
+        
         onImageSelected?.(finalImageId);
       }
 
@@ -293,14 +320,7 @@ export function AddImagePage({
 
         {/* Modal Footer (always visible) */}
         <div className="shrink-0 flex items-center justify-end gap-3 p-4 border-t border-brand-line">
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={isProcessing}
-            className="bg-brand-card border-brand-line text-body-primary hover:bg-brand-card-dark"
-          >
-            Cancel
-          </Button>
+         
           <Button
             onClick={handleSave}
             disabled={
@@ -311,6 +331,15 @@ export function AddImagePage({
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {isProcessing ? "Saving..." : "Save"}
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isProcessing}
+            className="text-headline-secondary border-brand-line hover:bg-zinc-200"
+          >
+            Cancel
           </Button>
         </div>
       </div>

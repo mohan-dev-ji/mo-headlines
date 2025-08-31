@@ -58,6 +58,14 @@ export function GenerateTab({
     console.log("GenerateTab: Rating state changed to:", rating);
   }, [rating]);
 
+  // Set rating from selectedImage when it loads (for existing images)
+  useEffect(() => {
+    if (selectedImage && selectedImage.metadata?.rating && selectedImage.source === "selected") {
+      // This is an existing image with a rating, set it in the dropdown
+      setRating(selectedImage.metadata.rating.toString());
+    }
+  }, [selectedImage]);
+
   // Determine if this is gallery context (no article)
   const isGalleryContext = !articleId || articleId === "test-article-id";
   
@@ -70,12 +78,15 @@ export function GenerateTab({
   // Mutations for standalone prompts
   const generateImage = useAction(api.articles.generateImageWithDallE);
 
-  // Auto-select first AI-generated prompt if available
+  // Auto-select used prompt (or first prompt if none is marked as used)
   useEffect(() => {
     if (prompts && prompts.length > 0 && !selectedPromptText) {
-      const firstPrompt = prompts[0];
-      setSelectedPromptText(firstPrompt.prompt);
-      setSelectedPromptId(firstPrompt._id);
+      // First check if any prompt is marked as used
+      const usedPrompt = prompts.find(p => p.isUsed);
+      const promptToSelect = usedPrompt || prompts[0];
+      
+      setSelectedPromptText(promptToSelect.prompt);
+      setSelectedPromptId(promptToSelect._id);
     }
     // Gallery context starts with empty prompt - user will create their own
   }, [prompts, selectedPromptText]);
@@ -236,9 +247,15 @@ export function GenerateTab({
             setSelectedPromptText(promptText);
             setSelectedPromptId(promptId);
           } else {
-            // Article context - reset to trigger useEffect to reload prompts
-            if (promptModalMode === "create") {
-              setSelectedPromptText(""); // Reset to trigger useEffect
+            // Article context - the selected prompt was marked as used in the modal
+            // Update the GenerateTab to show the selected prompt
+            if (promptText) {
+              setSelectedPromptText(promptText);
+              setSelectedPromptId(promptId);
+            } else {
+              // Reset to trigger useEffect to reload prompts and select the used one
+              setSelectedPromptText("");
+              setSelectedPromptId(null);
             }
           }
         }}

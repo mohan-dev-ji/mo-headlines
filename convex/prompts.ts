@@ -29,12 +29,19 @@ export const createPromptsForArticle = mutation({
 export const getPromptsForArticle = query({
   args: { articleId: v.id("articles") },
   handler: async (ctx, args) => {
-    const prompts = await ctx.db
+    const allPrompts = await ctx.db
       .query("prompts")
       .withIndex("by_article", (q) => q.eq("articleId", args.articleId))
       .collect();
     
-    return prompts.sort((a, b) => a._creationTime - b._creationTime);
+    // Filter out prompts that have been superseded by edited versions
+    const supersededPromptIds = allPrompts
+      .filter(p => p.editedFrom)
+      .map(p => p.editedFrom!);
+    
+    const activePrompts = allPrompts.filter(p => !supersededPromptIds.includes(p._id));
+    
+    return activePrompts.sort((a, b) => a._creationTime - b._creationTime);
   },
 });
 
@@ -104,6 +111,32 @@ export const markPromptAsUsed = mutation({
     await ctx.db.patch(args.promptId, {
       isUsed: true,
     });
+    
+    return { success: true };
+  },
+});
+
+// Set which prompt is currently selected for an article (unmarks others)
+export const setSelectedPrompt = mutation({
+  args: { 
+    articleId: v.id("articles"),
+    promptId: v.id("prompts")
+  },
+  handler: async (ctx, args) => {
+    // First, unmark all prompts for this article
+    const existingPrompts = await ctx.db
+      .query("prompts")
+      .withIndex("by_article", (q) => q.eq("articleId", args.articleId))
+      .collect();
+    
+    for (const prompt of existingPrompts) {
+      if (prompt.isUsed) {
+        await ctx.db.patch(prompt._id, { isUsed: false });
+      }
+    }
+    
+    // Then mark the selected one as used
+    await ctx.db.patch(args.promptId, { isUsed: true });
     
     return { success: true };
   },

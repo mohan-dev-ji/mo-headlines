@@ -61,7 +61,7 @@ export function ImagesGallery({
   const displayItems = images.length > 0 ? images : Array(16).fill(null);
 
   return (
-    <div className="grid grid-cols-4 gap-6">
+    <div className="grid grid-cols-4 gap-6 p-1">
       {displayItems.map((image, index) => {
         const imageId = image?._id || `placeholder-${index}`;
         const isPlaceholder = !image;

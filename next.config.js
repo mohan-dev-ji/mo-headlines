@@ -11,6 +11,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: '*.convex.cloud',
       },
+      {
+        protocol: 'https',
+        hostname: '*.r2.dev',
+      },
     ],
   },
 };

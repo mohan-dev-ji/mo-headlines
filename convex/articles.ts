@@ -57,11 +57,15 @@ export const getArticle = query({
       : null;
 
     let imageUrl = null;
+    let imageRating = null;
+    let imageModel = null;
     if (article.imageId) {
       try {
         const image = await ctx.db.get(article.imageId);
         if (image) {
           imageUrl = image.cloudflareUrl;
+          imageRating = image.rating;
+          imageModel = image.model;
         }
       } catch (error) {
         console.error("Error getting image URL:", error);
@@ -72,6 +76,8 @@ export const getArticle = query({
       ...article,
       category,
       imageUrl,
+      imageRating,
+      imageModel,
     };
   },
 });
@@ -289,6 +295,35 @@ export const updateArticleImage = internalMutation({
       imageId: args.imageId,
       updatedAt: Date.now(),
     });
+    return { success: true };
+  },
+});
+
+// Public mutation to attach image to article (called from AddImagePage)
+export const attachImageToArticle = mutation({
+  args: {
+    articleId: v.id("articles"),
+    imageId: v.id("images"),
+  },
+  handler: async (ctx, args) => {
+    // Verify the article exists
+    const article = await ctx.db.get(args.articleId);
+    if (!article) {
+      throw new Error("Article not found");
+    }
+
+    // Verify the image exists
+    const image = await ctx.db.get(args.imageId);
+    if (!image) {
+      throw new Error("Image not found");
+    }
+
+    // Update the article with the image ID
+    await ctx.db.patch(args.articleId, {
+      imageId: args.imageId,
+      updatedAt: Date.now(),
+    });
+
     return { success: true };
   },
 });

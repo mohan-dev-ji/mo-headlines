@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -54,28 +54,32 @@ export function PromptModal({
   );
 
   // Initialize prompt rows from existing prompts or create new one
-  const [promptRows, setPromptRows] = useState<PromptRowData[]>(() => {
+  const [promptRows, setPromptRows] = useState<PromptRowData[]>([]);
+
+  // Update prompt rows when existingPrompts changes
+  useEffect(() => {
     if (mode === "create" || !existingPrompts) {
-      return [{
+      setPromptRows([{
         text: initialPrompt,
         isSelected: true,
         isEditing: true,
         isNew: true
-      }];
+      }]);
+    } else {
+      setPromptRows(existingPrompts.map(prompt => ({
+        id: prompt._id,
+        text: prompt.prompt,
+        isSelected: prompt.isUsed, // Use isUsed instead of originalPromptId
+        isEditing: false,
+        isNew: false
+      })));
     }
-    
-    return existingPrompts.map(prompt => ({
-      id: prompt._id,
-      text: prompt.prompt,
-      isSelected: prompt._id === originalPromptId,
-      isEditing: false,
-      isNew: false
-    }));
-  });
+  }, [existingPrompts, mode, initialPrompt]);
 
   const createCustomPrompt = useMutation(api.prompts.createCustomPrompt);
   const createStandalonePrompt = useMutation(api.prompts.createStandalonePrompt);
   const editPrompt = useMutation(api.prompts.editPrompt);
+  const setSelectedPrompt = useMutation(api.prompts.setSelectedPrompt);
 
   const handleRowTextChange = (index: number, newText: string) => {
     setPromptRows(prev => prev.map((row, i) => 
@@ -112,44 +116,73 @@ export function PromptModal({
       return;
     }
 
+    if (selectedRows.length > 1) {
+      toast.error("Please select only one prompt");
+      return;
+    }
+
     setIsSubmitting(true);
     
     try {
-      for (const row of selectedRows) {
-        if (!row.text.trim()) continue;
-        
-        let result;
-        
-        if (row.isNew) {
-          // Check if this is gallery context (test article ID)
-          if (articleId === "test-article-id") {
-            result = await createStandalonePrompt({
-              prompt: row.text.trim(),
-            });
-          } else {
-            result = await createCustomPrompt({
-              articleId,
-              prompt: row.text.trim(),
-            });
-          }
-        } else if (row.id) {
-          result = await editPrompt({
-            originalPromptId: row.id,
-            newPromptText: row.text.trim(),
+      const selectedRow = selectedRows[0];
+      let promptIdToSelect;
+      
+      if (!selectedRow.text.trim()) {
+        toast.error("Prompt text cannot be empty");
+        return;
+      }
+      
+      // Create or update the prompt
+      let result;
+      
+      if (selectedRow.isNew) {
+        // Check if this is gallery context (test article ID)
+        if (articleId === "test-article-id") {
+          result = await createStandalonePrompt({
+            prompt: selectedRow.text.trim(),
+          });
+        } else {
+          result = await createCustomPrompt({
+            articleId,
+            prompt: selectedRow.text.trim(),
           });
         }
-        
-        if (result) {
-          onPromptCreated?.(result.promptId, row.text.trim());
+        promptIdToSelect = result.promptId;
+      } else if (selectedRow.id) {
+        // For existing prompts, check if it was edited
+        const originalPrompt = existingPrompts?.find(p => p._id === selectedRow.id);
+        if (originalPrompt && originalPrompt.prompt !== selectedRow.text.trim()) {
+          // Text was changed, create edited version
+          result = await editPrompt({
+            originalPromptId: selectedRow.id,
+            newPromptText: selectedRow.text.trim(),
+          });
+          promptIdToSelect = result.promptId;
+        } else {
+          // No changes, just use existing prompt
+          promptIdToSelect = selectedRow.id;
         }
       }
+      
+      // Mark the selected prompt as used (and unmark others)
+      if (promptIdToSelect && articleId !== "test-article-id") {
+        await setSelectedPrompt({
+          articleId,
+          promptId: promptIdToSelect,
+        });
+      }
+      
+      // Call the callback with the selected prompt
+      if (promptIdToSelect) {
+        onPromptCreated?.(promptIdToSelect, selectedRow.text.trim());
+      }
 
-      toast.success("Prompts saved successfully");
+      toast.success("Prompt saved successfully");
       handleClose();
     } catch (error) {
-      console.error("Error saving prompts:", error);
+      console.error("Error saving prompt:", error);
       toast.error(
-        `Failed to save prompts: ${
+        `Failed to save prompt: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
