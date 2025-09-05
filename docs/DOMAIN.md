@@ -28,11 +28,12 @@
 - **Prompt Link**: Direct relationship to specific prompt used for generation
 
 ### Categories
-- **Fixed Set**: AI, Startups, Big Tech, Science, Transport
-- **Keywords**: Each category has extensive keyword lists for precise RSS filtering
+- **Simplified Set**: Tech & Science, Finance, Policies
+- **Previous System**: ~~AI, Startups, Big Tech, Science, Transport~~ (deprecated)
+- **Keywords**: Comprehensive keyword lists merged from previous 5 categories
 - **Management**: Updated via `seedCategories.ts` script with safety flags
-- **Navigation**: Listed in home page navbar for browsing
-- **RSS Filtering**: Keywords used to match relevant articles from RSS feeds
+- **Navigation**: Badge-based filtering on home page (Recent, Tech & Science, Finance, Policies)
+- **Visual Identity**: Each category associated with gradient color pools
 
 ### Users
 - **Admin**: Access to admin dashboard for content creation, review, and image management
@@ -82,6 +83,13 @@
 - **Source Attribution**: Transparent content origin tracking
 - **Image Gallery**: Visual asset browsing with quality and usage analytics
 - **Prompt Analytics**: Track effectiveness patterns across prompt types
+
+### Visual Identity System
+- **Gradient Backgrounds**: 20 pre-defined animated gradients
+- **Assignment Logic**: Deterministic gradient per article based on ID
+- **Animation**: CSS-based brightness pulsing (10s cycles)
+- **Category Theming**: Optional gradient pools per category
+- **Performance**: GPU-accelerated CSS animations
 
 ## Business Rules
 
@@ -184,8 +192,7 @@
 - **Effectiveness Tracking**: Analyze which prompt types and patterns produce best results
 
 ### Search Mechanisms
-- **Category Navigation**: Browse content by subject area
-- **Topic Search**: Find related articles via single-token topics
+- **Category Navigation**: Browse content by badge filtering system
 - **Keyword Matching**: RSS content discovery via category keywords
 - **Image Gallery**: Filter images by rating, status, category, model, and date
 - **Prompt Analytics**: Filter and analyze prompts by source type and effectiveness

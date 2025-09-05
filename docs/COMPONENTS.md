@@ -1,6 +1,43 @@
 # Components
 
-## Create Components
+## Public Components
+
+### Home Components
+- **BadgeFilterBar**: Container for filter badges with active state management
+- **FilterBadge**: Individual badge (Recent, Tech & Science, Finance, Policies)
+- **useArticleFilter**: Hook managing filter state and URL params
+
+### Card Components
+- **ArticleCardBase**: Base component with gradient background integration
+- **LandscapeCardLeft**: Row 1 layout (image left, content right)
+- **LandscapeCardRight**: Row 2 layout (content left, image right)
+- **PortraitCard**: Row 3 grid cards (3 per row on desktop)
+- **MobileArticleCard**: Mobile-specific with expanded metadata
+- **CardLayoutGrid**: Manages 3-row pattern repetition with gradients
+
+### Article Page Components
+- **ArticleLayout**: Main container with close navigation
+- **ArticleHeader**: Title, date, metadata display
+- **ArticleImage**: Responsive image with position logic
+- **ArticleContent**: Paragraph rendering with proper spacing
+- **SourcesCarousel**: Horizontal scroll container for sources
+- **SourceCard**: Individual source with domain parsing
+- **CommentsSection**: Authenticated commenting system
+- **MoreHeadlines**: Related articles with gradient cards
+
+### Profile Components
+- **ProfileLayout**: Main profile container
+- **ProfileTabs**: Comments/Liked posts toggle system
+- **UserComments**: Comment history display
+- **LikedPosts**: Saved articles with gradient backgrounds
+- **ProfileCard**: Individual item display card
+
+### Shared Visual Components
+- **GradientBackground**: Reusable animated gradient system
+- **BadgeFilter**: Modified shadcn badge with on/off states
+- **LoadMoreButton**: Progressive content loading trigger
+
+## Admin Create Components
 
 ### RSS Components
 - **CreateRSSModal**: Category dropdown, enter feed url, specify maximum articles, poll frequency
@@ -25,7 +62,7 @@
 - **StatusIndicator**: Universal status display
 - **ActionDropdown**: Standard action menus
 
-## Review Components
+## Admin Review Components
 
 ### Review Cards
 - **ReviewCard**: Universal article preview with status-based borders

@@ -2,6 +2,29 @@
 
 ## Design Tokens
 
+### Brand Identity
+- **Product Name**: The Headlines (formerly Mo Headlines)
+- **Typography**: Abhaya Libre Medium for headlines (desktop) and inter for all other text.
+
+### Gradient System
+- **Total Gradients**: 20 unique combinations
+- **Base Luminance**: Matching zinc-900 (~10% lightness)
+- **Animation**: 10s brightness pulse cycle
+- **Assignment**: Deterministic by article ID
+- **Performance**: CSS-only animations
+
+### Badge States
+- **Active Badge**: `bg-primary text-primary-foreground`
+- **Inactive Badge**: `bg-transparent border-input text-muted-foreground`
+- **Hover State**: Brightness increase, cursor pointer
+- **Transition**: 200ms ease-in-out
+
+### Typography Scale
+- **Headline Desktop**: Abhaya Libre Medium, 2.5rem
+- **Headline Tablet**: System font, 2rem
+- **Headline Mobile**: System font, 1.75rem
+- **Body**: System font, 1rem base
+
 ### Brand Colors
 - **Primary**: `--brand-primary` (green-600) - Main brand accent, success states
 - **Primary Button**: `--brand-primary-button` (blue-600) - Main action buttons
@@ -73,6 +96,24 @@
 - **Border Usage**: Left border on Review workflow cards
 - **Text Colors**: Match indicator colors for consistency
 - **Icon Support**: Use emojis for quick visual recognition
+
+## Card Layout Specifications
+
+### Desktop Grid Pattern (3-row cycle)
+Row 1: LandscapeCardLeft (full width)
+Row 2: LandscapeCardRight (full width)
+Row 3: PortraitCard | PortraitCard | PortraitCard
+
+### Card Dimensions
+- **Landscape Cards**: 16:9 aspect ratio, image 40% width
+- **Portrait Cards**: 1:1 aspect ratio, image 100% width
+- **Mobile Cards**: Full width, 16:9 image ratio
+
+### Gradient Integration
+- **Opacity**: 100% (full color as background)
+- **Animation Duration**: 10s base, 3s on hover
+- **Brightness Range**: 100% to 110%
+- **Assignment Method**: Hash function on article ID
 
 ## Layout Patterns
 

@@ -213,6 +213,25 @@ create_youtube: {
 └── shared/                     # Cross-workflow components
 ```
 
+## Visual Design Architecture
+
+### Gradient System
+/styles/
+├── gradients.module.css         # 20 gradient definitions + animations
+/lib/
+├── gradients.ts                 # Gradient assignment logic
+├── color-utils.ts               # Luminance matching utilities
+
+### Typography System
+- **Headlines**: Abhaya Libre Medium (Google Fonts, desktop only)
+- **Body**: System font stack
+- **Responsive**: Different font sizes per breakpoint
+
+### Badge Filter Architecture
+- Client-side filtering (no page reload)
+- URL parameter sync for shareability
+- Single data source with multiple views
+
 ### Shared Service Boundaries
 
 #### Create Workflow Services
@@ -293,6 +312,13 @@ create_youtube: {
 - **CDN Delivery**: Cloudflare Workers for image serving
 - **Queue Processing**: Configurable batch sizes, rate limiting compliance
 - **Caching**: Static generation for public articles, transcript caching for YouTube processing
+
+### Animation Performance
+- **CSS Animations**: GPU-accelerated gradient transitions
+- **Intersection Observer**: Pause off-screen animations
+- **Reduced Motion**: Respect user preferences
+- **Battery Optimization**: Consider mobile battery impact
+- **Frame Rate**: Target 60fps for smooth animations
 
 ### Scalability Considerations
 - **Horizontal Scaling**: Queue processing can move to background workers

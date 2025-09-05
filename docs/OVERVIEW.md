@@ -1,8 +1,11 @@
 # Overview
 
+## Product Name: The Headlines (formerly Mo Headlines)
+
 ## Product Goals
-- Timely, trustworthy tech news with AI fact-checked synthesis across multiple sources
-- Browse by category and topic; streamlined admin workflows for content creation and review
+- Timely, trustworthy news with AI fact-checked synthesis across multiple sources
+- Browse by category using badge-based filtering system
+- Modern, dynamic visual experience with animated gradient backgrounds
 - Scalable content pipeline supporting RSS feeds, manual research, and future sources (YouTube, podcasts)
 
 ## Personas
@@ -14,6 +17,13 @@
 - Content creation throughput across all workflows
 - Review and approval efficiency
 - Source diversity and coverage quality
+
+## Design Philosophy
+- Simplified 3-category system (Tech & Science, Finance, Policies)
+- Badge-based filtering replaces traditional navigation
+- Animated gradient backgrounds for visual distinction
+- Newspaper typography (Abhaya Libre) for professional feel
+- Mobile-first responsive design
 
 ## Workflows
 - **Create**: RSS automation, manual research articles, YouTube processing, shared processing queue
