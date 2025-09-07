@@ -5,7 +5,6 @@
 ## Product Goals
 - Timely, trustworthy news with AI fact-checked synthesis across multiple sources
 - Browse by category using badge-based filtering system
-- Modern, dynamic visual experience with animated gradient backgrounds
 - Scalable content pipeline supporting RSS feeds, manual research, and future sources (YouTube, podcasts)
 
 ## Personas
@@ -21,7 +20,6 @@
 ## Design Philosophy
 - Simplified 3-category system (Tech & Science, Finance, Policies)
 - Badge-based filtering replaces traditional navigation
-- Animated gradient backgrounds for visual distinction
 - Newspaper typography (Abhaya Libre) for professional feel
 - Mobile-first responsive design
 

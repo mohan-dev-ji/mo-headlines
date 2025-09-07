@@ -3,7 +3,6 @@
 ## Pre-Deployment Checklist
 
 ### Frontend Updates
-- [ ] All gradients tested across browsers
 - [ ] Badge filter system functional
 - [ ] Responsive design verified
 - [ ] Abhaya Libre font loading correctly
@@ -79,7 +78,6 @@ SUPADATA_API_KEY=xxx
 - [ ] Profile pages accessible
 
 ### Visual Testing
-- [ ] Gradients displaying correctly
 - [ ] Abhaya Libre font on desktop
 - [ ] Responsive layouts working
 - [ ] Mobile cards displaying
@@ -98,7 +96,6 @@ SUPADATA_API_KEY=xxx
 - Error tracking (Sentry recommended)
 
 ### Performance Monitoring
-- Monitor gradient animation impact
 - Track load more interactions
 - Badge filter usage metrics
 - Source card click rates

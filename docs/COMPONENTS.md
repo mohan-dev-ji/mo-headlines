@@ -8,12 +8,11 @@
 - **useArticleFilter**: Hook managing filter state and URL params
 
 ### Card Components
-- **ArticleCardBase**: Base component with gradient background integration
 - **LandscapeCardLeft**: Row 1 layout (image left, content right)
 - **LandscapeCardRight**: Row 2 layout (content left, image right)
 - **PortraitCard**: Row 3 grid cards (3 per row on desktop)
 - **MobileArticleCard**: Mobile-specific with expanded metadata
-- **CardLayoutGrid**: Manages 3-row pattern repetition with gradients
+- **CardLayoutGrid**: Manages 3-row pattern repetition
 
 ### Article Page Components
 - **ArticleLayout**: Main container with close navigation
@@ -21,19 +20,18 @@
 - **ArticleImage**: Responsive image with position logic
 - **ArticleContent**: Paragraph rendering with proper spacing
 - **SourcesCarousel**: Horizontal scroll container for sources
-- **SourceCard**: Individual source with domain parsing
+- **SourceCard**: Compact card with domain and title (2 lines)
 - **CommentsSection**: Authenticated commenting system
-- **MoreHeadlines**: Related articles with gradient cards
+- **MoreHeadlines**: Related articles in small portrait cards
 
 ### Profile Components
 - **ProfileLayout**: Main profile container
 - **ProfileTabs**: Comments/Liked posts toggle system
 - **UserComments**: Comment history display
-- **LikedPosts**: Saved articles with gradient backgrounds
+- **LikedPosts**: Saved articles
 - **ProfileCard**: Individual item display card
 
 ### Shared Visual Components
-- **GradientBackground**: Reusable animated gradient system
 - **BadgeFilter**: Modified shadcn badge with on/off states
 - **LoadMoreButton**: Progressive content loading trigger
 
@@ -118,3 +116,11 @@
 
 ## Shared Admin Components
 - **AdminSidebar**: Navigation between Create, Review, and Images workflows
+
+### Source Cards Carousel
+**Design Reference**: `/docs/Design/Public/Article/`
+- **Quantity**: Display 4-10 source cards
+- **Visibility**: Show 3-4 cards on desktop, 1-2 on mobile
+- **Navigation**: Smooth horizontal scroll
+- **Indicators**: Optional scroll indicators or arrows for many sources
+- **Overflow**: Fade edge or shadow to indicate more content

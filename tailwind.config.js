@@ -52,6 +52,7 @@ module.exports = {
           'secondary-button': "var(--brand-secondary-button)",
           background: "var(--brand-background)",
           'alt-background': "var(--brand-alt-background)",
+          'badge-background': "var(--brand-badge-background)",
           card: "var(--brand-card)",
           'card-dark': "var(--brand-card-dark)",
           'alt-card': "var(--brand-alt-card)",

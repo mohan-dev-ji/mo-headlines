@@ -36,7 +36,11 @@ articles: {
   categoryId: Id<"categories">
   status: "pending" | "approved" | "rejected" | "draft"
   createSource: string              // Source attribution
-  aiSources: string[]              // Fact-checking URLs
+  sourceUrls: Array<{                // Updated from string[] to object array
+    url: string                     // Full source URL
+    domain: string                  // Parsed domain name (e.g., "techcrunch")
+    title: string                   // Source article title (truncated to 2 lines)
+  }>
   imageId?: Id<"images">           // Link to selected image
   viewCount: number
   publishedAt?: number
@@ -165,6 +169,7 @@ create_youtube: {
 - **Unified Prompt**: Single Perplexity API call processes all source types
 - **Normalized Input**: Queue provides consistent data structure (title, url, concept, createSource)
 - **Quality Output**: Fact-checked articles with embedded citations
+- **Source Enrichment**: Each source includes URL, domain, title, and excerpt for transparency
 - **Prompt Generation**: AI creates 3 image prompts stored in prompts table
 - **Processing Modes**: Individual or batch processing
 
@@ -214,13 +219,6 @@ create_youtube: {
 ```
 
 ## Visual Design Architecture
-
-### Gradient System
-/styles/
-├── gradients.module.css         # 20 gradient definitions + animations
-/lib/
-├── gradients.ts                 # Gradient assignment logic
-├── color-utils.ts               # Luminance matching utilities
 
 ### Typography System
 - **Headlines**: Abhaya Libre Medium (Google Fonts, desktop only)

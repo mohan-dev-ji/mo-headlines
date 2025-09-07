@@ -5,7 +5,6 @@
 ### Home Page
 - **Badge Filter System**: Recent (all articles), Tech & Science, Finance, Policies
 - **Article Grid**: 3-row pattern (landscape left, landscape right, 3x portrait)
-- **Animated Gradients**: 20 unique gradient backgrounds with pulsing tones
 - **Load More**: Progressive loading maintaining pattern consistency
 - **Responsive Design**: Dedicated mobile card components
 
@@ -13,13 +12,12 @@
 - **Responsive Layout**: Desktop (image after paragraph 1), Mobile (image at top)
 - **Sources Carousel**: Horizontal scrolling source cards with parsed domains
 - **Typography**: Abhaya Libre font for headlines (desktop only)
-- **Related Articles**: "More Headlines" section with gradient cards
+- **Related Articles**: "More Headlines" section with small portrait cards
 - **Comments**: Authenticated user comments with moderation
 
 ### Profile Settings
 - **Tab System**: Toggle between Comments and Liked Posts
 - **User History**: Paginated display of user activity
-- **Visual Consistency**: Liked posts maintain gradient backgrounds
 
 ## Create Workflow
 

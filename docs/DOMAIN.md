@@ -7,7 +7,7 @@
 - **Status**: Pending, approved, rejected, drafts
 - **Structure**: Title, body, excerpt, category, topics, source URLs
 - **Topics**: 5-10 single-token nouns per article for discoverability
-- **Sources**: Fact-checking URLs displayed at end of article body
+- **Sources**: Fact-checking sources with URL, domain, and title displayed as cards
 - **Images**: Optional link to selected image asset
 - **Prompts**: Linked AI-generated prompts for image creation
 
@@ -55,7 +55,7 @@
 ### Article Connections
 - **Categories**: Each article belongs to one category
 - **Topics**: Bold hyperlinks directing to search page with matching articles
-- **Sources**: Multiple fact-checking URLs attributed per article
+- **Sources**: Multiple enriched source objects (URL, domain, title) per article
 - **Origin**: Clear attribution to RSS/Research/YouTube source via createSource field
 - **Images**: Optional relationship to selected image asset
 - **Prompts**: One-to-many relationship with AI-generated prompts for image creation
@@ -83,13 +83,6 @@
 - **Source Attribution**: Transparent content origin tracking
 - **Image Gallery**: Visual asset browsing with quality and usage analytics
 - **Prompt Analytics**: Track effectiveness patterns across prompt types
-
-### Visual Identity System
-- **Gradient Backgrounds**: 20 pre-defined animated gradients
-- **Assignment Logic**: Deterministic gradient per article based on ID
-- **Animation**: CSS-based brightness pulsing (10s cycles)
-- **Category Theming**: Optional gradient pools per category
-- **Performance**: GPU-accelerated CSS animations
 
 ## Business Rules
 

@@ -93,17 +93,23 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 - **Technical Specifications**: Optimize prompts for 16:9 aspect ratio
 - **Brand Alignment**: Ensure generated imagery aligns with Mo Headlines visual identity
 
+### Source data structure
+- For each source cited, extract and provide:
+  - The complete URL
+  - The domain name (parsed from URL)
+  - The article title
+
 ## Content Quality Standards
 
 ### Article Requirements
-- **Fact-Checking**: Cross-referenced against 3+ reliable sources
+- **Fact-Checking**: Cross-referenced against 4-10 reliable sources
 - **Source Recognition**: Use mainstream tech publications, company blogs, government sources
 - **Objectivity**: Professional journalism tone, avoid sensationalism
 - **Accuracy**: Specific facts, dates, figures when available
 - **Discrepancy Handling**: Note conflicting reports between sources
 
 ### Source Citation Standards
-- **Minimum Sources**: 3-5 reputable sources per article
+- **Minimum Sources**: 4-10 reputable sources per article
 - **Source Types**: Major tech publications, company announcements, research papers
 - **URL Recording**: All source URLs captured for verification
 - **Attribution**: Clear source identification in content

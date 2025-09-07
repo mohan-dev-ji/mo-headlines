@@ -1,41 +1,56 @@
 # UX Design System
 
+## Design File Organization
+
+Design files are organized in `/docs/Design/` with the following structure:
+- Each major feature has its own folder
+- PNG files are named descriptively (e.g., `home-desktop-badge-filter.png`)
+- Flows are numbered sequentially with "flow" in the name(e.g., `01-empty-state.png`, `02-with-content.png`)
+
+### Quick Reference
+| Feature | Design Folder Path |
+|---------|-------------------|
+| Home Page | `/docs/Design/Public/Home/` |
+| Article Page | `/docs/Design/Public/Article/` |
+| Profile Settings | `/docs/Design/Public/Profile Settings/` |
+| Admin Create | `/docs/Design/Admin/Create/` |
+| Admin Review | `/docs/Design/Admin/Review/` |
+| Admin Image Gallery | `/docs/Design/Admin/Image Gallery/` |
+| Add Image Component | `/docs/Design/Admin/Add Image - Component/` |
+
 ## Design Tokens
 
 ### Brand Identity
 - **Product Name**: The Headlines (formerly Mo Headlines)
 - **Typography**: Abhaya Libre Medium for headlines (desktop) and inter for all other text.
 
-### Gradient System
-- **Total Gradients**: 20 unique combinations
-- **Base Luminance**: Matching zinc-900 (~10% lightness)
-- **Animation**: 10s brightness pulse cycle
-- **Assignment**: Deterministic by article ID
-- **Performance**: CSS-only animations
-
 ### Badge States
-- **Active Badge**: `bg-primary text-primary-foreground`
-- **Inactive Badge**: `bg-transparent border-input text-muted-foreground`
+- **Active Badge**: `bg-brand-badge-background text-brand-primary`
+- **Inactive Badge**: `bg-brand-card text-body-greyed-out`
 - **Hover State**: Brightness increase, cursor pointer
 - **Transition**: 200ms ease-in-out
 
 ### Typography Scale
-- **Headline Desktop**: Abhaya Libre Medium, 2.5rem
-- **Headline Tablet**: System font, 2rem
-- **Headline Mobile**: System font, 1.75rem
+- **Headline Desktop Home**: Abhaya Libre Medium, 40px
+- **Headline Desktop Article**: Abhaya Libre Medium, 40px
+- **Headline Desktop Profile Settings**: Abhaya Libre Medium, 40px
+- **Headline Mobile Home**: Abhaya Libre Medium, 24px
+- **Headline Mobile Article**: System font, text-2xl
+- **Headline Mobile Profile Settings**: System font, text-2xl
 - **Body**: System font, 1rem base
 
 ### Brand Colors
-- **Primary**: `--brand-primary` (green-600) - Main brand accent, success states
+- **Primary**: `--brand-primary` (cyan-400) - Main brand accent, success states
 - **Primary Button**: `--brand-primary-button` (blue-600) - Main action buttons
 - **Secondary Button**: `--brand-secondary-button` (green-800) - Secondary actions
 
 ### Background Colors
 - **Brand Background**: `--brand-background` (zinc-950) - Main admin interface background
-- **Brand Card**: `--brand-card` (zinc-800) - Standard card containers, sidebar selected
+- **Brand Card**: `--brand-card` (dark cyan grey) - Standard card containers, sidebar selected
 - **Brand Card Dark**: `--brand-card-dark` (zinc-900) - Item cards, modal backgrounds
 - **Alt Background**: `--brand-alt-background` (zinc-100) - Public website background
 - **Alt Card**: `--brand-alt-card` (white) - Public website cards
+- **Badge Background**: `--brand-badge-background` (cyan-950) - home page badge filtering system
 
 ### Text Colors
 - **Headline Primary**: `--headline-primary` (zinc-50) - Main headings on dark backgrounds
@@ -75,10 +90,10 @@
 
 ### Review Workflow Components
 - **Review Cards**: Universal card component with status-based border styling
-  - **Pending**: `--indicator-pending` left border
-  - **Approved**: `--indicator-approved` left border  
-  - **Rejected**: `--indicator-rejected` left border
-  - **Drafts**: `--indicator-drafts` left border
+  - **Pending**: `--indicator-pending` full border
+  - **Approved**: `--indicator-approved` full border  
+  - **Rejected**: `--indicator-rejected` full border
+  - **Drafts**: `--indicator-drafts` full border
 - **Preview Integration**: Embedded live article page with editorial overlay
 - **Edit Interface**: Form-based editing with `brand-card-dark` backgrounds
 - **Image Generation Modal**: Multi-step workflow (prompt selection → generation → preview → save)
@@ -108,12 +123,6 @@ Row 3: PortraitCard | PortraitCard | PortraitCard
 - **Landscape Cards**: 16:9 aspect ratio, image 40% width
 - **Portrait Cards**: 1:1 aspect ratio, image 100% width
 - **Mobile Cards**: Full width, 16:9 image ratio
-
-### Gradient Integration
-- **Opacity**: 100% (full color as background)
-- **Animation Duration**: 10s base, 3s on hover
-- **Brightness Range**: 100% to 110%
-- **Assignment Method**: Hash function on article ID
 
 ## Layout Patterns
 
@@ -159,36 +168,6 @@ Row 3: PortraitCard | PortraitCard | PortraitCard
 - **Progressive Disclosure**: Show details only when relevant
 - **Visual Hierarchy**: Most important status first
 - **Consistent Icons**: Use same icons across similar states
-
-### Figma Links
-- **[Admin Dashboard Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5043&t=qDk6WcgOLP0HMkjl-1)** - Overall admin interface structure
-
-### Create RSS Source Flow
-2. **[Empty RSS section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4815&t=qDk6WcgOLP0HMkjl-1)** - Empty RSS section showing no sources
-3. **[Create RSS source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4839&t=qDk6WcgOLP0HMkjl-1)** - Feed details input form
-4. **[RSS source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4978&t=qDk6WcgOLP0HMkjl-1)** - New RSS source appears in list
-
-### Create Research Source Flow
-2. **[Empty Research section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4823&t=qDk6WcgOLP0HMkjl-1)** - Empty Research section showing no sources
-3. **[Create Research source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4923&t=qDk6WcgOLP0HMkjl-1)** - Enter URL or title to be researched
-4. **[Research source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5015&t=qDk6WcgOLP0HMkjl-1)** - New Research source appears in list
-
-### Create YouTube Source Flow
-1. **[Empty Youtube section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4831&t=qDk6WcgOLP0HMkjl-1)** - Empty YouTube section showing no sources
-2. **[Create YouTube source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4880&t=qDk6WcgOLP0HMkjl-1)** - Video URL and timecode input
-3. **[YouTube source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4987&t=qDk6WcgOLP0HMkjl-1)** - New source appears in list
-
-### Create Queue
-- **[Create Queue Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4721&t=qDk6WcgOLP0HMkjl-1)** - Shared Queue for all created sources
-
-### Review Workflow
-- **[Review Pending Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5471&t=85oVoQlA9tmvqKG3-1)** - Pending articles awaiting review
-- **[Review Approved Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5491&t=85oVoQlA9tmvqKG3-1)** - Published articles
-- **[Review Drafts Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5511&t=85oVoQlA9tmvqKG3-1)** - Draft articles in progress
-- **[Review Rejected Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-6107&t=85oVoQlA9tmvqKG3-1)** - Rejected articles
-- **[Article Preview Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5596&t=85oVoQlA9tmvqKG3-1)** - Live article preview with editorial actions
-- **[Article Edit Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5531&t=85oVoQlA9tmvqKG3-1)** - Field editing and image generation integration
-- **[Image Generation Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5567&t=85oVoQlA9tmvqKG3-1)** - Prompt selection and DALL-E workflow
 
 ## Implementation Guidelines
 
@@ -249,37 +228,40 @@ Row 3: PortraitCard | PortraitCard | PortraitCard
 
 ## Design References
 
-For detailed visual specifications, refer to the Figma designs:
+All design files are stored as PNGs in the `/docs/Design/` directory for Claude Code accessibility.
 
-### Admin Dashboard
-- **[Admin Dashboard Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5043&t=qDk6WcgOLP0HMkjl-1)** - Overall admin interface structure
+### Admin Interface Designs
+- **Add Image Component**: `/docs/Design/Admin/Add Image - Component/`
+- **Create RSS Prodcer**: `/docs/Design/Admin/Create/RSS`
+- **Create YouTube Prodcer**: `/docs/Design/Admin/Create/YouTube`
+- **Create Research Prodcer**: `/docs/Design/Admin/Create/Research`
+- **Create Shared Queue**: `/docs/Design/Admin/Create/Queue`
+- **Image Gallery**: `/docs/Design/Admin/Image Gallery/`
+- **Review Workflow**: `/docs/Design/Admin/Review/`
 
-### Create RSS Source Flow
-2. **[Empty RSS section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4815&t=qDk6WcgOLP0HMkjl-1)** - Empty RSS section showing no sources
-3. **[Create RSS source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4839&t=qDk6WcgOLP0HMkjl-1)** - Feed details input form
-4. **[RSS source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4978&t=qDk6WcgOLP0HMkjl-1)** - New RSS source appears in list
+### Public Website Designs
+- **Article Page**: `/docs/Design/Public/Article/`
+- **Home Page**: `/docs/Design/Public/Home/`
+- **Profile Settings**: `/docs/Design/Public/Profile Settings/`
 
-### Create Research Source Flow
-2. **[Empty Research section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4823&t=qDk6WcgOLP0HMkjl-1)** - Empty Research section showing no sources
-3. **[Create Research source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4923&t=qDk6WcgOLP0HMkjl-1)** - Enter URL or title to be researched
-4. **[Research source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-5015&t=qDk6WcgOLP0HMkjl-1)** - New Research source appears in list
+### Component Specifications
 
-### Create YouTube Source Flow
-1. **[Empty Youtube section](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4831&t=qDk6WcgOLP0HMkjl-1)** - Empty YouTube section showing no sources
-2. **[Create YouTube source modal](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4880&t=qDk6WcgOLP0HMkjl-1)** - Video URL and timecode input
-3. **[YouTube source created](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4987&t=qDk6WcgOLP0HMkjl-1)** - New source appears in list
+#### Home Page Components
+**Design Files**: `/docs/Design/Public/Home/`
+- Badge filter system with cyan-950 active state
+- Article cards in 3-row pattern layout
+- Mobile-specific card designs
 
-### Create Queue
-- **[Create Queue Layout](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=280-4721&t=qDk6WcgOLP0HMkjl-1)** - Shared Queue for all created sources
+#### Article Page Components
+**Design Files**: `/docs/Design/Public/Article/`
+- Responsive image placement
+- Source cards carousel
+- More Headlines section
 
-### Review Workflow
-- **[Review Pending Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5471&t=85oVoQlA9tmvqKG3-1)** - Pending articles awaiting review
-- **[Review Approved Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5491&t=85oVoQlA9tmvqKG3-1)** - Published articles
-- **[Review Drafts Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5511&t=85oVoQlA9tmvqKG3-1)** - Draft articles in progress
-- **[Review Rejected Tab](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-6107&t=85oVoQlA9tmvqKG3-1)** - Rejected articles
-- **[Article Preview Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5596&t=85oVoQlA9tmvqKG3-1)** - Live article preview with editorial actions
-- **[Article Edit Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5531&t=85oVoQlA9tmvqKG3-1)** - Field editing and image generation integration
-- **[Image Generation Page](https://www.figma.com/design/cbb3NHa8gC0ho3iTt2wEvs/Mo-Headlines?node-id=313-5567&t=85oVoQlA9tmvqKG3-1)** - Prompt selection and DALL-E workflow
+#### Profile Settings Components
+**Design Files**: `/docs/Design/Public/Profile Settings/`
+- Tab system for Comments/Liked Posts
+- User activity cards
 
 ## Component Consistency
 - Always use semantic color variables, never hardcoded values
