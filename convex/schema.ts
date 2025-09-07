@@ -13,7 +13,11 @@ export default defineSchema({
     // AI Processing System fields
     status: v.union(v.literal("draft"), v.literal("pending"), v.literal("approved"), v.literal("rejected")),
     isEdited: v.optional(v.boolean()),
-    sourceUrls: v.array(v.string()),
+    sourceUrls: v.array(v.object({
+      url: v.string(),       // Full source URL
+      domain: v.string(),    // Parsed domain name (e.g., "techcrunch")
+      title: v.string(),     // Source article title
+    })),
     viewCount: v.optional(v.number()),
     excerpt: v.optional(v.string()),
     slug: v.string(),

@@ -260,7 +260,11 @@ interface ProcessedArticle {
   body: string;
   excerpt: string;
   category: string;
-  sourceUrls: string[];
+  sourceUrls: Array<{
+    url: string;       // Full source URL
+    domain: string;    // Parsed domain name (e.g., "techcrunch")
+    title: string;     // Source article title
+  }>;
   imageGenPrompts: string[];
 }
 
@@ -308,7 +312,7 @@ TASK:
 Process each article individually and return an array of processed articles.
 
 For each article:
-1. Use your research capabilities to find 3-5 reputable sources reporting on this same story
+1. Use your research capabilities to find 4-10 reputable sources reporting on this same story
 2. Fact-check the key claims against these sources  
 3. Write a well-balanced, journalistic article that synthesizes the information
 4. Identify any conflicting reports or uncertain details
@@ -348,6 +352,15 @@ SOURCE CITATION REQUIREMENTS:
 - Ensure each source URL in sourceUrls corresponds to a numbered citation in the body
 - Citations should feel natural and not disrupt the reading flow
 
+SOURCE DATA REQUIREMENTS:
+- Provide 4-10 sources per article for comprehensive fact-checking
+- For each source, extract:
+  * url: Complete source URL (https://...)  
+  * domain: Domain name only (e.g., "techcrunch", "theverge", "arstechnica")
+  * title: Full article title from the source (limit to reasonable length)
+- Use reputable tech publications, company blogs, government sources
+- Ensure sources are relevant and support the article's claims
+
 RESPONSE FORMAT (JSON ARRAY):
 [
   {
@@ -355,13 +368,17 @@ RESPONSE FORMAT (JSON ARRAY):
     "body": "Full article content in markdown format",
     "excerpt": "2-3 sentence summary for preview",
     "category": "One of: ${categoryNames.join(", ")}",
-    "sourceUrls": ["url1", "url2", "url3"],
+    "sourceUrls": [
+      {"url": "https://full-source-url1.com", "domain": "techcrunch", "title": "Source Article Title 1"},
+      {"url": "https://full-source-url2.com", "domain": "theverge", "title": "Source Article Title 2"},
+      {"url": "https://full-source-url3.com", "domain": "arstechnica", "title": "Source Article Title 3"}
+    ],
     "imageGenPrompts": [
       "Abstract conceptual imagery with symbolic elements related to the article - NO text, words, or real-world logos",
       "Geometric and architectural composition conveying the article's themes through shapes, colors, and visual metaphors", 
       "Cinematic lighting and atmospheric scene that captures the mood and essence of the topic through environmental storytelling"
     ]
-  }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": ["url1", "url2", "url3"],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"]\n  }\n  // ... repeat for each article' : ''}
+  }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": [\n      {"url": "https://source-url1.com", "domain": "domain1", "title": "Article Title 1"},\n      {"url": "https://source-url2.com", "domain": "domain2", "title": "Article Title 2"}\n    ],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"]\n  }\n  // ... repeat for each article' : ''}
 ]`;
 
     try {
@@ -491,7 +508,11 @@ export const createArticleFromProcessed = internalMutation({
       body: v.string(),
       excerpt: v.string(),
       category: v.string(),
-      sourceUrls: v.array(v.string()),
+      sourceUrls: v.array(v.object({
+        url: v.string(),
+        domain: v.string(),
+        title: v.string(),
+      })),
       imageGenPrompts: v.array(v.string()),
     }),
     queueItemId: v.id("create_queue"),

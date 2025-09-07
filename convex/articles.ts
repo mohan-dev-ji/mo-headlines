@@ -20,7 +20,11 @@ export const createArticle = mutation({
     excerpt: v.optional(v.string()),
     slug: v.string(),
     createSource: v.optional(v.string()),
-    sourceUrls: v.optional(v.array(v.string())),
+    sourceUrls: v.optional(v.array(v.object({
+      url: v.string(),
+      domain: v.string(),
+      title: v.string(),
+    }))),
   },
   handler: async (ctx, args): Promise<{ articleId: Id<"articles"> }> => {
     const identity = await ctx.auth.getUserIdentity();
@@ -92,7 +96,11 @@ export const updateArticle = mutation({
     excerpt: v.optional(v.string()),
     slug: v.optional(v.string()),
     createSource: v.optional(v.string()),
-    sourceUrls: v.optional(v.array(v.string())),
+    sourceUrls: v.optional(v.array(v.object({
+      url: v.string(),
+      domain: v.string(),
+      title: v.string(),
+    }))),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();

@@ -22,6 +22,8 @@ Design files are organized in `/docs/Design/` with the following structure:
 
 ### Brand Identity
 - **Product Name**: The Headlines (formerly Mo Headlines)
+- **Logo Desktop**: "The Headlines" in Abhaya Libre Medium, 40px
+- **Logo Mobile**: "The Headlines" in Abhaya Libre Medium, 24px (logo-sm)
 - **Typography**: Abhaya Libre Medium for headlines (desktop) and inter for all other text.
 
 ### Badge States

@@ -79,7 +79,7 @@
   /* Mo Headlines Design Tokens */
   
   /* Brand Colors */
-  --brand-primary: #16a34a; /* green-600 */
+  --brand-primary: #00D3F2; /* green-600 */
   --brand-primary-button: #2563eb; /* blue-600 */
   --brand-secondary-button: #166534; /* green-800 */
   
@@ -111,6 +111,10 @@
   --padding-md: 20px;
   --padding-lg: 32px;
   --border-width: 1px;
+  
+  /* Layout Tokens */
+  --page-width: 816px;
+  --page-y-padding: 64px;
   
   /* Status Indicator Colors */
   --indicator-pending: #71717a; /* zinc-500 */
@@ -167,7 +171,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans;
+    @apply bg-brand-card-dark text-foreground font-sans;
   }
 }
 

@@ -12,6 +12,8 @@ import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Trash2 } from "lucide-react";
 import { isAdmin } from "@/lib/admin";
 import { useRouter } from "next/navigation";
+import { Suspense } from "react";
+import { BadgeFilterBar } from "@/components/public/home/BadgeFilterBar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,8 +55,14 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="min-h-screen bg-brand-card">
-      <div className="max-w-2xl mx-auto px-4 py-8 bg-brand-background">
+    <div className="min-h-screen bg-brand-background">
+      {/* Navigation */}
+      <Suspense fallback={<div className="h-16 bg-brand-background border-b border-brand-line" />}>
+        <BadgeFilterBar />
+      </Suspense>
+      
+      {/* Article Content */}
+      <div className="max-w-2xl mx-auto px-4 py-8">
       {/* Banner Image */}
       {article.imageUrl && (
         <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden">
@@ -127,19 +135,24 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           <div className="mt-8 p-6 bg-brand-card rounded-lg border-brand-line">
             <h3 className="text-lg font-semibold mb-4 text-headline-primary">Sources</h3>
             <div className="space-y-3">
-              {article.sourceUrls.map((url, index) => (
+              {article.sourceUrls.map((source, index) => (
                 <div key={index} className="flex items-start gap-3">
                   <span className="text-sm text-body-primary mt-1 font-medium">
                     [{index + 1}]
                   </span>
-                  <a
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-body-primary hover:text-headline-primary underline break-all text-sm leading-relaxed transition-colors"
-                  >
-                    {url}
-                  </a>
+                  <div className="flex-1">
+                    <a
+                      href={typeof source === 'string' ? source : source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-primary hover:text-cyan-300 font-medium text-sm block transition-colors"
+                    >
+                      {typeof source === 'string' ? source : source.title}
+                    </a>
+                    {typeof source !== 'string' && (
+                      <p className="text-body-secondary text-xs mt-1">{source.domain}</p>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

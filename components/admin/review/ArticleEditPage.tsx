@@ -42,7 +42,7 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
     excerpt: "",
     categoryId: "" as Id<"categories"> | "",
     createSource: "",
-    sourceUrls: [] as string[]
+    sourceUrls: [] as Array<{url: string, domain: string, title: string}>
   })
   
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -321,9 +321,25 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
                 <div className="space-y-2">
                   <Label className="text-headline-primary font-medium">Sources</Label>
                   <Textarea
-                    value={formData.sourceUrls.join('\n')}
-                    onChange={(e) => setFormData(prev => ({ ...prev, sourceUrls: e.target.value.split('\n').filter(url => url.trim()) }))}
-                    placeholder="Input Value"
+                    value={formData.sourceUrls.map(source => typeof source === 'string' ? source : source.url).join('\n')}
+                    onChange={(e) => setFormData(prev => ({ 
+                      ...prev, 
+                      sourceUrls: e.target.value.split('\n')
+                        .filter(url => url.trim())
+                        .map(url => {
+                          try {
+                            const urlObj = new URL(url.trim());
+                            return { 
+                              url: url.trim(), 
+                              domain: urlObj.hostname.replace('www.', ''), 
+                              title: 'Source Article' 
+                            };
+                          } catch {
+                            return { url: url.trim(), domain: 'unknown', title: 'Source Article' };
+                          }
+                        })
+                    }))}
+                    placeholder="Enter URLs (one per line)"
                     className="min-h-[120px] bg-brand-card border-brand-line text-body-primary resize-none"
                     rows={6}
                   />

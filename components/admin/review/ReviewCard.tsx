@@ -12,7 +12,7 @@ interface ReviewCardProps {
     title: string
     excerpt?: string
     createSource: string
-    sourceUrls: string[]
+    sourceUrls: string[] | Array<{url: string, domain: string, title: string}>
     status: "draft" | "pending" | "approved" | "rejected"
     _creationTime: number
     categoryId: Id<"categories">
@@ -131,20 +131,25 @@ export function ReviewCard({ article, categoryName, onClick }: ReviewCardProps) 
             <div className="space-y-2">
               <span className="text-headline-primary font-medium text-sm">Sources:</span>
               <div className="space-y-1">
-                {article.sourceUrls.map((url, index) => (
+                {article.sourceUrls.map((source, index) => (
                   <div key={index} className="flex items-start gap-2">
                     <span className="text-body-secondary text-sm mt-0.5 flex-shrink-0">
                       {index + 1}.
                     </span>
-                    <a 
-                      href={url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors break-all"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {url}
-                    </a>
+                    <div className="flex-1">
+                      <a 
+                        href={typeof source === 'string' ? source : source.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors block"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {typeof source === 'string' ? source : source.title}
+                      </a>
+                      {typeof source !== 'string' && (
+                        <p className="text-body-secondary text-xs mt-0.5">{source.domain}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

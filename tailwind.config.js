@@ -9,6 +9,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        'abhaya-libre': ['var(--font-abhaya-libre)', 'serif'],
       },
       colors: {
         // shadcn/ui colors
@@ -98,6 +99,21 @@ module.exports = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      maxWidth: {
+        'page': 'var(--page-width)',
+      },
+      padding: {
+        'page-y': 'var(--page-y-padding)',
+      },
+      spacing: {
+        'between-items': 'var(--space-between-items)',
+      },
+      gap: {
+        'between-items': 'var(--space-between-items)',
+      },
+      margin: {
+        'between-items': 'var(--space-between-items)',
       },
     },
   },
