@@ -11,6 +11,13 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
         mono: ["var(--font-geist-mono)"],
+        "abhaya-libre": ["var(--font-abhaya-libre)"],
+      },
+      maxWidth: {
+        'page': 'var(--page-width)',
+      },
+      padding: {
+        'page-y': 'var(--page-y-padding)',
       },
       colors: {
         background: "var(--background)",
@@ -36,6 +43,7 @@ const config: Config = {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        'corner': 'var(--radius-corner)',
       },
     },
   },

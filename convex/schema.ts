@@ -69,7 +69,6 @@ export default defineSchema({
     username: v.string(),
     avatarUrl: v.optional(v.string()),
     content: v.string(),
-    createdAt: v.number(),
     updatedAt: v.number(),
     isDeleted: v.boolean(),
   })

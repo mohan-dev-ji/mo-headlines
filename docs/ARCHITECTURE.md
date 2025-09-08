@@ -43,6 +43,7 @@ articles: {
   }>
   imageId?: Id<"images">           // Link to selected image
   viewCount: number
+  likeCount?: number               // Added: Cached count for performance
   publishedAt?: number
   updatedAt: number
   authorId?: Id<"users">
@@ -75,6 +76,16 @@ images: {
   generationCost?: number          // Track costs if available
   articleTitle: string             // Denormalized for easier querying
   categoryId: Id<"categories">     // Denormalized for analytics
+}
+```
+
+#### Likes (User Engagement)
+```typescript
+likes: {
+  _id: Id<"likes">
+  userId: string                   // Clerk user ID
+  articleId: Id<"articles">        // Linked article
+  _creationTime: number            // Automatic Convex field
 }
 ```
 

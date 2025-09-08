@@ -119,6 +119,7 @@
 
 ### Source Cards Carousel
 **Design Reference**: `/docs/Design/Public/Article/`
+- **Copy**: Domain and title truncated to 2 lines
 - **Quantity**: Display 4-10 source cards
 - **Visibility**: Show 3-4 cards on desktop, 1-2 on mobile
 - **Navigation**: Smooth horizontal scroll

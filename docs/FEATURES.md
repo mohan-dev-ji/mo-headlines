@@ -17,7 +17,6 @@
 
 ### Profile Settings
 - **Tab System**: Toggle between Comments and Liked Posts
-- **User History**: Paginated display of user activity
 
 ## Create Workflow
 

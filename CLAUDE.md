@@ -70,23 +70,87 @@ See [DOMAIN.md](docs/DOMAIN.md#categories) for keyword mappings
 ### **Phase 3: Article Page**
 *Enhanced with source transparency*
 
-**Layout** - See [FEATURES.md](docs/FEATURES.md#article-page) for requirements
+- See FEATURES.md, COMPONENTS.md and UX.md in /docs for requirements
+
+**Layout**
 - Responsive image placement
 - Close button navigation
 
-**Source Cards** - See [UX.md](docs/UX.md#source-cards) for specifications
+**Source Cards**
 - Display domain + title (2 lines)
 - Horizontal carousel (4-10 cards)
 - ~200px width per card
 
 ---
 
-### **Phase 4: Profile Settings**
-*Simple implementation*
+### **Phase 4: Profile Settings Page - Clear Action Items**
+4.1 Schema Addition
 
-- Comments tab
-- Liked posts tab
-- See [COMPONENTS.md](docs/COMPONENTS.md#profile-components)
+Add likes table with userId, articleId
+Create indexes: by_user, by_article, by_user_article (unique)
+
+4.2 Backend Functions
+
+toggleLike mutation - handle like/unlike
+getUserLikedArticles query - return full article data
+getUserComments query - return comments with article info
+isArticleLiked query - check if user liked specific article
+
+4.3 Profile Page Components
+
+ProfileLayout - Main container
+ProfileTabs - Toggle between "Comments" and "Liked Posts"
+Liked Posts Tab:
+
+Use LandscapeCardLeft component from home page
+Display in vertical list
+Include unlike button on each card
+Empty state: "No liked posts yet"
+
+
+Comments Tab:
+
+Create new CommentCard component
+Show comment text, article title (linked), timestamp
+Empty state: "No comments yet"
+
+
+
+4.4 Comments Section Testing (Article Page)
+
+Verify comment display shows:
+
+User avatar (Clerk image)
+Username
+Comment text
+Timestamp (_creationTime)
+Only approved comments visible
+
+
+Add comment form for authenticated users
+Test comment submission flow
+
+4.5 Like Button Integration
+
+Add heart icon to article pages
+Outline when not liked, filled when liked
+Click triggers toggleLike mutation
+Show sign-in modal if not authenticated
+
+📚 References
+
+Design: /docs/Design/Public/Profile Settings/ folder
+Features: See FEATURES.md - Profile Settings section
+Components: See COMPONENTS.md - Profile Components section
+Article Page: Check comments implementation in COMPONENTS.md
+
+✅ Success Criteria
+
+User can see all their liked articles in a list
+User can see all their comments with links to articles
+User can unlike articles from profile
+Comments show proper user info on article pages
+Non-authenticated users see sign-in prompt
 
 ---
 
