@@ -123,7 +123,7 @@ export default function ProfileForm() {
 
       {/* Username */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Username</label>
+        <label className="text-sm font-medium text-body-primary">Username</label>
         {isEditing.username ? (
           <div className="flex gap-2">
             <Input
@@ -140,9 +140,9 @@ export default function ProfileForm() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <p className="text-sm">{username || "Not set"}</p>
+            <p className="text-sm text-body-secondary">{username || "Not set"}</p>
             <Button size="sm" variant="ghost" onClick={() => setIsEditing({ ...isEditing, username: true })}>
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-body-secondary hover:text-brand-background" />
             </Button>
           </div>
         )}
@@ -150,7 +150,7 @@ export default function ProfileForm() {
 
       {/* Description */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Description</label>
+        <label className="text-sm font-medium text-body-primary">Description</label>
         {isEditing.description ? (
           <div className="flex gap-2">
             <Textarea
@@ -167,9 +167,9 @@ export default function ProfileForm() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <p className="text-sm">{description || "Not set"}</p>
+            <p className="text-sm text-body-secondary">{description || "Not set"}</p>
             <Button size="sm" variant="ghost" onClick={() => setIsEditing({ ...isEditing, description: true })}>
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-body-secondary hover:text-black" />
             </Button>
           </div>
         )}
@@ -177,7 +177,7 @@ export default function ProfileForm() {
 
       {/* Email */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Email</label>
+        <label className="text-sm font-medium text-body-primary">Email</label>
         {isEditing.email ? (
           <div className="flex gap-2">
             <Input
@@ -195,9 +195,9 @@ export default function ProfileForm() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <p className="text-sm">{email}</p>
+            <p className="text-sm text-body-secondary">{email}</p>
             <Button size="sm" variant="ghost" onClick={() => setIsEditing({ ...isEditing, email: true })}>
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-body-secondary hover:text-black" />
             </Button>
           </div>
         )}
@@ -205,7 +205,7 @@ export default function ProfileForm() {
 
       {/* Password */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Password</label>
+        <label className="text-sm font-medium text-body-primary">Password</label>
         {isEditing.password ? (
           <div className="space-y-2">
             <Input
@@ -231,9 +231,9 @@ export default function ProfileForm() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <p className="text-sm">••••••••</p>
+            <p className="text-sm text-body-secondary">••••••••</p>
             <Button size="sm" variant="ghost" onClick={() => setIsEditing({ ...isEditing, password: true })}>
-              <Pencil className="h-4 w-4" />
+              <Pencil className="h-4 w-4 text-body-secondary hover:text-black" />
             </Button>
           </div>
         )}

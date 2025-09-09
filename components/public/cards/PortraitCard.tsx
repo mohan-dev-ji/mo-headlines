@@ -25,7 +25,7 @@ export function PortraitCard({ article, className = "" }: PortraitCardProps) {
 
   return (
     <Link href={`/article/${article._id}`}>
-      <div className={`group bg-brand-card rounded-lg overflow-hidden hover:bg-brand-card-dark transition-colors duration-200 h-auto flex flex-col ${className}`}>
+      <div className={`group bg-brand-card rounded-lg overflow-hidden border border-brand-card hover:bg-brand-card-dark transition-colors duration-200 h-auto flex flex-col ${className}`}>
         {/* Image - 50% of height */}
         <div className="h-1/2 relative p-5 pb-0">
           {article.imageUrl ? (

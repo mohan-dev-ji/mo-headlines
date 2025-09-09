@@ -10,7 +10,7 @@ interface UserAvatarProps {
 
 export function UserAvatar({ userId, username, avatarUrl }: UserAvatarProps) {
   return (
-    <Avatar className="h-8 w-8">
+    <Avatar className="h-8 w-8 border border-brand-line">
       {avatarUrl ? (
         <AvatarImage 
           src={avatarUrl} 

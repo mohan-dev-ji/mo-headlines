@@ -69,9 +69,11 @@ export function CardLayoutGrid({ articles, className = "" }: CardLayoutGridProps
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden space-y-4">
-        {articles.map((article) => (
-          <MobileArticleCard key={article._id} article={article} />
+      <div className="md:hidden">
+        {articles.map((article, index) => (
+          <div key={article._id} className={index > 0 ? "mt-6" : ""}>
+            <MobileArticleCard article={article} />
+          </div>
         ))}
       </div>
     </div>

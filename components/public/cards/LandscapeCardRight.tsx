@@ -25,7 +25,7 @@ export function LandscapeCardRight({ article, className = "" }: LandscapeCardRig
 
   return (
     <Link href={`/article/${article._id}`}>
-      <div className={`group bg-brand-card rounded-lg overflow-hidden hover:bg-brand-card-dark transition-colors duration-200 ${className}`}>
+      <div className={`group bg-brand-card rounded-lg overflow-hidden border border-brand-card hover:bg-brand-card-dark transition-colors duration-200 ${className}`}>
         <div className="flex h-auto">
           {/* Content - Left side (50% width) */}
           <div className="w-1/2 pl-6 pr-0 py-6 flex flex-col justify-between">

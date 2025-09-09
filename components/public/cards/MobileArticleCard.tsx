@@ -25,7 +25,7 @@ export function MobileArticleCard({ article, className = "" }: MobileArticleCard
 
   return (
     <Link href={`/article/${article._id}`}>
-      <div className={`group bg-brand-card rounded-lg overflow-hidden hover:bg-brand-card-dark transition-colors duration-200 ${className}`}>
+      <div className={`group bg-brand-card rounded-lg overflow-hidden border border-brand-card hover:bg-brand-card-dark transition-colors duration-200 ${className}`}>
         {/* Image - 16:9 aspect ratio for mobile */}
         <div className="aspect-video relative">
           {article.imageUrl ? (

@@ -69,11 +69,20 @@ export default defineSchema({
     username: v.string(),
     avatarUrl: v.optional(v.string()),
     content: v.string(),
+    createdAt: v.number(),
     updatedAt: v.number(),
     isDeleted: v.boolean(),
   })
   .index("by_article", ["articleId"])
   .index("by_user", ["userId"]),
+
+  likes: defineTable({
+    userId: v.string(),
+    articleId: v.id("articles"),
+  })
+  .index("by_user", ["userId"])
+  .index("by_article", ["articleId"])
+  .index("by_user_article", ["userId", "articleId"]),
 
 
   // Universal Create Queue (ADR 2) - Normalized queue for all content sources

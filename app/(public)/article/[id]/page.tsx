@@ -7,10 +7,12 @@ import { use } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
-import { X } from "lucide-react";
+import { X, Heart } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { CommentSection } from "@/components/public/CommentSection";
 import ReactMarkdown from "react-markdown";
+import { useUser, SignInButton } from "@clerk/nextjs";
+import { useState } from "react";
 
 interface ArticleBodyWithImageProps {
   body?: string;
@@ -88,11 +90,23 @@ function ArticleBodyWithImage({ body, imageUrl, imageAlt }: ArticleBodyWithImage
 
 export default function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
+  const { user } = useUser();
+  const [showSignInModal, setShowSignInModal] = useState(false);
+  
   const article = useQuery(api.articles.getArticle, { id: resolvedParams.id as Id<"articles"> });
   const relatedArticles = useQuery(
     api.articles.getArticlesByCategory, 
     article?.categoryId ? { categoryId: article.categoryId } : "skip"
   );
+  const isLiked = useQuery(
+    api.likes.isArticleLiked,
+    user?.id && article?._id ? { 
+      articleId: article._id, 
+      userId: user.id 
+    } : "skip"
+  );
+  
+  const toggleLike = useMutation(api.likes.toggleLike);
   const router = useRouter();
 
   // Filter out current article, get approved articles, sort by most recent, and get first 4
@@ -100,6 +114,24 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
     ?.filter(a => a._id !== article?._id && a.status === "approved")
     .sort((a, b) => (b._creationTime || 0) - (a._creationTime || 0))
     .slice(0, 4) || [];
+
+  const handleLike = async () => {
+    if (!user) {
+      setShowSignInModal(true);
+      return;
+    }
+    
+    if (!article?._id) return;
+    
+    try {
+      await toggleLike({ 
+        articleId: article._id, 
+        userId: user.id 
+      });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
 
 
   if (!article) {
@@ -156,14 +188,32 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           </Button>
         </div>
         
-        <div className="flex items-center gap-4 text-body-primary mb-6">
-          <span className="capitalize">{article.category?.name}</span>
-          <span>•</span>
-          <span>Published on {new Date(article._creationTime).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'long', 
-            year: 'numeric'
-          })}</span>
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4 text-body-primary">
+            <span className="capitalize">{article.category?.name}</span>
+            <span>•</span>
+            <span>Published on {new Date(article._creationTime).toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'long', 
+              year: 'numeric'
+            })}</span>
+          </div>
+          
+          {/* Like Button */}
+          <Button
+            onClick={handleLike}
+            variant="ghost"
+            size="icon"
+            className="hover:bg-white/10 rounded-full"
+          >
+            <Heart 
+              className={`w-5 h-5 transition-colors ${
+                isLiked 
+                  ? "text-red-400 fill-red-400" 
+                  : "text-body-primary hover:text-red-400"
+              }`} 
+            />
+          </Button>
         </div>
 
         {/* Sources Carousel - Right under date */}
@@ -248,6 +298,37 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         <CommentSection articleId={article._id} />
       </div>
       </div>
+
+      {/* Sign In Modal */}
+      {showSignInModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-brand-card rounded-lg p-6 max-w-md mx-4">
+            <div className="text-center space-y-4">
+              <Heart className="w-12 h-12 text-red-400 mx-auto" />
+              <h3 className="text-lg font-medium text-headline-primary">
+                Sign in to like articles
+              </h3>
+              <p className="text-body-primary">
+                Create an account to save your favorite articles and see them in your profile.
+              </p>
+              <div className="flex gap-3 justify-center">
+                <SignInButton mode="modal">
+                  <Button className="bg-brand-primary text-black hover:bg-cyan-300">
+                    Sign In
+                  </Button>
+                </SignInButton>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowSignInModal(false)}
+                  className="border-brand-card-dark text-body-primary hover:bg-brand-card-dark"
+                >
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

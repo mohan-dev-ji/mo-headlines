@@ -42,7 +42,7 @@ export function CommentForm({ articleId }: CommentFormProps) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Write a comment..."
-        className="min-h-[100px] border-[var(--brand-line)] focus-visible:border-[var(--brand-line)]"
+        className="min-h-[100px] text-body-primary bg-transparent border-[var(--brand-line)] focus-visible:border-[var(--brand-line)]"
       />
       <div className="flex justify-end">
         <Button type="submit" className="h-8">

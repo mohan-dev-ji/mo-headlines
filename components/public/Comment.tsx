@@ -64,8 +64,8 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
   const isAuthor = currentUserId === comment.userId;
 
   return (
-    <div className="space-y-2 rounded-lg border p-4">
-      <div className="flex items-center gap-2">
+    <div className="space-y-2 rounded-lg p-4 bg-brand-card">
+      <div className="flex gap-2">
         <UserAvatar 
           userId={comment.userId} 
           username={comment.username} 
@@ -73,14 +73,23 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
         />
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className="font-medium">{comment.username}</span>
-            <span className="text-sm text-muted-foreground">
+            <span className="font-medium text-headline-primary">{comment.username}</span>
+            <span className="text-sm text-body-primary">
               <TimeAgo date={comment.createdAt} />
             </span>
             {comment.updatedAt !== comment.createdAt && (
               <span className="text-sm text-muted-foreground">(edited)</span>
             )}
           </div>
+          {isEditing ? (
+            <Textarea
+              value={editedContent}
+              onChange={(e) => setEditedContent(e.target.value)}
+              className="min-h-[100px] mt-2 text-sm text-body-primary"
+            />
+          ) : (
+            <p className="text-sm text-body-primary mt-2">{comment.content}</p>
+          )}
         </div>
         {isAuthor && !isEditing && (
           <div className="flex gap-2">
@@ -91,7 +100,7 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
                 setIsEditing(true);
                 onEdit();
               }}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 text-body-secondary"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -101,7 +110,7 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
               onClick={handleDelete}
               className="h-8 w-8 p-0"
             >
-              <Trash2 className="h-4 w-4" />
+              <Trash2 className="h-4 w-4 text-body-secondary" />
             </Button>
           </div>
         )}
@@ -111,7 +120,7 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
               variant="ghost"
               size="sm"
               onClick={handleSave}
-              className="h-8 w-8 p-0"
+              className="h-8 w-8 p-0 text-body-secondary"
             >
               <Save className="h-4 w-4" />
             </Button>
@@ -121,20 +130,11 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
               onClick={handleCancel}
               className="h-8 w-8 p-0"
             >
-              <X className="h-4 w-4" />
+              <X className="h-4 w-4 text-body-secondary" />
             </Button>
           </div>
         )}
       </div>
-      {isEditing ? (
-        <Textarea
-          value={editedContent}
-          onChange={(e) => setEditedContent(e.target.value)}
-          className="min-h-[100px]"
-        />
-      ) : (
-        <p className="text-sm">{comment.content}</p>
-      )}
     </div>
   );
 } 
