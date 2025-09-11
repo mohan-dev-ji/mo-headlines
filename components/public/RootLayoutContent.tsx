@@ -1,3 +1,5 @@
+import { UserSync } from "./UserSync";
+
 interface RootLayoutContentProps {
   children: React.ReactNode;
 }
@@ -5,6 +7,7 @@ interface RootLayoutContentProps {
 export function RootLayoutContent({ children }: RootLayoutContentProps) {
   return (
     <>
+      <UserSync />
       {children}
     </>
   );
