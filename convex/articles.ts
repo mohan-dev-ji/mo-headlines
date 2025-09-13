@@ -386,8 +386,20 @@ export const generateImageWithDallE = action({
   handler: async (ctx, args) => {
     const openaiApiKey = process.env.OPENAI_API_KEY;
     if (!openaiApiKey) {
+      console.error("OpenAI API key not configured");
       throw new Error("OpenAI API key not configured");
     }
+
+    // Validate prompt length (OpenAI has limits)
+    if (args.prompt.length > 1000) {
+      throw new Error("Prompt is too long. Maximum 1000 characters allowed.");
+    }
+
+    if (!args.prompt.trim()) {
+      throw new Error("Prompt cannot be empty");
+    }
+
+    console.log("Generating DALL-E image with prompt:", args.prompt.substring(0, 100) + "...");
 
     try {
       const response = await fetch("https://api.openai.com/v1/images/generations", {
@@ -406,19 +418,53 @@ export const generateImageWithDallE = action({
         }),
       });
 
+      console.log("OpenAI API response status:", response.status);
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+        let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+
+        try {
+          const errorData = await response.json();
+          console.error("OpenAI API error details:", errorData);
+
+          if (errorData.error) {
+            if (errorData.error.code === 'invalid_api_key') {
+              errorMessage = "Invalid OpenAI API key";
+            } else if (errorData.error.code === 'insufficient_quota') {
+              errorMessage = "OpenAI API quota exceeded";
+            } else if (errorData.error.code === 'content_policy_violation') {
+              errorMessage = "Content policy violation - please modify your prompt";
+            } else {
+              errorMessage = errorData.error.message || errorMessage;
+            }
+          }
+        } catch (parseError) {
+          console.error("Failed to parse error response:", parseError);
+        }
+
+        throw new Error(`OpenAI API error: ${errorMessage}`);
       }
 
       const data = await response.json();
+      console.log("DALL-E image generated successfully");
+
+      if (!data.data || !data.data[0] || !data.data[0].url) {
+        throw new Error("Invalid response from OpenAI API - no image URL returned");
+      }
+
       return {
         imageUrl: data.data[0].url,
         success: true,
       };
     } catch (error) {
       console.error("DALL-E image generation error:", error);
-      throw new Error(`Failed to generate image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+
+      if (error instanceof Error) {
+        // Re-throw the error with the original message for better debugging
+        throw error;
+      } else {
+        throw new Error(`Failed to generate image: Unknown error`);
+      }
     }
   },
 });
