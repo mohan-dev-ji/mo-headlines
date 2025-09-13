@@ -18,7 +18,7 @@ import { Id } from "@/convex/_generated/dataModel"
 const researchSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title too long"),
   url: z.string().url("Please enter a valid URL").optional().or(z.literal("")),
-  concept: z.string().min(1, "Research concept is required").max(500, "Concept too long"),
+  concept: z.string().min(1, "Research concept is required").max(2000, "Concept too long"),
   categoryId: z.string().min(1, "Please select a category")
 })
 
