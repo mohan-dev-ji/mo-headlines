@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { ExpandableText } from "@/components/ui/expandable-text"
@@ -113,85 +114,91 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
 
   return (
     <Card className="bg-brand-card-dark border-brand-line">
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {/* Checkbox and Title with Actions */}
-          <div className="flex items-start gap-4">
-            {/* Selection Checkbox */}
-            <div className="pt-1">
-              <Checkbox
-                checked={isSelected}
-                onCheckedChange={(checked) => onSelectChange(checked === true)}
-                id={`select-${queueItem._id}`}
-              />
-            </div>
-            
-            {/* Title and Actions */}
-            <div className="flex items-start justify-between gap-4 flex-1">
-              {/* Title */}
-              <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight flex-1">
-                {queueItem.title}
-              </h3>
-              
-              {/* Actions Only */}
-              <div className="shrink-0">
-                <QueueActionsDropdown 
-                  queueItem={{
-                    _id: queueItem._id,
-                    title: queueItem.title
-                  }}
-                  onProcessNow={handleProcessNow}
-                  onDelete={() => {
-                    onDelete(queueItem._id as string)
-                  }}
-                  isProcessing={isProcessing}
-                />
+      <CardContent className="p-0">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-1" className="border-none">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-background-secondary/20 transition-colors [&>svg]:translate-y-0 [&>svg]:self-center [&>svg]:size-5">
+              <div className="flex items-center gap-4 w-full pr-4">
+                {/* Selection Checkbox */}
+                <div onClick={(e) => e.stopPropagation()}>
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={(checked) => onSelectChange(checked === true)}
+                    id={`select-${queueItem._id}`}
+                  />
+                </div>
+
+                {/* Title and Status */}
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3 flex-1">
+                    <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight">
+                      {queueItem.title}
+                    </h3>
+                    <div className="shrink-0">
+                      {getStatusBadge()}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <QueueActionsDropdown
+                      queueItem={{
+                        _id: queueItem._id,
+                        title: queueItem.title
+                      }}
+                      onProcessNow={handleProcessNow}
+                      onDelete={() => {
+                        onDelete(queueItem._id as string)
+                      }}
+                      isProcessing={isProcessing}
+                    />
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <div className="space-y-4">
+                {/* Concept/Description */}
+                <div>
+                  <h4 className="text-headline-primary text-sm font-medium mb-2">Concept</h4>
+                  <ExpandableText
+                    text={queueItem.concept}
+                    maxLines={2}
+                    className="text-body-primary text-sm leading-relaxed"
+                  />
+                </div>
 
-          {/* Concept/Description */}
-          <div>
-            <ExpandableText 
-              text={queueItem.concept}
-              maxLines={2}
-              className="text-body-primary text-sm leading-relaxed"
-            />
-          </div>
+                {/* Source, Category, Added Info */}
+                <div className="flex flex-col md:flex-row gap-2 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-headline-primary font-medium">Source:</span>
+                    <span className="text-body-primary">{queueItem.createSource}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-headline-primary font-medium">Category:</span>
+                    <span className="text-body-primary">{queueItem.category}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-headline-primary font-medium">Added:</span>
+                    <span className="text-body-primary">{formatDate(queueItem.queuedAt)} at {formatTime(queueItem.queuedAt)}</span>
+                  </div>
+                </div>
 
-          {/* Source, Category, Added Info */}
-          <div className="flex flex-col md:flex-row gap-2 text-sm">
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Source:</span>
-              <span className="text-body-primary">{queueItem.createSource}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Category:</span>
-              <span className="text-body-primary">{queueItem.category}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Added:</span>
-              <span className="text-body-primary">{formatDate(queueItem.queuedAt)} at {formatTime(queueItem.queuedAt)}</span>
-            </div>
-          </div>
-
-          {/* View Article Link */}
-          <div>
-            <a 
-              href={queueItem.url} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors"
-            >
-              View Article
-            </a>
-          </div>
-
-          {/* Status Badge */}
-          <div>
-            {getStatusBadge()}
-          </div>
-        </div>
+                {/* View Article Link */}
+                <div>
+                  <a
+                    href={queueItem.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors"
+                  >
+                    View Article
+                  </a>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
     </Card>
   )

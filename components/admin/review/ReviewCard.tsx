@@ -1,10 +1,67 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { CustomDropdown, DropdownItem } from "@/components/ui/custom-dropdown"
 import { ExpandableText } from "@/components/ui/expandable-text"
-import { Clock, CheckCircle, XCircle, FileText } from "lucide-react"
+import { Clock, CheckCircle, XCircle, FileText, Eye, Edit, ImageIcon, MoreVertical } from "lucide-react"
 import { Id } from "@/convex/_generated/dataModel"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+
+interface ReviewActionsDropdownProps {
+  article: {
+    _id: Id<"articles">
+    slug: string
+  }
+}
+
+function ReviewActionsDropdown({ article }: ReviewActionsDropdownProps) {
+  const router = useRouter()
+
+  const dropdownItems: DropdownItem[] = [
+    {
+      label: "Preview",
+      onClick: () => {
+        router.push(`/admin/review/preview/${article._id}`)
+      },
+      icon: <Eye className="h-4 w-4" />
+    },
+    {
+      label: "Edit",
+      onClick: () => {
+        router.push(`/admin/review/edit/${article._id}`)
+      },
+      icon: <Edit className="h-4 w-4" />
+    },
+    {
+      label: "Add Image",
+      onClick: () => {
+        router.push(`/admin/images/add?articleId=${article._id}`)
+      },
+      icon: <ImageIcon className="h-4 w-4" />
+    }
+  ]
+
+  const trigger = (
+    <Button
+      variant="ghost"
+      className="h-8 w-8 p-0 text-body-secondary hover:text-headline-primary hover:bg-zinc-700/50"
+    >
+      <MoreVertical className="h-4 w-4" />
+    </Button>
+  )
+
+  return (
+    <CustomDropdown
+      trigger={trigger}
+      items={dropdownItems}
+      align="right"
+    />
+  )
+}
 
 interface ReviewCardProps {
   article: {
@@ -19,10 +76,9 @@ interface ReviewCardProps {
     slug: string
   }
   categoryName?: string
-  onClick?: () => void
 }
 
-export function ReviewCard({ article, categoryName, onClick }: ReviewCardProps) {
+export function ReviewCard({ article, categoryName }: ReviewCardProps) {
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toLocaleDateString()
   }
@@ -84,86 +140,94 @@ export function ReviewCard({ article, categoryName, onClick }: ReviewCardProps) 
   }
 
   return (
-    <Card 
-      className={`bg-brand-card-dark ${getBorderClass()} cursor-pointer transition-all hover:bg-brand-card`}
-      onClick={onClick}
-    >
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          {/* Title */}
-          <div>
-            <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight">
-              {article.title}
-            </h3>
-          </div>
+    <Card className={`bg-brand-card-dark ${getBorderClass()}`}>
+      <CardContent className="p-0">
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-1" className="border-none">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-background-secondary/20 transition-colors [&>svg]:translate-y-0 [&>svg]:self-center [&>svg]:size-5">
+              <div className="flex items-center justify-between w-full pr-4">
+                {/* Title - Left aligned */}
+                <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight flex-1 pr-4">
+                  {article.title}
+                </h3>
 
-          {/* Excerpt */}
-          {article.excerpt && (
-            <div>
-              <ExpandableText 
-                text={article.excerpt}
-                maxLines={2}
-                className="text-body-primary text-sm leading-relaxed"
-              />
-            </div>
-          )}
+                {/* Right side: Status Badge + Review Button */}
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="shrink-0">
+                    {getStatusBadge()}
+                  </div>
 
-          {/* Source Info, Category, Created */}
-          <div className="flex flex-col md:flex-row gap-2 text-sm">
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Source:</span>
-              <span className="text-body-primary">{article.createSource}</span>
-            </div>
-            {categoryName && (
-              <div className="flex items-center gap-1">
-                <span className="text-headline-primary font-medium">Category:</span>
-                <span className="text-body-primary">{categoryName}</span>
+                  {/* Actions Dropdown */}
+                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <ReviewActionsDropdown article={article} />
+                  </div>
+                </div>
               </div>
-            )}
-            <div className="flex items-center gap-1">
-              <span className="text-headline-primary font-medium">Created:</span>
-              <span className="text-body-primary">{formatDate(article._creationTime)} at {formatTime(article._creationTime)}</span>
-            </div>
-          </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6">
+              <div className="space-y-4">
+                {/* Excerpt */}
+                {article.excerpt && (
+                  <div>
+                    <h4 className="text-headline-primary text-sm font-medium mb-2">Excerpt</h4>
+                    <ExpandableText
+                      text={article.excerpt}
+                      maxLines={2}
+                      className="text-body-primary text-sm leading-relaxed"
+                    />
+                  </div>
+                )}
 
-          {/* Source URLs */}
-          {article.sourceUrls.length > 0 && (
-            <div className="space-y-2">
-              <span className="text-headline-primary font-medium text-sm">Sources:</span>
-              <div className="space-y-1">
-                {article.sourceUrls.map((source, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <span className="text-body-secondary text-sm mt-0.5 flex-shrink-0">
-                      {index + 1}.
-                    </span>
-                    <div className="flex-1">
-                      <a 
-                        href={typeof source === 'string' ? source : source.url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors block"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {typeof source === 'string' ? source : source.title}
-                      </a>
-                      {typeof source !== 'string' && (
-                        <p className="text-body-secondary text-xs mt-0.5">{source.domain}</p>
-                      )}
+                {/* Source Info, Category, Created */}
+                <div className="flex flex-col md:flex-row gap-2 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="text-headline-primary font-medium">Source:</span>
+                    <span className="text-body-primary">{article.createSource}</span>
+                  </div>
+                  {categoryName && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-headline-primary font-medium">Category:</span>
+                      <span className="text-body-primary">{categoryName}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-1">
+                    <span className="text-headline-primary font-medium">Created:</span>
+                    <span className="text-body-primary">{formatDate(article._creationTime)} at {formatTime(article._creationTime)}</span>
+                  </div>
+                </div>
+
+                {/* Source URLs */}
+                {article.sourceUrls.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-headline-primary font-medium text-sm">Sources ({article.sourceUrls.length})</h4>
+                    <div className="space-y-1">
+                      {article.sourceUrls.map((source, index) => (
+                        <div key={index} className="flex items-start gap-2">
+                          <span className="text-body-secondary text-sm mt-0.5 flex-shrink-0">
+                            {index + 1}.
+                          </span>
+                          <div className="flex-1">
+                            <a
+                              href={typeof source === 'string' ? source : source.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 text-sm underline transition-colors block"
+                            >
+                              {typeof source === 'string' ? source : source.title}
+                            </a>
+                            {typeof source !== 'string' && (
+                              <p className="text-body-secondary text-xs mt-0.5">{source.domain}</p>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-          )}
-
-          {/* Status Badge */}
-          <div className="flex justify-between items-center">
-            {getStatusBadge()}
-            <span className="text-xs text-body-secondary">
-              Click to review
-            </span>
-          </div>
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </CardContent>
     </Card>
   )

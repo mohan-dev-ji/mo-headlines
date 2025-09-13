@@ -6,7 +6,6 @@ import { Id } from "@/convex/_generated/dataModel"
 import { use } from "react"
 import { Button } from "@/components/ui/button"
 import { LoadingAnimation } from "@/components/ui/loading-animation"
-import { ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -63,21 +62,6 @@ export function ArticlePreviewPage({ params }: ArticlePreviewPageProps) {
     router.push(`/admin/review/edit/${article._id}`)
   }
 
-  const handleBack = () => {
-    router.push("/admin/review?tab=pending")
-  }
-
-  const handleCancel = () => {
-    // Navigate back to the appropriate tab based on current article status
-    const tabMap = {
-      pending: "pending",
-      approved: "approved", 
-      rejected: "rejected",
-      draft: "drafts"
-    }
-    const targetTab = article ? tabMap[article.status] || "pending" : "pending"
-    router.push(`/admin/review?tab=${targetTab}`)
-  }
 
   if (!article) {
     return (
@@ -88,79 +72,50 @@ export function ArticlePreviewPage({ params }: ArticlePreviewPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-brand-background">
-      {/* Editorial Header - Fixed at top */}
-      <div className="sticky top-0 z-50 bg-brand-card border-b border-brand-line">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={handleBack}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Review
-              </Button>
-              <div className="h-6 w-px bg-brand-line"></div>
-              <h2 className="text-lg font-semibold text-headline-primary">Article Preview</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-body-secondary">Status:</span>
-              <span className="capitalize text-sm font-medium text-headline-primary">{article.status}</span>
-            </div>
-          </div>
-          
+    <div className="min-h-screen bg-brand-background p-[var(--padding-md)] space-y-[var(--padding-md)]">
+      {/* Action Buttons Section - Top */}
+      <div className="bg-brand-card rounded-md p-[var(--padding-md)]">
+        <div className="flex gap-3">
+          <Button
+            onClick={handleEdit}
+            variant="outline"
+            className="bg-white hover:bg-gray-50 text-gray-900 border-gray-300 flex-1"
+          >
+            Edit
+          </Button>
+
+          <Button
+            onClick={() => handleStatusChange("approved")}
+            disabled={isUpdating}
+            className="bg-green-600 hover:bg-green-700 text-white flex-1"
+          >
+            {isUpdating ? "Updating..." : "Approve"}
+          </Button>
+
+          <Button
+            onClick={() => handleStatusChange("draft")}
+            disabled={isUpdating}
+            className="bg-orange-500 hover:bg-orange-600 text-white flex-1"
+          >
+            {isUpdating ? "Updating..." : "Save to Drafts"}
+          </Button>
+
+          <Button
+            onClick={() => handleStatusChange("rejected")}
+            disabled={isUpdating}
+            className="bg-red-600 hover:bg-red-700 text-white flex-1"
+          >
+            {isUpdating ? "Updating..." : "Reject"}
+          </Button>
         </div>
       </div>
 
-      {/* Live Article Preview */}
-      <div className="bg-white">
-        <PublicArticlePage 
-          params={Promise.resolve({ id: resolvedParams.id })} 
-        />
-        
-      </div>
-
-      {/* Editorial Actions Footer - Full width like header */}
-      <div className="bg-brand-card border-t border-brand-line min-h-[100px] flex items-center">
-        <div className="max-w-2xl mx-auto px-4 w-full">
-          <div className="flex flex-wrap gap-3">
-            <Button 
-              onClick={() => handleStatusChange("approved")}
-              disabled={isUpdating}
-              className="bg-green-600 hover:bg-green-700 text-zinc-100"
-            >
-              {isUpdating ? "Updating..." : "Approve"}
-            </Button>
-            
-            <Button 
-              onClick={handleEdit}
-              className="bg-yellow-300 hover:bg-yellow-500 text-headline-secondary"
-            >
-              Edit
-            </Button>
-            
-            <Button 
-              onClick={() => handleStatusChange("rejected")}
-              disabled={isUpdating}
-              variant="destructive"
-            >
-              {isUpdating ? "Updating..." : "Reject"}
-            </Button>
-            
-            <Button 
-              onClick={() => handleStatusChange("draft")}
-              disabled={isUpdating}
-              className="bg-blue-600 hover:bg-blue-800 text-zinc-100"
-            >
-              {isUpdating ? "Updating..." : "Save to Drafts"}
-            </Button>
-            
-            <Button 
-              onClick={handleCancel}
-              variant="outline"
-              className="text-headline-secondary border-brand-line hover:bg-zinc-200"
-            >
-              Cancel
-            </Button>
-          </div>
+      {/* Article Content Section - Bottom */}
+      <div className="bg-brand-card rounded-md p-[var(--padding-md)]">
+        <div className="bg-white rounded-md">
+          <PublicArticlePage
+            params={Promise.resolve({ id: resolvedParams.id })}
+          />
         </div>
       </div>
     </div>

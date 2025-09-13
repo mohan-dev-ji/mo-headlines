@@ -2,15 +2,26 @@ import Link from "next/link";
 
 interface LogoProps {
   className?: string;
+  asLink?: boolean;
 }
 
-export function Logo({ className = "" }: LogoProps) {
-  return (
-    <Link 
-      href="/" 
-      className={`font-abhaya-libre font-medium text-[40px] leading-none hover:opacity-80 transition-opacity ${className}`}
-    >
+export function Logo({ className = "", asLink = true }: LogoProps) {
+  const logoText = (
+    <span className={`font-abhaya-libre font-medium text-[40px] leading-none ${className}`}>
       The Headlines
-    </Link>
+    </span>
   );
+
+  if (asLink) {
+    return (
+      <Link
+        href="/"
+        className="hover:opacity-80 transition-opacity"
+      >
+        {logoText}
+      </Link>
+    );
+  }
+
+  return logoText;
 } 

@@ -80,7 +80,7 @@ export function RssProducerCard({ producer, category, onEdit, onDelete, onToggle
       <CardContent className="p-0">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1" className="border-none">
-            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-background-secondary/20 transition-colors">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline hover:bg-background-secondary/20 transition-colors [&>svg]:translate-y-0 [&>svg]:self-center [&>svg]:size-5">
               <div className="flex items-center justify-between w-full pr-4">
                 <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight">
                   {producer.name}

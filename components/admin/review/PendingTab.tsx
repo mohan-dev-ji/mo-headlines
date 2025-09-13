@@ -48,7 +48,6 @@ export function PendingTab() {
             key={article._id}
             article={article}
             categoryName={article.category?.name}
-            onClick={() => handleArticleClick(article._id)}
           />
         ))}
       </div>

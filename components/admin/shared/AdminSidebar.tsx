@@ -59,7 +59,7 @@ export function AdminSidebar() {
       {/* Logo section */}
       <div className="flex items-center px-[var(--padding-lg)] py-[var(--padding-lg)]">
         <Link href="/" className="transition-opacity hover:opacity-80">
-          <Logo className="h-8" />
+          <Logo className="h-8" asLink={false} />
         </Link>
       </div>
 

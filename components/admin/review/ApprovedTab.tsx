@@ -45,9 +45,8 @@ export function ApprovedTab() {
       <div className="grid gap-4 p-4">
         {articles.map((article) => (
           <ReviewCard 
-            key={article._id} 
+            key={article._id}
             article={article}
-            onClick={() => router.push(`/admin/review/preview/${article._id}`)}
           />
         ))}
       </div>
