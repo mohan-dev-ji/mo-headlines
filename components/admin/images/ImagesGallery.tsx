@@ -38,6 +38,7 @@ export function ImagesGallery({
   onImageClick 
 }: ImagesGalleryProps) {
   const [selectedImages, setSelectedImages] = useState<Set<Id<"images">>>(new Set());
+  console.log('Images received in gallery:', images, 'Length:', images.length, 'isLoading:', isLoading);
 
   const toggleImageSelection = (imageId: Id<"images">) => {
     const newSelected = new Set(selectedImages);

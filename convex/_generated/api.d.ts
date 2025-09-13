@@ -15,7 +15,6 @@ import type {
 } from "convex/server";
 import type * as articles from "../articles.js";
 import type * as categories from "../categories.js";
-import type * as categoryMigration from "../categoryMigration.js";
 import type * as comments from "../comments.js";
 import type * as createQueue from "../createQueue.js";
 import type * as createResearch from "../createResearch.js";
@@ -25,8 +24,6 @@ import type * as dataMigration from "../dataMigration.js";
 import type * as debug from "../debug.js";
 import type * as images from "../images.js";
 import type * as likes from "../likes.js";
-import type * as migration from "../migration.js";
-import type * as migrations from "../migrations.js";
 import type * as prompts from "../prompts.js";
 import type * as seedCategories from "../seedCategories.js";
 import type * as users from "../users.js";
@@ -42,7 +39,6 @@ import type * as users from "../users.js";
 declare const fullApi: ApiFromModules<{
   articles: typeof articles;
   categories: typeof categories;
-  categoryMigration: typeof categoryMigration;
   comments: typeof comments;
   createQueue: typeof createQueue;
   createResearch: typeof createResearch;
@@ -52,8 +48,6 @@ declare const fullApi: ApiFromModules<{
   debug: typeof debug;
   images: typeof images;
   likes: typeof likes;
-  migration: typeof migration;
-  migrations: typeof migrations;
   prompts: typeof prompts;
   seedCategories: typeof seedCategories;
   users: typeof users;
