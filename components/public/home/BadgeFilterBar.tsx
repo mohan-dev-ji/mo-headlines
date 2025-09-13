@@ -10,7 +10,8 @@ import { useArticleFilter, type FilterCategory } from "./useArticleFilter";
 
 const FILTER_OPTIONS: Array<{ key: FilterCategory; label: string }> = [
   { key: "recent", label: "Recent" },
-  { key: "tech-science", label: "Tech & Science" },
+  { key: "tech", label: "Tech" },
+  { key: "science", label: "Science" },
   { key: "finance", label: "Finance" },
   { key: "policies", label: "Policies" },
 ];

@@ -69,39 +69,73 @@ export const migrateCategoriesFromDev = mutation({
   },
 });
 
-// Simple category import - just the essential fields
-export const simpleImportCategories = mutation({
-  args: {},
-  handler: async (ctx) => {
-    console.log("Starting simple category import...");
-    
-    // Just the essential data - no timestamps
-    const categories: Array<{
-      name: string;
-      slug: string;
-      keywords: string[];
-      isActive: boolean;
-    }> = [
-      // PASTE YOUR CATEGORIES HERE (just name, slug, keywords, isActive)
-    ];
-    
-    let imported = 0;
-    for (const category of categories) {
-      try {
-        await ctx.db.insert("categories", {
-          name: category.name,
-          slug: category.slug,
-          keywords: category.keywords || [],
-          isActive: category.isActive !== false,
-        });
-        console.log(`Imported: ${category.name}`);
-        imported++;
-      } catch (error) {
-        console.error(`Failed to import ${category.name}:`, error);
-      }
+// Transform sourceUrls from string[] to enhanced object array
+export const migrateArticleSourceUrls = mutation({
+  args: {
+    articleId: v.id("articles"),
+    preview: v.optional(v.boolean()), // If true, just return what would be migrated without saving
+  },
+  handler: async (ctx, args) => {
+    const article = await ctx.db.get(args.articleId);
+    if (!article) {
+      throw new Error("Article not found");
     }
-    
-    return { success: true, imported };
+
+    // Check if article needs migration
+    if (!article.sourceUrls || article.sourceUrls.length === 0) {
+      return { success: false, reason: "No sources to migrate" };
+    }
+
+    const firstSource = article.sourceUrls[0];
+    if (typeof firstSource !== 'string') {
+      return { success: false, reason: "Article already migrated" };
+    }
+
+    // Transform string[] to object array with fallbacks
+    const migratedSources = (article.sourceUrls as any[]).map((item: any) => {
+      // If already an object, return as-is
+      if (typeof item === 'object' && item.url) {
+        return item;
+      }
+      
+      // Otherwise, treat as string URL and transform
+      const url = typeof item === 'string' ? item : String(item);
+      try {
+        const urlObj = new URL(url);
+        return {
+          url,
+          domain: urlObj.hostname.replace('www.', ''),
+          title: `Source from ${urlObj.hostname}` // Fallback title
+        };
+      } catch (error) {
+        // Fallback for invalid URLs
+        return {
+          url,
+          domain: 'unknown',
+          title: 'External Source'
+        };
+      }
+    });
+
+    if (args.preview) {
+      return {
+        success: true,
+        preview: true,
+        original: article.sourceUrls,
+        migrated: migratedSources
+      };
+    }
+
+    // Perform the migration
+    await ctx.db.patch(args.articleId, {
+      sourceUrls: migratedSources,
+    });
+
+    return {
+      success: true,
+      migrated: migratedSources.length,
+      articleTitle: article.title
+    };
   },
 });
 

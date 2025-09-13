@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-export type FilterCategory = "recent" | "tech-science" | "finance" | "policies";
+export type FilterCategory = "recent" | "tech" | "science" | "finance" | "policies";
 
 export function useArticleFilter() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export function useArticleFilter() {
   // Update state when URL changes
   useEffect(() => {
     const categoryParam = searchParams.get("category") as FilterCategory;
-    if (categoryParam && ["recent", "tech-science", "finance", "policies"].includes(categoryParam)) {
+    if (categoryParam && ["recent", "tech", "science", "finance", "policies"].includes(categoryParam)) {
       setActiveFilter(categoryParam);
     } else {
       setActiveFilter("recent");
