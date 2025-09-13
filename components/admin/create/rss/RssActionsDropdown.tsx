@@ -10,6 +10,7 @@ interface RssActionsDropdownProps {
     name: string
     isActive: boolean
   }
+  selectedArticlesCount?: number
   onEdit?: () => void
   onAddToQueue?: () => void
   onDelete?: () => void
@@ -17,11 +18,12 @@ interface RssActionsDropdownProps {
   onRefresh?: () => void
 }
 
-export function RssActionsDropdown({ 
-  producer, 
-  onEdit, 
-  onAddToQueue, 
-  onDelete, 
+export function RssActionsDropdown({
+  producer,
+  selectedArticlesCount = 0,
+  onEdit,
+  onAddToQueue,
+  onDelete,
   onToggleStatus,
   onRefresh
 }: RssActionsDropdownProps) {
@@ -44,12 +46,13 @@ export function RssActionsDropdown({
       icon: <RefreshCw className="h-4 w-4" />
     },
     {
-      label: "Add to Queue",
+      label: `Add to Queue (${selectedArticlesCount} selected)`,
       onClick: () => {
-        console.log('Add to queue:', producer.name)
+        console.log('Add to queue:', producer.name, 'Selected:', selectedArticlesCount)
         onAddToQueue?.()
       },
-      icon: <Plus className="h-4 w-4" />
+      icon: <Plus className="h-4 w-4" />,
+      disabled: selectedArticlesCount === 0
     },
     {
       label: "Delete",

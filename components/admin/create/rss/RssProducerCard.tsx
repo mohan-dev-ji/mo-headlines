@@ -1,8 +1,9 @@
 "use client"
 
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Checkbox } from "@/components/ui/checkbox"
 import { RssActionsDropdown } from "./RssActionsDropdown"
 import { Id } from "@/convex/_generated/dataModel"
 
@@ -40,12 +41,40 @@ interface RssProducerCardProps {
   onEdit: (producerId: string) => void
   onDelete: (producerId: string) => void
   onToggleStatus: (producerId: string) => void
-  onAddToQueue: (producerId: string) => void
+  onAddToQueue: (producerId: string, selectedArticles: Array<{title: string, url: string, description: string, pubDate: string}>) => void
   onRefresh: (producerId: string) => void
   isRunning?: boolean
 }
 
 export function RssProducerCard({ producer, category, onEdit, onDelete, onToggleStatus, onAddToQueue, onRefresh, isRunning }: RssProducerCardProps) {
+  const [selectedArticleUrls, setSelectedArticleUrls] = useState<Set<string>>(new Set())
+
+  // Reset selection when matched articles change
+  useEffect(() => {
+    setSelectedArticleUrls(new Set())
+  }, [producer.matchedArticles])
+
+  const handleArticleToggle = (articleUrl: string, checked: boolean) => {
+    setSelectedArticleUrls(prev => {
+      const newSet = new Set(prev)
+      if (checked) {
+        newSet.add(articleUrl)
+      } else {
+        newSet.delete(articleUrl)
+      }
+      return newSet
+    })
+  }
+
+  const getSelectedArticles = () => {
+    return producer.matchedArticles?.filter(article => selectedArticleUrls.has(article.url)) || []
+  }
+
+  const handleAddToQueue = () => {
+    const selectedArticles = getSelectedArticles()
+    onAddToQueue(producer._id, selectedArticles)
+  }
+
   return (
     <Card className="bg-brand-card-dark border-brand-line">
       <CardContent className="p-0">
@@ -63,8 +92,9 @@ export function RssProducerCard({ producer, category, onEdit, onDelete, onToggle
                       name: producer.name,
                       isActive: producer.isActive
                     }}
+                    selectedArticlesCount={selectedArticleUrls.size}
                     onEdit={() => onEdit(producer._id)}
-                    onAddToQueue={() => onAddToQueue(producer._id)}
+                    onAddToQueue={handleAddToQueue}
                     onDelete={() => onDelete(producer._id)}
                     onToggleStatus={() => onToggleStatus(producer._id)}
                     onRefresh={() => onRefresh(producer._id)}
@@ -147,18 +177,32 @@ export function RssProducerCard({ producer, category, onEdit, onDelete, onToggle
                 {/* Matched Articles List */}
                 {producer.matchedArticles && producer.matchedArticles.length > 0 && (
                   <div className="space-y-2">
-                    <h4 className="text-headline-primary text-sm font-medium">Matched Articles</h4>
-                    <div className="space-y-1">
+                    <h4 className="text-headline-primary text-sm font-medium">
+                      Matched Articles ({selectedArticleUrls.size} of {producer.matchedArticles.length} selected)
+                    </h4>
+                    <div className="space-y-2">
                       {producer.matchedArticles.map((article, index) => (
-                        <div key={index} className="text-sm">
-                          <a
-                            href={article.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                        <div key={index} className="flex items-start gap-3 text-sm">
+                          <Checkbox
+                            id={`article-${index}`}
+                            checked={selectedArticleUrls.has(article.url)}
+                            onCheckedChange={(checked) => handleArticleToggle(article.url, checked as boolean)}
+                            className="mt-0.5"
+                          />
+                          <label
+                            htmlFor={`article-${index}`}
+                            className="flex-1 cursor-pointer"
                           >
-                            {article.title}
-                          </a>
+                            <a
+                              href={article.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {article.title}
+                            </a>
+                          </label>
                         </div>
                       ))}
                     </div>
