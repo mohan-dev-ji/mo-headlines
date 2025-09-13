@@ -208,7 +208,15 @@ export const testAndUpdateRssSource = action({
 
 // Add all matched articles from RSS source to create_queue
 export const addRssMatchesToQueue = mutation({
-  args: { sourceId: v.id("create_rss") },
+  args: {
+    sourceId: v.id("create_rss"),
+    selectedArticles: v.optional(v.array(v.object({
+      title: v.string(),
+      url: v.string(),
+      description: v.string(),
+      pubDate: v.string()
+    })))
+  },
   handler: async (ctx, args) => {
     // Get the RSS source with matched articles
     const source = await ctx.db.get(args.sourceId);
@@ -216,19 +224,22 @@ export const addRssMatchesToQueue = mutation({
       throw new Error("RSS source not found");
     }
 
-    if (!source.matchedArticles || source.matchedArticles.length === 0) {
-      return { success: false, message: "No matched articles to add to queue", count: 0 };
+    // Determine which articles to add to queue
+    const articlesToAdd = args.selectedArticles || source.matchedArticles || [];
+
+    if (articlesToAdd.length === 0) {
+      return { success: false, message: "No articles to add to queue", count: 0 };
     }
 
     // Get category name directly
     const category = await ctx.db.get(source.categoryId);
     const categoryName = category?.name || "Unknown";
 
-    // Add each matched article to the create_queue
+    // Add each article to the create_queue
     const queueItems = [];
     const feedUrl = source.feedUrl || source.url || "Unknown Feed";
-    
-    for (const article of source.matchedArticles) {
+
+    for (const article of articlesToAdd) {
       const queueItemId = await ctx.db.insert("create_queue", {
         title: article.title,
         url: article.url,
@@ -243,13 +254,14 @@ export const addRssMatchesToQueue = mutation({
       queueItems.push(queueItemId);
     }
 
-    console.log(`✅ Added ${source.matchedArticles.length} RSS articles to queue from "${source.name}"`);
+    const selectionText = args.selectedArticles ? "selected" : "matched";
+    console.log(`✅ Added ${articlesToAdd.length} ${selectionText} RSS articles to queue from "${source.name}"`);
 
     // Keep matched articles - they persist until feed is manually updated
-    return { 
-      success: true, 
-      message: `Added ${source.matchedArticles.length} articles to queue`, 
-      count: source.matchedArticles.length,
+    return {
+      success: true,
+      message: `Added ${articlesToAdd.length} ${selectionText} articles to queue`,
+      count: articlesToAdd.length,
       queueItems: queueItems
     };
   },

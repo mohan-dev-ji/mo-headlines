@@ -103,15 +103,20 @@ export function RssTab() {
     }
   }
 
-  const handleAddToQueue = async (producerId: string) => {
+  const handleAddToQueue = async (producerId: string, selectedArticles: Array<{title: string, url: string, description: string, pubDate: string}>) => {
     if (!producers || !Array.isArray(producers)) return
     const producer = producers.find(p => p._id === producerId)
     if (!producer) return
 
     try {
-      console.log('Adding RSS matches to queue:', producer.name)
-      const result = await addToQueue({ sourceId: producerId as Id<"create_rss"> })
-      
+      const selectionText = selectedArticles.length > 0 ? `${selectedArticles.length} selected` : 'all matched'
+      console.log(`Adding ${selectionText} RSS articles to queue:`, producer.name)
+
+      const result = await addToQueue({
+        sourceId: producerId as Id<"create_rss">,
+        selectedArticles: selectedArticles.length > 0 ? selectedArticles : undefined
+      })
+
       if (result.success) {
         console.log(`✅ Added ${result.count} articles to queue from ${producer.name}`)
         toast.success(`Added ${result.count} article${result.count === 1 ? '' : 's'} to queue from "${producer.name}"`)
