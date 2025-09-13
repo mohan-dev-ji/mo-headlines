@@ -1,0 +1,34 @@
+[
+  {
+    "name": "Tech",
+    "slug": "tech",
+    "keywords": [
+      "artificial intelligence", "ai", "AGI", "machine learning", "neural network", "deep learning", "large language model", "llm", "chatbot", "generative ai", "computer vision", "natural language processing", "apple", "google", "microsoft", "amazon", "meta", "netflix", "nvidia", "openai", "anthropic", "perplexity", "deepmind", "deepseek", "alibaba", "tencent", "baidu", "bytedance", "tiktok", "twitter", "x", "instagram", "facebook", "snapchat", "linkedin", "tesla", "semiconductor", "quantum computing", "cloud computing", "cybersecurity", "blockchain", "cryptocurrency", "software", "hardware", "5g", "internet of things", "iot", "programming", "coding", "developer", "software development", "web development", "mobile development", "app development", "frontend", "backend", "fullstack", "javascript", "python", "react", "node.js", "typescript", "github", "open source", "API", "database", "startup", "tech company", "silicon valley", "venture capital", "IPO", "acquisition", "unicorn", "saas", "platform", "algorithm", "data science", "big data", "analytics", "automation", "robotics", "drone", "autonomous vehicles", "self-driving", "electric vehicles", "battery technology", "charging station"
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Science", 
+    "slug": "science",
+    "keywords": [
+      "science", "breakthrough", "research", "study", "discovery", "clinical trial", "peer review", "laboratory", "experiment", "innovation", "scientific", "biotech", "biotechnology", "gene therapy", "gene editing", "CRISPR", "genetic engineering", "genomics", "DNA", "RNA", "microbiology", "bacteria", "virus", "pathogen", "antibiotic", "vaccine", "immunology", "drug discovery", "pharmaceutical", "clinical research", "medical research", "healthcare", "medicine", "cure", "treatment", "therapy", "diagnosis", "autism", "neurodevelopmental", "neuroscience", "brain research", "cognitive science", "psychology", "mental health", "evolution", "evolutionary biology", "natural selection", "genetics", "heredity", "mutation", "species", "biodiversity", "ecology", "climate science", "environmental science", "conservation", "sustainability", "renewable energy", "solar energy", "wind energy", "nuclear energy", "fusion", "chemistry", "biochemistry", "molecular biology", "cell biology", "stem cell", "cancer research", "oncology", "immunotherapy", "precision medicine", "personalized medicine", "biomarker", "protein", "enzyme", "metabolism", "aging", "longevity", "regenerative medicine", "tissue engineering", "organ transplant", "medical device", "diagnostic tool", "imaging", "space exploration", "astronomy", "astrophysics", "NASA", "rocket", "satellite", "mars", "space station", "telescope", "physics", "quantum physics", "particle physics", "materials science", "nanotechnology", "cortical labs", "isomorphic labs", "alphafold", "neuralink", "brain-computer interface", "BCI", "neural implant", "brain implant", "neurological disorders", "paralysis", "spinal cord injury", "neural prosthetics", "brain stimulation", "neurotechnology", "organoids", "brain organoids", "biological computing", "neuromorphic computing", "synthetic biology", "cultured neurons", "in vitro intelligence", "biological intelligence", "protein folding", "protein structure", "structural biology", "proteomics", "molecular structure", "amino acids", "protein prediction", "computational biology", "molecular design", "pharmaceutical AI", "drug development", "biological neural networks"
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Finance",
+    "slug": "finance", 
+    "keywords": [
+      "startup", "funding", "venture capital", "series a", "series b", "seed funding", "ipo", "acquisition", "merger", "unicorn", "valuation", "stock market", "stocks", "bonds", "investment", "portfolio", "dividend", "earnings", "revenue", "profit", "market cap", "trading", "exchange", "nasdaq", "s&p 500", "dow jones", "bull market", "bear market", "recession", "inflation", "interest rates", "federal reserve", "fed", "central bank", "monetary policy", "fiscal policy", "gdp", "economic growth", "employment", "unemployment", "consumer spending", "fintech", "digital banking", "mobile payments", "payment processing", "cryptocurrency exchange", "defi", "decentralized finance", "nft", "bitcoin", "ethereum", "stablecoin", "wallet", "trading platform", "robo advisor", "peer-to-peer lending", "crowdfunding", "insurtech", "regtech", "corporate earnings", "quarterly results", "financial statement", "cash flow", "debt", "equity", "leverage", "working capital", "capex", "opex", "ebitda", "pe ratio", "market share", "competitive advantage", "business model"
+    ],
+    "isActive": true
+  },
+  {
+    "name": "Policies",
+    "slug": "policies",
+    "keywords": [
+      "electric car", "range anxiety", "uber", "zenzic uk", "transport policy", "emissions standards", "carbon credits", "fuel efficiency", "public transport", "infrastructure", "road safety", "traffic regulations", "parking policy", "congestion charging", "clean air zones", "regulation", "regulatory", "government", "policy", "legislation", "law", "congress", "senate", "house of representatives", "parliament", "fda", "fcc", "sec", "ftc", "doj", "antitrust", "monopoly", "competition", "consumer protection", "data privacy", "gdpr", "ccpa", "privacy law", "cybersecurity law", "ai governance", "ai regulation", "tech regulation", "content moderation", "social media regulation", "section 230", "trade policy", "tariffs", "sanctions", "export controls", "international trade", "wto", "brexit", "china policy", "russia sanctions", "diplomatic relations", "geopolitics", "national security", "defense policy", "military", "nato", "climate policy", "carbon tax", "renewable energy", "solar incentives", "wind power", "green new deal", "paris agreement", "cop28", "sustainability", "esg", "carbon neutral", "net zero", "environmental protection", "epa", "healthcare policy", "education policy", "immigration", "tax policy", "social security", "medicare", "medicaid", "welfare", "minimum wage", "labor law", "employment law", "civil rights", "voting rights"
+    ],
+    "isActive": true
+  }
+]

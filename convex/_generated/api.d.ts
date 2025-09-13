@@ -22,6 +22,7 @@ import type * as createResearch from "../createResearch.js";
 import type * as createRss from "../createRss.js";
 import type * as createYoutube from "../createYoutube.js";
 import type * as dataMigration from "../dataMigration.js";
+import type * as debug from "../debug.js";
 import type * as images from "../images.js";
 import type * as likes from "../likes.js";
 import type * as migration from "../migration.js";
@@ -48,6 +49,7 @@ declare const fullApi: ApiFromModules<{
   createRss: typeof createRss;
   createYoutube: typeof createYoutube;
   dataMigration: typeof dataMigration;
+  debug: typeof debug;
   images: typeof images;
   likes: typeof likes;
   migration: typeof migration;

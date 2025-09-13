@@ -15,11 +15,11 @@ import { UserAvatar } from "./UserAvatar";
 interface CommentProps {
   comment: {
     _id: Id<"comments">;
+    _creationTime: number;
     userId: string;
     username: string;
     avatarUrl?: string;
     content: string;
-    createdAt: number;
     updatedAt: number;
   };
   currentUserId: string | null;
@@ -75,9 +75,9 @@ export function Comment({ comment, currentUserId, onEdit, onCancelEdit }: Commen
           <div className="flex items-center gap-2">
             <span className="font-medium text-headline-primary">{comment.username}</span>
             <span className="text-sm text-body-primary">
-              <TimeAgo date={comment.createdAt} />
+              <TimeAgo date={comment._creationTime} />
             </span>
-            {comment.updatedAt !== comment.createdAt && (
+            {comment.updatedAt !== comment._creationTime && (
               <span className="text-sm text-muted-foreground">(edited)</span>
             )}
           </div>

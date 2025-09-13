@@ -58,7 +58,6 @@ export default defineSchema({
     slug: v.string(),
     keywords: v.optional(v.array(v.string())),
     isActive: v.optional(v.boolean()),
-    createdAt: v.number(),
     updatedAt: v.optional(v.number()),
   }).index("by_slug", ["slug"]),
 
@@ -69,7 +68,6 @@ export default defineSchema({
     username: v.string(),
     avatarUrl: v.optional(v.string()),
     content: v.string(),
-    createdAt: v.number(),
     updatedAt: v.number(),
     isDeleted: v.boolean(),
   })

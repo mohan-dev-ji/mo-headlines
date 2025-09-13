@@ -43,7 +43,6 @@ export const createComment = mutation({
       username: args.username,
       avatarUrl: args.avatarUrl,
       content: args.content,
-      createdAt: now,
       updatedAt: now,
       isDeleted: false,
     });

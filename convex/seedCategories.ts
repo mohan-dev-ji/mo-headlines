@@ -309,7 +309,6 @@ export const seedCategories = mutation({
         slug: category.slug,
         keywords: category.keywords,
         isActive: true,
-        createdAt: Date.now(),
         updatedAt: Date.now()
       });
 
@@ -397,7 +396,6 @@ export const resetCategories = mutation({
         slug: category.slug,
         keywords: category.keywords,
         isActive: true,
-        createdAt: Date.now(),
         updatedAt: Date.now()
       });
 
@@ -413,6 +411,41 @@ export const resetCategories = mutation({
       created: createdCount,
       total: PREDEFINED_CATEGORIES.length
     };
+  },
+});
+
+// Import categories directly (paste your dev data here)
+export const importDevCategories = mutation({
+  args: {},
+  handler: async (ctx) => {
+    console.log("Starting direct category import from dev data...");
+    
+    // Paste your categories data from dev_data_export.json here
+    const devCategories: any[] = [
+      // PASTE YOUR CATEGORIES DATA HERE
+    ];
+    
+    let importedCount = 0;
+    
+    for (const category of devCategories) {
+      try {
+        await ctx.db.insert("categories", {
+          name: category.name,
+          slug: category.slug,
+          keywords: category.keywords || [],
+          isActive: category.isActive !== false,
+          updatedAt: Date.now(),
+        });
+        
+        console.log(`Imported category: ${category.name}`);
+        importedCount++;
+      } catch (error) {
+        console.error(`Failed to import category ${category.name}:`, error);
+      }
+    }
+    
+    console.log(`Import complete. Imported ${importedCount} categories.`);
+    return { success: true, imported: importedCount };
   },
 });
 

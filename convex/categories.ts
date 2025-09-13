@@ -20,7 +20,6 @@ export const createCategory = mutation({
       slug: args.slug,
       keywords: args.keywords || [],
       isActive: args.isActive ?? true,
-      createdAt: Date.now(),
       updatedAt: Date.now(),
     });
 

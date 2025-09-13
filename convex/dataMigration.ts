@@ -39,6 +39,72 @@ export const migrateArticlesFromDev = internalMutation({
   },
 });
 
+// Migration function to copy categories from dev to prod (preserving IDs)
+export const migrateCategoriesFromDev = mutation({
+  args: { categories: v.array(v.any()) },
+  handler: async (ctx, { categories }) => {
+    console.log(`Starting migration of ${categories.length} categories`);
+    
+    for (const category of categories) {
+      try {
+        // Clean the category data
+        const cleanCategory = {
+          name: category.name,
+          slug: category.slug, 
+          keywords: category.keywords || [],
+          isActive: category.isActive !== false,
+          createdAt: category.createdAt || Date.now(),
+          updatedAt: Date.now(),
+        };
+
+        // Try to insert with the original ID to preserve relationships
+        await ctx.db.insert("categories", cleanCategory);
+        console.log(`Migrated category: ${category.name} (ID: ${category._id})`);
+      } catch (error) {
+        console.error(`Failed to migrate category ${category.name}:`, error);
+      }
+    }
+    
+    console.log("Categories migration complete");
+  },
+});
+
+// Simple category import - just the essential fields
+export const simpleImportCategories = mutation({
+  args: {},
+  handler: async (ctx) => {
+    console.log("Starting simple category import...");
+    
+    // Just the essential data - no timestamps
+    const categories: Array<{
+      name: string;
+      slug: string;
+      keywords: string[];
+      isActive: boolean;
+    }> = [
+      // PASTE YOUR CATEGORIES HERE (just name, slug, keywords, isActive)
+    ];
+    
+    let imported = 0;
+    for (const category of categories) {
+      try {
+        await ctx.db.insert("categories", {
+          name: category.name,
+          slug: category.slug,
+          keywords: category.keywords || [],
+          isActive: category.isActive !== false,
+        });
+        console.log(`Imported: ${category.name}`);
+        imported++;
+      } catch (error) {
+        console.error(`Failed to import ${category.name}:`, error);
+      }
+    }
+    
+    return { success: true, imported };
+  },
+});
+
 // Migration function to copy RSS feeds from dev to prod
 export const migrateRssFeedsFromDev = internalMutation({
   args: { feeds: v.array(v.any()) },

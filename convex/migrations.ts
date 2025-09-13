@@ -47,7 +47,6 @@ export const migrateArticleCategories = mutation({
           categoryId = await ctx.db.insert("categories", {
             name: categoryName,
             slug: categoryName.toLowerCase().replace(/\s+/g, "-"),
-            createdAt: Date.now(),
           });
           categoryMap.set(categoryName.toLowerCase(), categoryId);
         }
