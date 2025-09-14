@@ -220,7 +220,7 @@ export function GenerateTab({
               onRatingChanged(parseInt(value));
             }
           }}>
-            <SelectTrigger className="mt-2 border border-brand-line text-body-primary">
+            <SelectTrigger className="mt-2 border border-brand-line text-body-primary bg-brand-background">
               <SelectValue placeholder="Select option" />
             </SelectTrigger>
             <SelectContent>

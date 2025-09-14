@@ -41,17 +41,17 @@ export default function AdminLayout({
       <div className="flex h-screen">
         {/* Sidebar */}
         <AdminSidebar />
-        
+
         {/* Main content */}
         <main className="flex-1 overflow-auto">
-          <div className="min-h-full p-[var(--padding-md)] pl-0 box-border">
+          <div className="min-h-full p-[var(--padding-md)] md:pl-0 pt-16 md:pt-[var(--padding-md)] box-border">
             {children}
           </div>
         </main>
       </div>
-      
+
       {/* Toast notifications */}
-      <Toaster 
+      <Toaster
         position="top-right"
         toastOptions={{
           style: {

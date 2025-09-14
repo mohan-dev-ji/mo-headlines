@@ -161,7 +161,7 @@ export function CreateRssModal({ isOpen, onClose }: CreateRssModalProps) {
                   <SelectItem 
                     key={category._id} 
                     value={category._id} 
-                    className="text-body-greyed-out hover:text-headline-primary focus:text-headline-primary"
+                    className="text-headline-primary hover:text-headline-primary focus:text-brand-primary"
                   >
                     {category.name}
                   </SelectItem>

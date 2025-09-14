@@ -285,7 +285,7 @@ export function AddImagePage({
           {/* Scrollable tab content */}
           <TabsContent
             value="generate"
-            className="flex-1 min-h-0 p-6 bg-transparent"
+            className="flex-1 min-h-0 p-6 bg-transparent !h-auto"
           >
             {isArticleContext ? (
               <GenerateTab
@@ -306,7 +306,7 @@ export function AddImagePage({
 
           <TabsContent
             value="select"
-            className="flex-1 min-h-0 overflow-auto p-6 bg-transparent"
+            className="flex-1 min-h-0 overflow-auto p-6 bg-transparent !h-auto"
           >
             <SelectTab
               articleId={contextArticleId}

@@ -35,7 +35,7 @@ export default function ImagesPage() {
   };
 
   return (
-    <div className="container mx-auto p-[var(--padding-md)]">
+    <div className="container mx-auto">
       {/* Filter Bar - Matching Create section styling */}
       <div className="flex items-center justify-between p-4 bg-brand-card-dark rounded-lg">
         {/* Left side - Filter dropdowns matching Create section */}
@@ -117,12 +117,13 @@ export default function ImagesPage() {
       </div>
 
       {/* Image Gallery Container with padding and background */}
-      <div className="mt-[var(--padding-md)] bg-brand-card rounded-lg p-[var(--padding-md)]">
+      <div className="mt-[var(--padding-md)] bg-brand-card-dark rounded-lg p-[var(--padding-md)]">
         {/* Add Image Button - Centered at top */}
         <div className="flex justify-center mb-[var(--padding-md)]">
           <Button 
             onClick={handleCreateImage}
-            className="h-10 px-6 bg-primary hover:bg-primary/90 text-white font-medium"
+            variant="outline" 
+            className="flex items-center gap-2 bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-50"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Image

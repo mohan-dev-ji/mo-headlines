@@ -288,7 +288,7 @@ export function SelectTab({
             setCustomPrompt(newPrompt);
             updateParentIfValid(newPrompt, customRating, customModel);
           }}
-          className="mt-2 min-h-[80px] border border-brand-line text-body-primary placeholder:text-body-secondary"
+          className="mt-2 min-h-[80px] border border-brand-line text-body-primary placeholder:text-body-secondary bg-brand-background"
         />
       </div>
 
@@ -299,7 +299,7 @@ export function SelectTab({
           setCustomRating(newRating);
           updateParentIfValid(customPrompt, newRating, customModel);
         }}>
-          <SelectTrigger className="mt-2 border border-brand-line text-body-primary">
+          <SelectTrigger className="mt-2 border border-brand-line text-body-primary bg-brand-background">
             <SelectValue placeholder="Select option" />
           </SelectTrigger>
           <SelectContent>
@@ -323,7 +323,7 @@ export function SelectTab({
             updateParentIfValid(customPrompt, customRating, newModel);
           }}
           placeholder="Type model..."
-          className="mt-2 border border-brand-line text-body-primary"
+          className="mt-2 border border-brand-line text-body-primary bg-brand-background"
         />
       </div>
 
