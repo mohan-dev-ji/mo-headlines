@@ -75,22 +75,29 @@ export function CustomDropdown({
           align === "right" ? "right-0" : "left-0"
         )}>
           {items.map((item, index) => (
-            <button
+            <div
               key={index}
               onClick={() => handleItemClick(item)}
-              disabled={item.disabled}
+              role="button"
+              tabIndex={item.disabled ? -1 : 0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  handleItemClick(item)
+                }
+              }}
               className={cn(
-                "flex items-center gap-2 w-full text-left px-3 py-2 text-sm transition-colors",
+                "flex items-center gap-2 w-full text-left px-3 py-2 text-sm transition-colors cursor-pointer",
                 "hover:bg-gray-100 focus:bg-gray-100 focus:outline-none",
-                item.variant === "destructive" 
-                  ? "text-red-600 hover:bg-red-50 focus:bg-red-50" 
+                item.variant === "destructive"
+                  ? "text-red-600 hover:bg-red-50 focus:bg-red-50"
                   : "text-gray-900",
                 item.disabled && "opacity-50 cursor-not-allowed hover:bg-transparent dark:hover:bg-transparent text-gray-400 dark:text-gray-500"
               )}
             >
               {item.icon && <span className="w-4 h-4">{item.icon}</span>}
               {item.label}
-            </button>
+            </div>
           ))}
         </div>
       )}

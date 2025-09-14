@@ -2,15 +2,26 @@ import Link from "next/link";
 
 interface LogoSmProps {
   className?: string;
+  asLink?: boolean;
 }
 
-export function LogoSm({ className = "" }: LogoSmProps) {
-  return (
-    <Link 
-      href="/" 
-      className={`font-abhaya-libre font-medium text-[24px] leading-none hover:opacity-80 transition-opacity ${className}`}
-    >
+export function LogoSm({ className = "", asLink = true }: LogoSmProps) {
+  const logoText = (
+    <span className={`font-abhaya-libre font-medium text-[24px] leading-none ${className}`}>
       The Headlines
-    </Link>
+    </span>
   );
+
+  if (asLink) {
+    return (
+      <Link
+        href="/"
+        className="hover:opacity-80 transition-opacity"
+      >
+        {logoText}
+      </Link>
+    );
+  }
+
+  return logoText;
 }

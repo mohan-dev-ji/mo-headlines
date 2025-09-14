@@ -24,7 +24,7 @@ export function QueueItemsPane() {
   }
 
   return (
-    <div className="h-full min-h-0 overflow-auto bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)]">
+    <div className="h-full min-h-0 overflow-auto bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)]">
       {queueItems.length === 0 ? (
         <Card className="bg-brand-card-dark border-brand-line">
           <CardHeader>

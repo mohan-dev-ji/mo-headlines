@@ -249,13 +249,13 @@ export function AddImagePage({
   };
 
   return (
-    <div className="container mx-auto p-[var(--padding-md)] min-h-screen">
+    <div className="container mx-auto min-h-screen">
     {/* Page Background Container */}
-    <div className="bg-brand-card rounded-lg p-[var(--padding-md)] min-h-full flex justify-center">
+    <div className="bg-brand-card-dark rounded-lg p-[var(--padding-md)] min-h-full flex justify-center">
       {/* Modal Container fills height */}
-      <div className="w-full max-w-2xl bg-brand-card-dark rounded-lg border border-brand-line flex flex-col h-full">
+      <div className="w-full max-w-2xl bg-brand-card rounded-lg border border-brand-line flex flex-col h-full">
         {/* Modal Header */}
-        <div className="shrink-0 flex items-center justify-between p-4 border-b border-brand-line">
+        <div className="shrink-0 flex items-center justify-between p-4">
           <h2 className="text-lg font-semibold text-headline-primary">Add Image</h2>
           <Button
             variant="ghost"
@@ -273,7 +273,7 @@ export function AddImagePage({
           onValueChange={(value) => setActiveTab(value as "generate" | "select")}
           className="flex-1 min-h-0 flex flex-col overflow-hidden"
         >
-          <TabsList className="shrink-0 grid w-full grid-cols-2 bg-brand-card-dark">
+          <TabsList className="shrink-0 grid w-full grid-cols-2 bg-brand-card-dark rounded-0">
             <TabsTrigger value="generate" className="data-[state=active]:bg-brand-card">
               Generate
             </TabsTrigger>
@@ -285,7 +285,7 @@ export function AddImagePage({
           {/* Scrollable tab content */}
           <TabsContent
             value="generate"
-            className="flex-1 min-h-0 overflow-auto p-6 bg-transparent"
+            className="flex-1 min-h-0 p-6 bg-transparent"
           >
             {isArticleContext ? (
               <GenerateTab

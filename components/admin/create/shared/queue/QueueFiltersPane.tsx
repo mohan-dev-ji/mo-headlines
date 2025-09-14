@@ -21,7 +21,7 @@ export function QueueFiltersPane() {
   } = useQueue()
 
   return (
-    <div className="shrink-0 bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)]">
+    <div className="shrink-0 bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)]">
       <QueueFilters
         searchTerm={searchTerm}
         sortBy={sortBy}

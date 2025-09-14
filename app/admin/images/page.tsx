@@ -37,7 +37,7 @@ export default function ImagesPage() {
   return (
     <div className="container mx-auto p-[var(--padding-md)]">
       {/* Filter Bar - Matching Create section styling */}
-      <div className="flex items-center justify-between p-4 bg-brand-card rounded-lg">
+      <div className="flex items-center justify-between p-4 bg-brand-card-dark rounded-lg">
         {/* Left side - Filter dropdowns matching Create section */}
         <div className="flex flex-col md:flex-row items-start sm:items-center gap-4">
           {/* Category Filter */}

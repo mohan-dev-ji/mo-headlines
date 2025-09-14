@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useUser, SignOutButton } from "@clerk/nextjs";
-import { Logo } from "@/components/public/logo";
+import { LogoSm } from "@/components/public/LogoSm";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,8 +11,6 @@ import {
   Plus,
   FileCheck,
   Image,
-  BarChart3,
-  Settings,
   LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,16 +36,6 @@ const navigation = [
     href: "/admin/images",
     icon: Image,
   },
-  {
-    name: "Analytics",
-    href: "/admin/analytics",
-    icon: BarChart3,
-  },
-  {
-    name: "Settings",
-    href: "/admin/settings",
-    icon: Settings,
-  },
 ];
 
 export function AdminSidebar() {
@@ -57,9 +45,9 @@ export function AdminSidebar() {
   return (
     <div className="flex flex-col w-64 bg-brand-background">
       {/* Logo section */}
-      <div className="flex items-center px-[var(--padding-lg)] py-[var(--padding-lg)]">
-        <Link href="/" className="transition-opacity hover:opacity-80">
-          <Logo className="h-8" asLink={false} />
+      <div className="flex items-center px-[var(--padding-lg)] pt-[var(--padding-lg)]">
+        <Link href="/" className="transition-opacity">
+          <LogoSm asLink={false} />
         </Link>
       </div>
 
@@ -75,10 +63,10 @@ export function AdminSidebar() {
               key={item.name}
               href={item.href}
               className={cn(
-                "flex items-center px-3 py-3 text-sm font-medium rounded-lg transition-colors",
+                "flex items-center px-3 py-3 text-sm rounded-lg transition-colors",
                 isActive
-                  ? "bg-brand-card text-headline-primary"
-                  : "text-body-greyed-out hover:bg-brand-card hover:text-headline-primary"
+                  ? "bg-brand-card-dark text-headline-primary"
+                  : "text-body-greyed-out hover:bg-brand-card-dark"
               )}
             >
               <item.icon className="mr-3 h-5 w-5" />

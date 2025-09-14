@@ -1,6 +1,5 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
 import { CustomDropdown, DropdownItem } from "@/components/ui/custom-dropdown"
 import { MoreVertical, Edit, Plus, Trash2 } from "lucide-react"
 
@@ -50,12 +49,19 @@ export function ResearchActionsDropdown({
   ]
 
   const trigger = (
-    <Button
-      variant="ghost"
-      className="h-8 w-8 p-0 text-body-secondary hover:text-headline-primary hover:bg-zinc-700/50"
+    <div
+      className="h-8 w-8 p-0 text-body-secondary hover:text-headline-primary hover:bg-zinc-700/50 inline-flex items-center justify-center rounded-md cursor-pointer transition-colors"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          // CustomDropdown will handle the click
+        }
+      }}
     >
       <MoreVertical className="h-4 w-4" />
-    </Button>
+    </div>
   )
 
   return (

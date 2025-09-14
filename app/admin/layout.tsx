@@ -44,7 +44,7 @@ export default function AdminLayout({
         
         {/* Main content */}
         <main className="flex-1 overflow-auto">
-          <div className="h-full">
+          <div className="min-h-full p-[var(--padding-md)] pl-0 box-border">
             {children}
           </div>
         </main>

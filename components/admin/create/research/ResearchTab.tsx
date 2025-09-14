@@ -101,7 +101,7 @@ export function ResearchTab() {
   }
 
   return (
-    <div className="h-full min-h-0 overflow-auto bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)]">
+    <div className="h-full min-h-0 overflow-auto bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)]">
       <div className="flex justify-center mb-6">
         <Button 
           variant="outline" 

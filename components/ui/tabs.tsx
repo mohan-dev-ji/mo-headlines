@@ -23,7 +23,7 @@ function TabsList({
   ...props
 }: React.ComponentProps<typeof TabsPrimitive.List>) {
   return (
-    <div className="w-full bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)]">
+    <div className="w-full bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)]">
       <TabsPrimitive.List
         data-slot="tabs-list"
         className={cn(
@@ -44,7 +44,7 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "flex items-center px-2 py-3 w-auto h-auto flex-shrink-0 text-body-primary border-0 data-[state=active]:!bg-[var(--brand-secondary-button)] data-[state=active]:!text-[var(--button-white)] data-[state=active]:!border-0 rounded-md font-medium text-sm transition-all duration-200 ease-in-out disabled:pointer-events-none disabled:opacity-50",
+        "flex items-center px-2 py-3 w-auto h-auto flex-shrink-0 text-body-primary border-0 data-[state=active]:!bg-brand-badge-background data-[state=active]:!text-brand-primary data-[state=active]:!border-0 rounded-md font-medium text-sm transition-all duration-200 ease-in-out disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       {...props}
@@ -59,7 +59,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)] h-[calc(100vh-145px)] overflow-auto outline-none", className)}
+      className={cn("bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)] h-[calc(100vh-145px)] overflow-auto outline-none", className)}
       {...props}
     />
   )

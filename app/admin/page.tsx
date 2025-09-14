@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
-import { Rss, FileText, BarChart3, Users, TrendingUp, Clock } from "lucide-react";
+import { Rss, FileText, BarChart3, Users, TrendingUp, Clock, Youtube, Search, CheckCircle, XCircle, Edit3 } from "lucide-react";
 
 export default function AdminPage() {
   const { isLoaded, user } = useUser();
@@ -23,6 +23,12 @@ export default function AdminPage() {
   const inactiveSources = allSources?.filter(source => !source.isActive) || [];
   const articles = useQuery(api.articles.getAllArticles);
   const categories = useQuery(api.categories.getAllCategories);
+
+  // Get article stats by status
+  const pendingArticles = articles?.filter(article => article.status === 'pending') || [];
+  const approvedArticles = articles?.filter(article => article.status === 'approved') || [];
+  const rejectedArticles = articles?.filter(article => article.status === 'rejected') || [];
+  const draftArticles = articles?.filter(article => article.status === 'draft') || [];
 
   useEffect(() => {
     if (isLoaded && !isAdmin(user?.id)) {
@@ -49,35 +55,24 @@ export default function AdminPage() {
   const articlesCount = articles?.length ?? 0;
   const categoriesCount = categories?.length ?? 0;
 
+  // Calculate article breakdown
+  const totalComments = 35; // TODO: Get from API when comments are implemented
+  const likedArticles = 11; // TODO: Get from API when likes are implemented
+
+  // Source breakdown counts (placeholder for now)
+  const rssActiveCount = activeSources.length;
+  const youtubeActiveCount = 3; // TODO: Get from YouTube sources API
+  const researchActiveCount = 3; // TODO: Get from Research sources API
+
   return (
-    <div className="p-8">
+    <div className="h-auto bg-brand-card-dark rounded-lg p-8">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-headline-1 text-headline-primary mb-2">Admin Dashboard</h1>
-        <p className="text-body-md text-body-secondary">
-          Welcome back! Here's an overview of your Mo Headlines platform.
-        </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Top Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-brand-card border-brand-line">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-body-sm text-body-secondary font-medium">
-              Active RSS Producers
-            </CardTitle>
-            <Rss className="h-4 w-4 text-indicator-approved" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-headline-2 text-headline-primary font-bold">
-              {activeSourcesCount}
-            </div>
-            <p className="text-caption text-body-greyed-out">
-              {totalProducers} total producers
-            </p>
-          </CardContent>
-        </Card>
-
         <Card className="bg-brand-card border-brand-line">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-body-sm text-body-secondary font-medium">
@@ -90,7 +85,24 @@ export default function AdminPage() {
               {articlesCount}
             </div>
             <p className="text-caption text-body-greyed-out">
-              Published content
+              50 from RSS<br />4 from Youtube
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-brand-card border-brand-line">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-body-sm text-body-secondary font-medium">
+              Total Comments
+            </CardTitle>
+            <Users className="h-4 w-4 text-brand-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-headline-2 text-headline-primary font-bold">
+              {totalComments}
+            </div>
+            <p className="text-caption text-body-greyed-out">
+              User engagement
             </p>
           </CardContent>
         </Card>
@@ -115,84 +127,159 @@ export default function AdminPage() {
         <Card className="bg-brand-card border-brand-line">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-body-sm text-body-secondary font-medium">
-              System Status
+              Liked Articles
             </CardTitle>
             <TrendingUp className="h-4 w-4 text-indicator-approved" />
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
-              <Badge className="bg-indicator-approved text-button-white">
-                Operational
-              </Badge>
+            <div className="text-headline-2 text-headline-primary font-bold">
+              {likedArticles}
             </div>
             <p className="text-caption text-body-greyed-out">
-              All systems running
+              50 from RSS<br />4 from Youtube
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Sources Management Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-brand-card border-brand-line">
           <CardHeader>
-            <CardTitle className="text-headline-3 text-headline-primary flex items-center">
-              <Rss className="mr-2 h-5 w-5 text-brand-primary" />
+            <CardTitle className="text-headline-3 text-headline-primary flex items-center justify-between">
               RSS Sources
+              <Rss className="h-5 w-5 text-brand-primary" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-body-sm text-body-secondary mb-4">
-              Manage your RSS producers and monitor feeds for content generation.
-            </p>
-            <div className="flex flex-col space-y-2">
-              <Link href="/admin/rss-sources">
-                <Button className="w-full bg-brand-primary-button hover:bg-brand-primary-button-hover">
-                  Manage RSS Sources
-                </Button>
-              </Link>
-              <div className="text-caption text-body-greyed-out text-center">
-                {activeSourcesCount} active • {inactiveSourcesCount} inactive
-              </div>
+            <Link href="/admin/create?tab=rss">
+              <Button className="w-full bg-brand-primary-button hover:bg-brand-primary-button-hover mb-4">
+                Manage RSS Sources
+              </Button>
+            </Link>
+            <div className="text-body-sm text-body-secondary">
+              0 active<br />
+              {rssActiveCount} active
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-brand-card border-brand-line">
           <CardHeader>
-            <CardTitle className="text-headline-3 text-headline-primary flex items-center">
-              <FileText className="mr-2 h-5 w-5 text-brand-primary" />
-              Articles
+            <CardTitle className="text-headline-3 text-headline-primary flex items-center justify-between">
+              YouTube Sources
+              <Youtube className="h-5 w-5 text-brand-primary" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-body-sm text-body-secondary mb-4">
-              Review, edit, and publish AI-generated articles from your RSS sources.
-            </p>
-            <Link href="/admin/articles">
-              <Button variant="outline" className="w-full">
-                Manage Articles
+            <Link href="/admin/create?tab=youtube">
+              <Button className="w-full bg-brand-primary-button hover:bg-brand-primary-button-hover mb-4">
+                Manage YouTube Sources
               </Button>
             </Link>
+            <div className="text-body-sm text-body-secondary">
+              0 active<br />
+              {youtubeActiveCount} active
+            </div>
           </CardContent>
         </Card>
 
         <Card className="bg-brand-card border-brand-line">
           <CardHeader>
-            <CardTitle className="text-headline-3 text-headline-primary flex items-center">
-              <BarChart3 className="mr-2 h-5 w-5 text-brand-primary" />
-              Analytics
+            <CardTitle className="text-headline-3 text-headline-primary flex items-center justify-between">
+              Research Sources
+              <Search className="h-5 w-5 text-brand-primary" />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-body-sm text-body-secondary mb-4">
-              View performance metrics and insights for your content platform.
-            </p>
-            <Link href="/admin/analytics">
-              <Button variant="outline" className="w-full">
-                View Analytics
+            <Link href="/admin/create?tab=research">
+              <Button className="w-full bg-brand-primary-button hover:bg-brand-primary-button-hover mb-4">
+                Manage Research Sources
               </Button>
             </Link>
+            <div className="text-body-sm text-body-secondary">
+              0 active<br />
+              {researchActiveCount} active
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Article Management Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="bg-brand-card border-brand-line">
+          <CardHeader>
+            <CardTitle className="text-headline-3 text-body-secondary flex items-center justify-between">
+              Pending
+              <Clock className="h-5 w-5 text-indicator-pending" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/review?tab=pending">
+              <Button variant="outline" className="w-full mb-4">
+                Manage Pending Articles
+              </Button>
+            </Link>
+            <div className="text-body-sm text-body-secondary">
+              {pendingArticles.length} awaiting approval
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-brand-card border-brand-line">
+          <CardHeader>
+            <CardTitle className="text-headline-3 text-indicator-approved flex items-center justify-between">
+              Approved
+              <CheckCircle className="h-5 w-5 text-indicator-approved" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/review?tab=approved">
+              <Button variant="outline" className="w-full mb-4">
+                Manage Approved Articles
+              </Button>
+            </Link>
+            <div className="text-body-sm text-body-secondary">
+              {approvedArticles.length} approved and active
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-brand-card border-brand-line">
+          <CardHeader>
+            <CardTitle className="text-headline-3 text-indicator-rejected flex items-center justify-between">
+              Rejected
+              <XCircle className="h-5 w-5 text-indicator-rejected" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/review?tab=rejected">
+              <Button variant="outline" className="w-full mb-4">
+                Manage Rejected Articles
+              </Button>
+            </Link>
+            <div className="text-body-sm text-body-secondary">
+              {rejectedArticles.length} awaiting deletion
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-brand-card border-brand-line">
+          <CardHeader>
+            <CardTitle className="text-headline-3 text-indicator-drafts flex items-center justify-between">
+              Drafts
+              <Edit3 className="h-5 w-5 text-indicator-drafts" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Link href="/admin/review?tab=drafts">
+              <Button variant="outline" className="w-full mb-4">
+                Articles Saved in Drafts
+              </Button>
+            </Link>
+            <div className="text-body-sm text-body-secondary">
+              {draftArticles.length} awaiting completion
+            </div>
           </CardContent>
         </Card>
       </div>

@@ -74,7 +74,7 @@ export function ArticlePreviewPage({ params }: ArticlePreviewPageProps) {
   return (
     <div className="min-h-screen bg-brand-background p-[var(--padding-md)] space-y-[var(--padding-md)]">
       {/* Action Buttons Section - Top */}
-      <div className="bg-brand-card rounded-md p-[var(--padding-md)]">
+      <div className="bg-brand-card-dark rounded-md p-[var(--padding-md)]">
         <div className="flex gap-3">
           <Button
             onClick={handleEdit}

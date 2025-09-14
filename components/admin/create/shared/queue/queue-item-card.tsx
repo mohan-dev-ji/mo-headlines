@@ -113,7 +113,7 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
   }
 
   return (
-    <Card className="bg-brand-card-dark border-brand-line">
+    <Card className="bg-brand-card border-brand-line">
       <CardContent className="p-0">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1" className="border-none">
@@ -130,28 +130,30 @@ export function QueueItemCard({ queueItem, isSelected, onSelectChange, onDelete 
 
                 {/* Title and Status */}
                 <div className="flex items-center justify-between w-full">
-                  <div className="flex items-center gap-3 flex-1">
+                  <div className="flex-1">
                     <h3 className="text-headline-primary text-base lg:text-lg font-semibold leading-tight">
                       {queueItem.title}
                     </h3>
+                  </div>
+
+                  {/* Status Badge and Actions */}
+                  <div className="flex items-center gap-3 shrink-0">
                     <div className="shrink-0">
                       {getStatusBadge()}
                     </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <QueueActionsDropdown
-                      queueItem={{
-                        _id: queueItem._id,
-                        title: queueItem.title
-                      }}
-                      onProcessNow={handleProcessNow}
-                      onDelete={() => {
-                        onDelete(queueItem._id as string)
-                      }}
-                      isProcessing={isProcessing}
-                    />
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <QueueActionsDropdown
+                        queueItem={{
+                          _id: queueItem._id,
+                          title: queueItem.title
+                        }}
+                        onProcessNow={handleProcessNow}
+                        onDelete={() => {
+                          onDelete(queueItem._id as string)
+                        }}
+                        isProcessing={isProcessing}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

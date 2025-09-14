@@ -15,7 +15,7 @@ interface TabsBarProps {
 
 export function TabsBar({ tabs, className = "" }: TabsBarProps) {
   return (
-    <div className={`w-full mb-2 bg-brand-card p-[var(--padding-md)] rounded-[var(--radius)] ${className}`}>
+    <div className={`w-full mb-2 bg-brand-card-dark p-[var(--padding-md)] rounded-[var(--radius)] ${className}`}>
       <TabsList className="!flex !w-auto !h-auto !bg-transparent !p-0 !gap-2 !justify-start [&>*]:!flex-none [&>*]:!w-auto">
         {tabs.map((tab) => (
           <TabsTrigger 

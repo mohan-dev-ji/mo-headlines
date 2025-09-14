@@ -174,11 +174,11 @@ export function ArticleEditPage({ params }: ArticleEditPageProps) {
   }
 
   return (
-    <div className="min-h-screen py-[var(--padding-md)] px-[var(--padding-md)]">
+    <div className="min-h-screen">
       {/* Main Content - Centered Edit Area */}
-      <div className="py-8 bg-brand-card rounded-md">
+      <div className="py-8 bg-brand-card-dark rounded-md">
         <div className="max-w-2xl mx-auto">
-          <div className="bg-brand-card-dark border border-brand-line rounded-lg">
+          <div className="bg-brand-card border border-brand-line rounded-lg">
             {/* Card Header */}
             <div className="px-6 py-4 border-b border-brand-line flex items-center justify-between">
               <h1 className="text-lg font-semibold text-headline-primary">Edit Article</h1>

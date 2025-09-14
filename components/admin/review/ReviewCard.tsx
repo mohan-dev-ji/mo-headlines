@@ -3,12 +3,10 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { CustomDropdown, DropdownItem } from "@/components/ui/custom-dropdown"
 import { ExpandableText } from "@/components/ui/expandable-text"
 import { Clock, CheckCircle, XCircle, FileText, Eye, Edit, ImageIcon, MoreVertical } from "lucide-react"
 import { Id } from "@/convex/_generated/dataModel"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 
 interface ReviewActionsDropdownProps {
@@ -46,12 +44,19 @@ function ReviewActionsDropdown({ article }: ReviewActionsDropdownProps) {
   ]
 
   const trigger = (
-    <Button
-      variant="ghost"
-      className="h-8 w-8 p-0 text-body-secondary hover:text-headline-primary hover:bg-zinc-700/50"
+    <div
+      className="h-8 w-8 p-0 text-body-secondary hover:text-headline-primary hover:bg-zinc-700/50 inline-flex items-center justify-center rounded-md cursor-pointer transition-colors"
+      role="button"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          // CustomDropdown will handle the click
+        }
+      }}
     >
       <MoreVertical className="h-4 w-4" />
-    </Button>
+    </div>
   )
 
   return (
@@ -140,7 +145,7 @@ export function ReviewCard({ article, categoryName }: ReviewCardProps) {
   }
 
   return (
-    <Card className={`bg-brand-card-dark ${getBorderClass()}`}>
+    <Card className={`bg-brand-card ${getBorderClass()}`}>
       <CardContent className="p-0">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1" className="border-none">

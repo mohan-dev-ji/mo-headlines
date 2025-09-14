@@ -24,7 +24,7 @@ export function CreateLayout() {
 
   return (
     <QueueProvider>
-      <div className="container mx-auto p-[var(--padding-md)]">
+      <div className="container mx-auto">
         <Tabs value={currentTab} onValueChange={handleTabChange} className="w-full">
           <TabsList>
             <TabsTrigger value="rss">RSS Sources</TabsTrigger>

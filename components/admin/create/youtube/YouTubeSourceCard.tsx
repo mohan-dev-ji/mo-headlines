@@ -49,7 +49,7 @@ export function YouTubeSourceCard({ source, onEdit, onDelete, onAddToQueue }: Yo
   const thumbnailUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
 
   return (
-    <Card className="bg-brand-card-dark border-brand-line">
+    <Card className="bg-brand-card border-brand-line">
       <CardContent className="p-0">
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1" className="border-none">
