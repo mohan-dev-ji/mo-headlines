@@ -111,7 +111,7 @@ export function ArticlePreviewPage({ params }: ArticlePreviewPageProps) {
       </div>
 
       {/* Article Content Section - Bottom */}
-      <div className="bg-brand-card rounded-md p-[var(--padding-md)]">
+      <div className="bg-brand-card-dark rounded-md p-[var(--padding-md)]">
         <div className="bg-white rounded-md">
           <PublicArticlePage
             params={Promise.resolve({ id: resolvedParams.id })}

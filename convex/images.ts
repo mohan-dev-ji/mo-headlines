@@ -75,6 +75,7 @@ export const updateImageMetadata = mutation({
     rating: v.optional(v.number()),
     status: v.optional(v.union(v.literal("pending"), v.literal("approved"), v.literal("rejected"), v.literal("unused"))),
     articleId: v.optional(v.id("articles")),
+    model: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const image = await ctx.db.get(args.imageId);
@@ -94,6 +95,10 @@ export const updateImageMetadata = mutation({
     
     if (args.status !== undefined) {
       updateData.status = args.status;
+    }
+
+    if (args.model !== undefined) {
+      updateData.model = args.model;
     }
     
     if (args.articleId !== undefined && args.articleId !== image.articleId) {
@@ -197,6 +202,22 @@ export const listImages = query({
 });
 
 // Get single image by ID (for detail page)
+export const checkImageInUse = query({
+  args: { imageId: v.id("images") },
+  handler: async (ctx, args) => {
+    // Check if image is being used by any articles
+    const articles = await ctx.db
+      .query("articles")
+      .filter((q) => q.eq(q.field("imageId"), args.imageId))
+      .collect();
+
+    return {
+      isInUse: articles.length > 0,
+      articlesCount: articles.length,
+    };
+  },
+});
+
 export const getImageById = query({
   args: { imageId: v.id("images") },
   handler: async (ctx, args) => {
@@ -204,7 +225,7 @@ export const getImageById = query({
     if (!image) {
       return null;
     }
-    
+
     const prompt = await ctx.db.get(image.promptId);
     const article = image.articleId ? await ctx.db.get(image.articleId) : null;
     const category = image.categoryId ? await ctx.db.get(image.categoryId) : null;
