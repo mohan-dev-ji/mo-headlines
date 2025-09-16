@@ -2,13 +2,15 @@
 
 ## System Overview
 
-Mo Headlines is an AI-verified tech news platform built with a **workflow-based architecture** that separates content creation from editorial review. The system processes articles from multiple sources through a unified pipeline with dedicated asset and prompt management.
+Mo Headlines is an AI-verified tech news platform built with a **workflow-based architecture** that separates content creation from editorial review. The system processes articles from multiple sources through a unified pipeline with dedicated asset and prompt management, enhanced with calendar-based discovery and efficient pagination.
 
 ### Core Workflow
 ```
 Create Sources → Unified Queue → AI Processing → Editorial Review → Publication
                                       ↓
                   Prompt Generation → Image Creation → Asset Management
+                                      ↓
+                  Calendar Discovery ← Pagination System ← Article Archive
 ```
 
 ### Key Architectural Principles
@@ -18,6 +20,8 @@ Create Sources → Unified Queue → AI Processing → Editorial Review → Publ
 - **Unified Processing**: Single AI prompt handles all source types
 - **Asset Management**: Dedicated image storage and analytics pipeline
 - **Data Normalization**: Proper separation of articles, prompts, and images
+- **Temporal Discovery**: Calendar-based article browsing with combined filtering
+- **Performance Optimization**: Pagination system handles archive growth efficiently
 
 ---
 
@@ -44,7 +48,7 @@ articles: {
   imageId?: Id<"images">           // Link to selected image
   viewCount: number
   likeCount?: number               // Added: Cached count for performance
-  publishedAt?: number
+  publishedAt?: number             // Critical for calendar filtering and pagination
   updatedAt: number
   authorId?: Id<"users">
 }
@@ -198,9 +202,13 @@ create_youtube: {
 - **Metadata**: Complete generation data stored in images table with prompt relationships
 - **Approval**: Images rated (1-10) and approved/rejected independently of articles
 
-### 6. Publication
+### 6. Publication & Discovery
 - Approved articles with images automatically appear on public website
 - Images served from Cloudflare CDN for optimal performance
+- **Calendar Discovery**: Articles browsable by publication date via desktop calendar widget
+- **Mobile Calendar**: Full-screen modal for date-based filtering
+- **Combined Filtering**: Date and category filters work together
+- **Pagination**: Progressive loading of 10-article chunks with filter persistence
 - SEO optimization, social sharing, user engagement features
 
 ---
@@ -229,6 +237,20 @@ create_youtube: {
 └── shared/                     # Cross-workflow components
 ```
 
+### Public Layout Structure
+```
+/components/public/
+├── home/
+│   ├── badge-filter-bar/       # Category filtering with horizontal scroll
+│   ├── calendar/               # Desktop calendar widget and mobile modal
+│   ├── cards/                  # Article card variants
+│   ├── pagination/             # Load more functionality
+│   └── layout/                 # 4-column grid management
+├── article/                    # Article page components
+├── profile/                    # User profile components
+└── shared/                     # Cross-page components
+```
+
 ## Visual Design Architecture
 
 ### Typography System
@@ -236,10 +258,31 @@ create_youtube: {
 - **Body**: System font stack
 - **Responsive**: Different font sizes per breakpoint
 
+### Layout System
+- **Desktop**: 4-column grid (3 columns articles + 1 column calendar/ads)
+- **Mobile**: Single column with horizontal badge scrolling
+- **Responsive Breakpoints**: Mobile (<768px), Tablet (768-1024px), Desktop (1024px+)
+
 ### Badge Filter Architecture
-- Client-side filtering (no page reload)
-- URL parameter sync for shareability
-- Single data source with multiple views
+- **Desktop**: All badges visible (All, Tech, Science, Finance, Policies)
+- **Mobile**: Horizontal scroll with calendar icon as final badge
+- **Client-side filtering**: No page reload, URL parameter sync
+- **Combined Filtering**: Date + category work together
+- **Visual Consistency**: Selected dates use same styling as active badges
+
+### Calendar Integration Architecture
+- **Desktop**: Persistent widget in right column
+- **Mobile**: Full-screen modal triggered by calendar icon badge
+- **Publication Indicators**: Dot system showing article density per day
+- **Month Navigation**: Previous/next controls with current month default
+- **Brand Consistency**: Selected dates use cyan-400 text, cyan-950 background
+
+### Pagination Architecture
+- **Initial Load**: 10 most recent articles
+- **Progressive Loading**: Load more button adds 10-article chunks
+- **Filter Persistence**: Pagination maintains active date and category filters
+- **Pattern Consistency**: 3-row card pattern continues across paginated loads
+- **Performance**: Efficient queries regardless of archive size
 
 ### Shared Service Boundaries
 
@@ -260,6 +303,12 @@ create_youtube: {
 - **Status Management**: Approve/reject workflow for generated images
 - **Prompt Analytics**: Track prompt source types and effectiveness
 - **Metadata Display**: Complete generation and usage analytics
+
+#### Public Discovery Services
+- **Calendar Management**: Date-based article filtering and discovery
+- **Combined Filtering**: Integration of date and category filter systems
+- **Pagination Control**: Progressive content loading with state persistence
+- **Archive Access**: Efficient browsing of historical content
 
 #### Cross-Workflow Services
 - **Admin Sidebar**: Navigation between Create, Review, and Images sections
@@ -313,6 +362,7 @@ create_youtube: {
 ### Performance Optimization
 - **Database Indexes**: 
   - `articles.status` for review queries
+  - `articles.publishedAt` for calendar and pagination queries
   - `images.rating` and `images.status` for gallery sorting
   - `images.categoryId` for analytics
   - `prompts.articleId` and `prompts.isUsed` for prompt queries
@@ -321,6 +371,8 @@ create_youtube: {
 - **CDN Delivery**: Cloudflare Workers for image serving
 - **Queue Processing**: Configurable batch sizes, rate limiting compliance
 - **Caching**: Static generation for public articles, transcript caching for YouTube processing
+- **Pagination**: Efficient article loading with combined filter support
+- **Calendar Optimization**: Cached publication date aggregation for indicator display
 
 ### Animation Performance
 - **CSS Animations**: GPU-accelerated gradient transitions
@@ -334,6 +386,8 @@ create_youtube: {
 - **Source Extensibility**: Plugin architecture for new content types
 - **Asset Management**: Cloudflare Workers handles image scaling automatically
 - **Data Relationships**: Normalized structure supports complex queries and analytics
+- **Archive Growth**: Pagination system handles unlimited article growth
+- **Calendar Performance**: Efficient date-based queries with proper indexing
 - **Monitoring**: Processing metrics, engagement tracking, error monitoring
 
 ---
@@ -347,7 +401,9 @@ create_youtube: {
 - **Prompt Library**: Template system for reusable prompt patterns
 - **Image Analytics**: Automated prompt pattern analysis, success rate metrics
 - **Multi-Model Support**: Integration with additional image generation services
-- **Analytics**: Performance dashboards, content insights, user engagement
+- **Calendar Enhancements**: Editorial calendar, content gap analysis, publishing trends
+- **Advanced Pagination**: Infinite scroll options, custom page sizes
+- **Analytics**: Performance dashboards, content insights, user engagement, calendar usage metrics
 
 ### Migration Path
 - Current architecture supports adding new source types without breaking changes
@@ -355,3 +411,5 @@ create_youtube: {
 - Component boundaries allow incremental feature additions
 - Image management system ready for multi-model support
 - Normalized data structure enables advanced analytics and reporting
+- Calendar system foundation supports editorial and analytics extensions
+- Pagination architecture scales with archive growth and new filtering dimensions

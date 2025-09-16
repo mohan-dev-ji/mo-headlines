@@ -3,10 +3,28 @@
 ## Public Website
 
 ### Home Page
-- **Badge Filter System**: Recent (all articles), Tech & Science, Finance, Policies
-- **Article Grid**: 3-row pattern (landscape left, landscape right, 3x portrait)
+- **Badge Filter System**: All, Tech, Science, Finance, Policies with horizontal scrolling and calendar icon on mobile
+- **Calendar Integration**: Calendar icon badge on mobile, persistent widget on desktop
+- **Article Grid**: 3-row pattern (landscape left, landscape right, 3x portrait) with pagination
+- **Desktop Layout**: 4-column grid (3 columns articles + 1 column calendar/ads)
 - **Load More**: Progressive loading maintaining pattern consistency
 - **Responsive Design**: Dedicated mobile card components
+
+### Calendar-Based Discovery
+- **Desktop Calendar Widget**: Right column calendar showing publication dates with dot indicators for content density
+- **Mobile Calendar Modal**: Full-screen date picker accessible via calendar icon badge in horizontal scroll
+- **Combined Filtering**: Date selection works with category badges - filter by "Finance articles from January 15th"
+- **Publication Indicators**: Visual dots on calendar days with articles, multiple dots for high-activity days
+- **Selected Date Highlighting**: Calendar dates use same brand colors (cyan-400/cyan-950) as active category badges
+- **Month Navigation**: Previous/next month controls with current month default
+- **Reset Functionality**: "All" badge clears both date and category filters
+
+### Pagination System
+- **Progressive Loading**: Initial load shows 10 most recent articles
+- **Load More Button**: Users control additional content loading in 10-article chunks
+- **Filter Persistence**: Pagination maintains active category and date filter combinations
+- **Pattern Consistency**: Card layout pattern continues seamlessly across paginated loads
+- **Performance Optimization**: Efficient loading regardless of total archive size
 
 ### Article Page
 - **Responsive Layout**: Desktop (image after paragraph 1), Mobile (image at top)

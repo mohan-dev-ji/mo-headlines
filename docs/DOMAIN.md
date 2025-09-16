@@ -10,6 +10,8 @@
 - **Sources**: Fact-checking sources with URL, domain, and title displayed as cards
 - **Images**: Optional link to selected image asset
 - **Prompts**: Linked AI-generated prompts for image creation
+- **Publication Date**: Critical for calendar filtering and temporal discovery
+- **Archive Access**: Historical articles discoverable through calendar interface
 
 ### Prompts
 - **Purpose**: AI-generated and custom prompts for image generation with usage tracking
@@ -28,12 +30,28 @@
 - **Prompt Link**: Direct relationship to specific prompt used for generation
 
 ### Categories
-- **Simplified Set**: Tech & Science, Finance, Policies
+- **Current Set**: All, Tech, Science, Finance, Policies (5 categories)
 - **Previous System**: ~~AI, Startups, Big Tech, Science, Transport~~ (deprecated)
-- **Keywords**: Comprehensive keyword lists merged from previous 5 categories
+- **Keywords**: Comprehensive keyword lists merged from previous categories
 - **Management**: Updated via `seedCategories.ts` script with safety flags
-- **Navigation**: Badge-based filtering on home page (Recent, Tech & Science, Finance, Policies)
+- **Navigation**: Badge-based filtering on home page with horizontal scrolling on mobile
 - **Visual Identity**: Each category associated with gradient color pools
+- **Combined Filtering**: Works with calendar date selection for precise content discovery
+
+### Calendar Discovery
+- **Publication Tracking**: Articles indexed by publication date for temporal browsing
+- **Visual Indicators**: Calendar days marked with dots showing article density
+- **Activity Density**: Multiple dots or enhanced indicators for high-publication days
+- **Month Navigation**: Previous/next month controls for archive exploration
+- **Combined Filtering**: Date selection works with category filters for precision discovery
+- **Mobile Access**: Full-screen modal with touch-optimized calendar interface
+
+### Pagination System
+- **Progressive Loading**: Initial 10-article load with "Load More" functionality
+- **Filter Persistence**: Pagination maintains active category and date filter combinations
+- **Pattern Consistency**: 3-row card layout continues across paginated loads
+- **Performance**: Efficient loading regardless of total archive size
+- **State Management**: URL parameters preserve pagination state with filters
 
 ### Users
 - **Admin**: Access to admin dashboard for content creation, review, and image management
@@ -59,6 +77,22 @@
 - **Origin**: Clear attribution to RSS/Research/YouTube source via createSource field
 - **Images**: Optional relationship to selected image asset
 - **Prompts**: One-to-many relationship with AI-generated prompts for image creation
+- **Publication Date**: Links article to calendar discovery system
+- **Archive Position**: Temporal positioning within category and overall content timeline
+
+### Calendar Connections
+- **Article Publication**: Calendar dates linked to articles via publishedAt timestamps
+- **Category Integration**: Calendar filtering works with category badge selection
+- **Visual Density**: Publication indicators show content volume per day
+- **Temporal Navigation**: Month-to-month browsing enables historical content discovery
+- **Filter Combination**: Date selection combines with category filters for precision browsing
+
+### Pagination Connections
+- **Filter State**: Pagination maintains active category and date filter selections
+- **Content Chunks**: 10-article segments preserve visual pattern consistency
+- **Archive Scaling**: System handles unlimited content growth through efficient loading
+- **User Control**: "Load More" button gives users control over content consumption
+- **Performance**: Prevents large data loads while maintaining seamless browsing experience
 
 ### Prompt Connections
 - **Articles**: Each prompt belongs to a specific article
@@ -79,10 +113,13 @@
 - **Authentication**: Role-based access control
 
 ### Content Discovery
-- **Category Browsing**: Navbar navigation by content type
+- **Category Browsing**: Badge-based navigation by content type
+- **Temporal Discovery**: Calendar-based browsing by publication date
+- **Combined Discovery**: Category + date filtering for precision content access
 - **Source Attribution**: Transparent content origin tracking
 - **Image Gallery**: Visual asset browsing with quality and usage analytics
 - **Prompt Analytics**: Track effectiveness patterns across prompt types
+- **Archive Exploration**: Historical content discovery through calendar navigation
 
 ## Business Rules
 
@@ -91,6 +128,20 @@
 - RSS sources find and generate articles that admin can review before adding to queue
 - Only approved articles visible to public
 - Admin approval required for all content publication
+
+### Calendar Discovery Workflow
+- **Publication Date Required**: All approved articles must have publishedAt timestamp
+- **Calendar Indicators**: Days with articles automatically show publication dots
+- **Combined Filtering Logic**: Date filter + category filter work together (not exclusive)
+- **Archive Access**: Calendar provides access to historical content regardless of age
+- **Mobile Calendar Access**: Full-screen modal provides same functionality as desktop widget
+
+### Pagination Workflow
+- **Initial Load**: Home page shows 10 most recent articles matching active filters
+- **Progressive Loading**: "Load More" button loads additional 10-article chunks
+- **Filter Persistence**: Pagination maintains both category and date filter states
+- **Pattern Continuity**: 3-row card layout (landscape-left, landscape-right, 3x portrait) continues across loads
+- **Performance Optimization**: Efficient queries prevent loading large datasets unnecessarily
 
 ### Prompt Management Workflow
 - AI processing generates 3 prompts per article stored in prompts table
@@ -121,7 +172,10 @@
 - **Prompt Generation**: Each processed article gets 3 AI-generated prompts for image creation
 
 ### Category Management
-- **Predefined Categories**: The categories are changing as the project gets built
+- **Predefined Categories**: All, Tech, Science, Finance, Policies (5 total categories)
+- **Badge Filtering**: Desktop shows all badges, mobile uses horizontal scrolling
+- **Combined Filtering**: Category selection works with calendar date selection
+- **Reset Pattern**: "All" badge clears both category and date filters
 - **Keyword System**: Extensive keyword lists for accurate RSS content filtering
 - **Update Process**: `seedCategories.ts` script with safety flags (`force: true` required)
 - **Operations**: Create, update, deactivate categories with keyword management
@@ -132,6 +186,7 @@
 - Public article access unrestricted
 - Comment/like features require user sign-in
 - Image gallery and prompt analytics restricted to admin users
+- Calendar discovery available to all public users
 
 ## Data Flow
 
@@ -142,7 +197,23 @@
 4. **Processing**: AI processes queue items using normalized data structure
 5. **Prompt Generation**: AI creates 3 prompts per article in prompts table
 6. **Review**: Admin evaluates processed content and available prompts
-7. **Publication**: Approved articles become publicly visible
+7. **Publication**: Approved articles become publicly visible with publication timestamps
+
+### Calendar Discovery Lifecycle
+1. **Publication**: Articles published with publishedAt timestamps
+2. **Calendar Integration**: Publication dates automatically indexed for calendar display
+3. **Visual Indicators**: Calendar days with articles marked with publication dots
+4. **User Discovery**: Users browse calendar to find content from specific dates
+5. **Combined Filtering**: Date selection works with category badges for precision discovery
+6. **Archive Access**: Historical content becomes discoverable through temporal navigation
+
+### Pagination Lifecycle
+1. **Initial Load**: Home page displays 10 most recent articles matching active filters
+2. **Filter Application**: Category and/or date filters applied to article query
+3. **Progressive Loading**: "Load More" button triggers next 10-article chunk
+4. **State Persistence**: Pagination maintains active filter combinations
+5. **Pattern Continuity**: Card layout pattern continues seamlessly across loads
+6. **Archive Exploration**: Users can progressively load through entire content archive
 
 ### Prompt Lifecycle
 1. **Generation**: Perplexity AI creates 3 prompts per processed article
@@ -174,7 +245,10 @@
 - **Prompt Output**: Standardized 3-prompt generation for all processed articles
 
 ### User Journey
-- **Discovery**: Browse by category or search by topic
+- **Discovery**: Browse by category badges or calendar date selection
+- **Combined Discovery**: Use both category and date filters for precision browsing
+- **Progressive Loading**: Control content consumption through "Load More" functionality
+- **Archive Exploration**: Access historical content through calendar navigation
 - **Consumption**: Read fact-checked articles with source attribution
 - **Engagement**: Comment and like with authentication
 
@@ -186,6 +260,10 @@
 
 ### Search Mechanisms
 - **Category Navigation**: Browse content by badge filtering system
+- **Temporal Discovery**: Browse content by calendar date selection
+- **Combined Filtering**: Combine category and date for precision discovery
+- **Archive Access**: Historical content browsing through calendar interface
 - **Keyword Matching**: RSS content discovery via category keywords
 - **Image Gallery**: Filter images by rating, status, category, model, and date
 - **Prompt Analytics**: Filter and analyze prompts by source type and effectiveness
+- **Progressive Loading**: Efficient content discovery through pagination system

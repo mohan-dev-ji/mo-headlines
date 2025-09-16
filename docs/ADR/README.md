@@ -270,4 +270,144 @@ These ADRs establish patterns for:
 
 ---
 
-**Next ADR Topic**: Admin interface responsive design strategy
+# ADR 5: Calendar-Based Article Discovery with Temporal Filtering
+
+**Date**: 2025-09-16  
+**Status**: Approved
+
+## Context
+
+With the badge filtering system successfully implemented (ADR 4), users can now filter articles by category (All, Tech, Science, Finance, Policies). However, news content has a strong temporal dimension - users often want to explore "what happened on a specific date" or "what tech news broke last Tuesday." The current system only allows browsing by recency and category, missing the temporal discovery pattern.
+
+Additionally, the desktop layout has available space in a right column that could house a calendar widget, while mobile needs an elegant way to access date-based filtering without cluttering the main interface.
+
+## Problem
+
+1. **Missing Temporal Discovery**: Users cannot browse articles by publication date
+2. **Content Archive Utilization**: Older articles become difficult to discover as new content pushes them down
+3. **Desktop Space Optimization**: Right column space available for additional functionality
+4. **Mobile Calendar Access**: Need elegant way to provide calendar filtering on small screens
+5. **Performance with Growth**: As article count grows, need efficient pagination system
+6. **Filter Combination**: Date filtering should work with existing category filters, not replace them
+
+## Decision
+
+Implement **calendar-based article discovery** with combined temporal and category filtering:
+
+### Desktop Experience
+- **Right Column Calendar**: Persistent calendar widget showing article publication dates
+- **Visual Indicators**: Days with articles marked with dots, multiple dots for high-activity days
+- **Direct Interaction**: Click calendar dates to filter articles to that specific day
+- **Combined Filtering**: Date selection works with category badges for precision filtering
+- **Ad Space**: Reserve space below calendar for future monetization
+
+### Mobile Experience  
+- **Horizontal Badge Scrolling**: Convert badge filter to horizontal scroll container
+- **Calendar Icon Badge**: Add calendar icon as final badge in scroll sequence
+- **Full-Screen Modal**: Calendar icon opens full-screen date picker with touch-optimized interface
+- **Mode Indication**: Calendar icon stays highlighted when date filtering is active
+- **Reset Pattern**: "All" badge clears both category and date filters
+
+### Pagination System
+- **Default Load**: Show 10 most recent articles on initial page load
+- **Load More Pattern**: Progressive loading of additional 10-article chunks
+- **Filter Persistence**: Pagination maintains active category and date filters
+- **Performance**: Efficient loading regardless of total article count
+
+## Solution Details
+
+### Calendar Widget Features
+- **Publication Indicators**: Visual dots on days with published articles
+- **Activity Density**: Multiple dot sizes/counts for days with many articles
+- **Selected Date Highlight**: Same brand styling as category badges (cyan-400 text, cyan-950 background)
+- **Month Navigation**: Previous/next month controls
+- **Current Month Focus**: Default to current month, highlight today
+
+### Combined Filter Logic
+1. **Category Filter Applied**: Articles filtered by selected category
+2. **Date Filter Applied**: Results further filtered by publication date
+3. **Default Sorting**: Articles sorted by publication time (most recent first)
+4. **Reset Behavior**: "All" badge clears both filters, returns to recent articles
+
+### Mobile Calendar Modal
+- **Full-Screen Interface**: Maximizes touch target area and visual clarity
+- **Month Navigation**: Swipe gestures and arrow navigation
+- **Publication Indicators**: Same dot system as desktop calendar
+- **Selected Date Highlight**: Consistent brand styling
+- **Clear Actions**: Apply and close functionality
+
+### Visual Consistency
+- **Brand Color Usage**: Selected dates use same cyan-400/cyan-950 styling as active badges
+- **Typography**: Consistent with existing design system
+- **Spacing**: Follows established spacing scale
+- **Responsive Behavior**: Adapts to different screen sizes
+
+## Impact
+
+### Positive
+- **Enhanced Content Discovery**: Users can explore articles by date and category combination
+- **Archive Value**: Older content becomes discoverable through calendar navigation  
+- **Unique Feature**: Calendar-based news browsing differentiates from competitors
+- **Desktop Optimization**: Makes use of available right column space
+- **Mobile Elegance**: Progressive disclosure keeps primary interface clean
+- **Performance**: Pagination system handles growth efficiently
+- **Monetization Ready**: Ad space positioned for future revenue
+
+### Negative  
+- **Implementation Complexity**: Requires calendar component development and combined filter logic
+- **Mobile Interaction**: Users must discover calendar through horizontal scrolling
+- **Date Dependency**: Feature value increases with content archive size
+- **Additional Loading**: Calendar requires article publication date queries
+
+### Mitigation
+- **Progressive Enhancement**: Feature works as enhancement, doesn't break existing functionality
+- **Clear Visual Cues**: Horizontal scroll indicators help mobile discovery
+- **Performance Optimization**: Efficient date queries and caching strategies
+- **User Education**: Clear visual feedback shows how filters combine
+
+## Implementation Plan
+
+### Phase 1: Data and API Foundation
+- Update article queries to support date-based filtering
+- Implement pagination with combined filter support
+- Create efficient date aggregation for calendar indicators
+
+### Phase 2: Desktop Calendar Widget
+- Develop calendar component with publication indicators
+- Implement date selection and filter integration
+- Add month navigation and visual state management
+
+### Phase 3: Mobile Calendar Modal
+- Create full-screen calendar modal for mobile
+- Implement horizontal badge scrolling
+- Add calendar icon badge with proper styling
+
+### Phase 4: Filter Integration
+- Connect calendar selection with existing badge filter system
+- Implement combined date + category filtering logic
+- Add visual consistency for selected states
+
+### Phase 5: Pagination System
+- Implement load more functionality for all filter states
+- Add loading states and performance optimization
+- Test with large content volumes
+
+## Alternatives Considered
+
+1. **Date Dropdown**: Less visual, doesn't show content density
+2. **Timeline View**: More complex, doesn't integrate with existing layout
+3. **Search by Date**: Requires typing, less discoverable
+4. **Category Pages**: Would break single-page filtering experience
+5. **Infinite Scroll**: Less user control, performance concerns with large datasets
+
+## Success Metrics
+
+- **Calendar Usage**: Percentage of users who interact with calendar features
+- **Deep Archive Access**: Increased views of older articles
+- **Combined Filter Usage**: Users combining date and category filters
+- **Mobile Discovery**: Calendar icon discovery and usage rates
+- **Performance**: Page load times with pagination and filtering
+
+This ADR establishes the foundation for temporal content discovery while maintaining the successful badge filtering system and preparing for future growth.
+
+---

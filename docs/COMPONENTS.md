@@ -3,16 +3,26 @@
 ## Public Components
 
 ### Home Components
-- **BadgeFilterBar**: Container for filter badges with active state management
-- **FilterBadge**: Individual badge (Recent, Tech & Science, Finance, Policies)
-- **useArticleFilter**: Hook managing filter state and URL params
+- **BadgeFilterBar**: Container for filter badges with active state management and horizontal scrolling on mobile
+- **FilterBadge**: Individual badge (All, Tech, Science, Finance, Policies) with consistent styling
+- **CalendarIconBadge**: Calendar icon styled as badge for mobile horizontal scroll, opens calendar modal
+- **useArticleFilter**: Hook managing filter state, date filtering, pagination, and URL params
+- **LoadMoreButton**: Progressive content loading trigger with loading states
+- **PaginationHandler**: Manages article chunks and maintains filter state across loads
+
+### Calendar Components
+- **ArticleCalendar**: Desktop calendar widget with publication date indicators and dot system
+- **CalendarModal**: Mobile full-screen date picker with month navigation and touch optimization
+- **PublicationIndicators**: Visual dots showing article density per calendar day
+- **MonthNavigation**: Previous/next month controls with swipe gesture support on mobile
+- **DateHighlight**: Consistent brand color highlighting for selected calendar dates
 
 ### Card Components
 - **LandscapeCardLeft**: Row 1 layout (image left, content right)
 - **LandscapeCardRight**: Row 2 layout (content left, image right)
 - **PortraitCard**: Row 3 grid cards (3 per row on desktop)
 - **MobileArticleCard**: Mobile-specific with expanded metadata
-- **CardLayoutGrid**: Manages 3-row pattern repetition
+- **CardLayoutGrid**: Manages 3-row pattern repetition across paginated loads
 
 ### Article Page Components
 - **ArticleLayout**: Main container with close navigation
@@ -32,8 +42,9 @@
 - **ProfileCard**: Individual item display card
 
 ### Shared Visual Components
-- **BadgeFilter**: Modified shadcn badge with on/off states
-- **LoadMoreButton**: Progressive content loading trigger
+- **BadgeFilter**: Modified shadcn badge with on/off states and horizontal scroll support
+- **FilterStateIndicator**: Shows active date and category filter combination
+- **LoadingStates**: Skeleton cards and spinners for progressive loading
 
 ## Admin Create Components
 
