@@ -17,7 +17,7 @@ function HomeContent() {
       <BadgeFilterBar />
 
       {/* Main Content */}
-      <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-page mx-auto px-padding-md sm:px-6 lg:px-8 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="text-body-secondary">Loading articles...</div>

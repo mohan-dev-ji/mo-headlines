@@ -187,4 +187,13 @@
   .text-body-md { @apply text-base leading-normal; }
   .text-body-sm { @apply text-sm leading-normal; }
   .text-caption { @apply text-xs leading-tight; }
+
+  /* Mo Headlines Spacing Utilities */
+  .p-padding-md { padding: var(--padding-md); }
+  .px-padding-md { padding-left: var(--padding-md); padding-right: var(--padding-md); }
+  .py-padding-md { padding-top: var(--padding-md); padding-bottom: var(--padding-md); }
+  .pt-padding-md { padding-top: var(--padding-md); }
+  .pb-padding-md { padding-bottom: var(--padding-md); }
+  .pl-padding-md { padding-left: var(--padding-md); }
+  .pr-padding-md { padding-right: var(--padding-md); }
 }

@@ -3,7 +3,7 @@
 ## 📖 Project Documentation
 **All implementation details are in `/docs/`** - Always refer to these for specifications
 
-## ✅ Completed Phases (0-5)
+## ✅ Completed Phases (0-5) of ADR 4
 - **Phase 0**: ✅ Source data migration with enhanced sourceUrls schema
 - **Phase 1**: ✅ Categories simplified to 5: All, Tech, Science, Finance, Policies 
 - **Phase 2**: ✅ Home page components with badge filters and card layouts
@@ -23,7 +23,7 @@
 
 ### 6.1 Data Layer Updates
 **Reference**: [ARCHITECTURE.md](docs/ARCHITECTURE.md#data-architecture)
-- Add database indexes for `articles.publishedAt` (calendar queries)
+- Use already existing `articles._creationTime` for (calendar queries)
 - Create efficient date aggregation queries for calendar indicators
 - Implement combined filter queries (date + category)
 - Add pagination support with filter persistence

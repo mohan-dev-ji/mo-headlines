@@ -44,10 +44,10 @@ export function PortraitCard({ article, className = "" }: PortraitCardProps) {
         {/* Content - 50% of height */}
         <div className="h-1/2 px-4 pb-4 pt-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-abhaya-libre font-medium text-lg leading-tight text-headline-primary mb-1 group-hover:text-brand-primary transition-colors line-clamp-2">
+            <h3 className="font-abhaya-libre font-medium text-2xl leading-tight text-headline-primary mb-1 group-hover:text-brand-primary transition-colors line-clamp-2">
               {article.title}
             </h3>
-            <p className="text-sm text-body-secondary">Published {timeAgo}</p>
+            <p className="text-base text-body-secondary">{timeAgo}</p>
           </div>
 
           {/* Footer */}
@@ -71,13 +71,17 @@ function formatTimeAgo(date: Date): string {
   const now = new Date();
   const diffInMilliseconds = now.getTime() - date.getTime();
   const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
-  
+
   if (diffInHours < 1) {
-    return "Less than an hour ago";
+    return "Published less than an hour ago";
   } else if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    return `Published ${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
   } else {
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    // After 24 hours, show just the date
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 }

@@ -362,7 +362,7 @@ create_youtube: {
 ### Performance Optimization
 - **Database Indexes**: 
   - `articles.status` for review queries
-  - `articles.publishedAt` for calendar and pagination queries
+  - `articles._creationTime` for calendar and pagination queries
   - `images.rating` and `images.status` for gallery sorting
   - `images.categoryId` for analytics
   - `prompts.articleId` and `prompts.isUsed` for prompt queries

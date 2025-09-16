@@ -14,6 +14,25 @@ import ReactMarkdown from "react-markdown";
 import { useUser, SignInButton } from "@clerk/nextjs";
 import { useState } from "react";
 
+function formatTimeAgo(date: Date): string {
+  const now = new Date();
+  const diffInMilliseconds = now.getTime() - date.getTime();
+  const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
+
+  if (diffInHours < 1) {
+    return "Published less than an hour ago";
+  } else if (diffInHours < 24) {
+    return `Published ${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+  } else {
+    // After 24 hours, show just the date
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+}
+
 interface ArticleBodyWithImageProps {
   body?: string;
   imageUrl?: string;
@@ -36,7 +55,7 @@ function ArticleBodyWithImage({ body, imageUrl, imageAlt }: ArticleBodyWithImage
       <ReactMarkdown
         components={{
           p: ({children, ...props}) => (
-            <p className="mb-4 leading-relaxed text-body-primary" {...props}>
+            <p className="mb-4 leading-relaxed text-body-primary text-lg" {...props}>
               {children}
             </p>
           ),
@@ -62,7 +81,7 @@ function ArticleBodyWithImage({ body, imageUrl, imageAlt }: ArticleBodyWithImage
         <ReactMarkdown
           components={{
             p: ({children, ...props}) => (
-              <p className="mb-4 leading-relaxed text-body-primary" {...props}>
+              <p className="mb-4 leading-relaxed text-body-primary text-lg" {...props}>
                 {children}
               </p>
             ),
@@ -143,9 +162,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="min-h-screen bg-brand-card-dark py-page-y">
+    <div className="min-h-screen bg-brand-card-dark lg:py-page-y py-8">
       {/* Article Content */}
-      <div className="max-w-page mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-page mx-auto px-padding-md sm:px-6 lg:px-8">
       {/* Mobile Banner Image - Shows at top on mobile only */}
       {article.imageUrl && (
         <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden md:hidden">
@@ -192,11 +211,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
           <div className="flex items-center gap-4 text-body-primary">
             <span className="capitalize">{article.category?.name}</span>
             <span>•</span>
-            <span>Published on {new Date(article._creationTime).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'long', 
-              year: 'numeric'
-            })}</span>
+            <span>{formatTimeAgo(new Date(article.publishedAt || article._creationTime))}</span>
           </div>
           
           {/* Like Button */}
@@ -219,7 +234,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
         {/* Sources Carousel - Right under date */}
         {article.sourceUrls && article.sourceUrls.length > 0 && (
           <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-4 text-headline-primary">Sources</h3>
+            <h3 className="text-lg font-semibold mb-4 text-body-greyed-out">Sources</h3>
             <div className="flex gap-4 overflow-x-auto pb-4">
               {article.sourceUrls.map((source, index) => (
                 <div
@@ -232,7 +247,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <div className="text-sm font-medium text-body-primary mb-2">
+                    <div className="text-sm font-medium text-body-secondary mb-2">
                       {typeof source === 'string' ? 
                         new URL(source).hostname.replace('www.', '') : 
                         source.domain

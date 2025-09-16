@@ -21,7 +21,7 @@ export function BadgeFilterBar() {
   const { isSignedIn } = useUser();
 
   return (
-    <div className="w-full pt-page-y">
+    <div className="w-full lg:pt-page-y pt-8">
       <div className="max-w-page mx-auto px-4 sm:px-6">
         {/* Desktop Layout - Logo, Badges, and Auth in one row */}
         <div className="hidden md:flex items-center justify-between py-6">

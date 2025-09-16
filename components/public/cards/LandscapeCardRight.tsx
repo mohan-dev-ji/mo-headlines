@@ -30,12 +30,12 @@ export function LandscapeCardRight({ article, className = "" }: LandscapeCardRig
           {/* Content - Left side (50% width) */}
           <div className="w-1/2 pl-6 pr-0 py-6 flex flex-col justify-between">
             <div>
-              <h2 className="font-abhaya-libre font-medium text-2xl leading-tight text-headline-primary mb-2 group-hover:text-brand-primary transition-colors">
+              <h2 className="font-abhaya-libre font-medium text-3xl leading-tight text-headline-primary mb-2 group-hover:text-brand-primary transition-colors">
                 {article.title}
               </h2>
-              <p className="text-sm text-body-secondary mb-3">Published {timeAgo}</p>
+              <p className="text-base text-body-secondary mb-3">{timeAgo}</p>
               {article.excerpt && (
-                <p className="text-body-primary text-sm leading-relaxed line-clamp-3">
+                <p className="text-body-primary text-base leading-relaxed line-clamp-3">
                   {article.excerpt}
                 </p>
               )}
@@ -78,13 +78,17 @@ function formatTimeAgo(date: Date): string {
   const now = new Date();
   const diffInMilliseconds = now.getTime() - date.getTime();
   const diffInHours = Math.floor(diffInMilliseconds / (1000 * 60 * 60));
-  
+
   if (diffInHours < 1) {
-    return "Less than an hour ago";
+    return "Published less than an hour ago";
   } else if (diffInHours < 24) {
-    return `${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
+    return `Published ${diffInHours} hour${diffInHours === 1 ? '' : 's'} ago`;
   } else {
-    const diffInDays = Math.floor(diffInHours / 24);
-    return `${diffInDays} day${diffInDays === 1 ? '' : 's'} ago`;
+    // After 24 hours, show just the date
+    return date.toLocaleDateString('en-GB', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
   }
 }
