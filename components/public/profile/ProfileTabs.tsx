@@ -12,7 +12,7 @@ export function ProfileTabs({ activeTab, onTabChange }: ProfileTabsProps) {
   return (
     <div className="space-y-6">
       {/* Tab Navigation */}
-      <div className="flex space-x-1">
+      <div className="flex space-x-2">
         <button
           onClick={() => onTabChange("liked")}
           className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${

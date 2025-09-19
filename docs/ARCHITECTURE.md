@@ -271,6 +271,8 @@ create_youtube: {
 - **Visual Consistency**: Selected dates use same styling as active badges
 
 ### Calendar Integration Architecture
+- **Base Component**: Built on shadcn Calendar component for consistent UI patterns
+- **Custom Enhancements**: Publication indicators, brand styling, date filtering integration
 - **Desktop**: Persistent widget in right column
 - **Mobile**: Full-screen modal triggered by calendar icon badge
 - **Publication Indicators**: Dot system showing article density per day

@@ -46,9 +46,11 @@ export function LikedPostsTab() {
   return (
     <div>
       {/* Desktop Layout */}
-      <div className="hidden md:block space-y-4">
-        {likedArticles.map((article) => (
-          <LandscapeCardLeft key={article._id} article={article} />
+      <div className="hidden md:block">
+        {likedArticles.map((article, index) => (
+          <div key={article._id} className={index > 0 ? "mt-4" : ""}>
+            <LandscapeCardLeft article={article} />
+          </div>
         ))}
       </div>
 

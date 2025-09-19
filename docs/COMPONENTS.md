@@ -11,8 +11,8 @@
 - **PaginationHandler**: Manages article chunks and maintains filter state across loads
 
 ### Calendar Components
-- **ArticleCalendar**: Desktop calendar widget with publication date indicators and dot system
-- **CalendarModal**: Mobile full-screen date picker with month navigation and touch optimization
+- **ArticleCalendar**: Desktop calendar widget built on shadcn Calendar component with publication date indicators
+- **CalendarModal**: Mobile full-screen date picker using shadcn Calendar with touch optimization
 - **PublicationIndicators**: Visual dots showing article density per calendar day
 - **MonthNavigation**: Previous/next month controls with swipe gesture support on mobile
 - **DateHighlight**: Consistent brand color highlighting for selected calendar dates

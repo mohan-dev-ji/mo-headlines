@@ -30,6 +30,7 @@
 
 ### 6.2 Desktop Calendar Widget
 **Reference**: [COMPONENTS.md](docs/COMPONENTS.md#calendar-components) & [UX.md](docs/UX.md#calendar-design-system)
+- **Base**: shadcn Calendar component with custom enhancements
 - **ArticleCalendar**: Right column widget with publication indicators
 - **PublicationIndicators**: Dot system showing article density per day
 - **MonthNavigation**: Previous/next controls with current month default
@@ -90,7 +91,15 @@
 
 **Figma Exports** in `/docs/Design/`:
 - `/Public/Home/` - Calendar integration, 4-column layout
+- **NEW**: Latest calendar and pagination designs just exported from Figma
 - Calendar designs integrated within home page mockups
+
+**Key Design Files to Reference**:
+- Desktop calendar widget with publication indicators
+- Mobile horizontal badge scrolling with calendar icon
+- Full-screen mobile calendar modal
+- 4-column layout specifications (3 articles + 1 calendar/ads)
+- Combined filtering visual states
 
 **Design Tokens** in `globals.css`:
 ```css

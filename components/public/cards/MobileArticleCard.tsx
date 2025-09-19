@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useUser } from "@clerk/nextjs";
 
 interface MobileArticleCardProps {
   article: {
-    _id: string;
+    _id: Id<"articles">;
     title: string;
     excerpt?: string;
     imageUrl?: string | null;
@@ -16,12 +20,44 @@ interface MobileArticleCardProps {
 }
 
 export function MobileArticleCard({ article, className = "" }: MobileArticleCardProps) {
+  const { user } = useUser();
+
   // Format publication date
   const publishedDate = new Date(article.publishedAt || article._creationTime || 0);
   const timeAgo = formatTimeAgo(publishedDate);
 
   // Get source count
   const sourceCount = article.sourceUrls?.length || 0;
+
+  // Check if article is liked
+  const isLiked = useQuery(
+    api.likes.isArticleLiked,
+    user?.id ? {
+      articleId: article._id,
+      userId: user.id
+    } : "skip"
+  );
+
+  const toggleLike = useMutation(api.likes.toggleLike);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation();
+
+    if (!user) {
+      // Could redirect to sign in or show a modal
+      return;
+    }
+
+    try {
+      await toggleLike({
+        articleId: article._id,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
 
   return (
     <Link href={`/article/${article._id}`}>
@@ -43,12 +79,12 @@ export function MobileArticleCard({ article, className = "" }: MobileArticleCard
 
         {/* Content */}
         <div style={{ padding: 'var(--padding-md)' }}>
-          <h3 className="font-abhaya-libre font-medium text-3xl leading-tight text-headline-primary mb-3 group-hover:text-brand-primary transition-colors">
+          <h3 className="font-medium text-2xl leading-tight text-headline-primary mb-3 group-hover:text-brand-primary transition-colors">
             {article.title}
           </h3>
 
           {article.excerpt && (
-            <p className="text-body-primary text-base leading-relaxed mb-4 line-clamp-2">
+            <p className="text-body-primary text-base leading-normal mb-4 line-clamp-2">
               {article.excerpt}
             </p>
           )}
@@ -61,8 +97,15 @@ export function MobileArticleCard({ article, className = "" }: MobileArticleCard
                 <span>{sourceCount} Sources</span>
               )}
             </div>
-            <button className="p-2 hover:bg-zinc-700 rounded-full transition-colors">
-              <Heart className="w-4 h-4 text-body-secondary hover:text-brand-primary" />
+            <button
+              onClick={handleLike}
+              className="p-2 hover:bg-zinc-700 rounded-full transition-colors"
+            >
+              <Heart className={`w-4 h-4 transition-colors ${
+                isLiked
+                  ? "text-red-400 fill-red-400"
+                  : "text-body-secondary hover:text-red-400"
+              }`} />
             </button>
           </div>
         </div>

@@ -7,7 +7,7 @@ interface LogoProps {
 
 export function Logo({ className = "", asLink = true }: LogoProps) {
   const logoText = (
-    <span className={`font-abhaya-libre font-medium text-4xl leading-none ${className}`}>
+    <span className={`font-abhaya-libre font-medium text-5xl leading-none ${className}`}>
       The Headlines
     </span>
   );
@@ -16,7 +16,6 @@ export function Logo({ className = "", asLink = true }: LogoProps) {
     return (
       <Link
         href="/"
-        className="hover:opacity-80 transition-opacity"
       >
         {logoText}
       </Link>

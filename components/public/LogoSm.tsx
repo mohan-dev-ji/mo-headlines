@@ -7,7 +7,7 @@ interface LogoSmProps {
 
 export function LogoSm({ className = "", asLink = true }: LogoSmProps) {
   const logoText = (
-    <span className={`font-abhaya-libre font-medium text-[24px] leading-none ${className}`}>
+    <span className={`font-abhaya-libre font-medium text-3xl leading-none ${className}`}>
       The Headlines
     </span>
   );

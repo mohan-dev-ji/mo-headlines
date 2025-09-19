@@ -164,7 +164,7 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
   return (
     <div className="min-h-screen bg-brand-card-dark lg:py-page-y py-8">
       {/* Article Content */}
-      <div className="max-w-page mx-auto px-padding-md sm:px-6 lg:px-8">
+      <div className="max-w-[816px] mx-auto px-padding-md sm:px-6 lg:px-8">
       {/* Mobile Banner Image - Shows at top on mobile only */}
       {article.imageUrl && (
         <div className="relative w-full aspect-video mb-8 rounded-lg overflow-hidden md:hidden">

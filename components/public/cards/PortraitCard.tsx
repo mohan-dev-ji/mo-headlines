@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { Heart } from "lucide-react";
+import { useQuery, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
+import { useUser } from "@clerk/nextjs";
 
 interface PortraitCardProps {
   article: {
-    _id: string;
+    _id: Id<"articles">;
     title: string;
     excerpt?: string;
     imageUrl?: string | null;
@@ -16,6 +20,8 @@ interface PortraitCardProps {
 }
 
 export function PortraitCard({ article, className = "" }: PortraitCardProps) {
+  const { user } = useUser();
+
   // Format publication date
   const publishedDate = new Date(article.publishedAt || article._creationTime || 0);
   const timeAgo = formatTimeAgo(publishedDate);
@@ -23,28 +29,60 @@ export function PortraitCard({ article, className = "" }: PortraitCardProps) {
   // Get source count
   const sourceCount = article.sourceUrls?.length || 0;
 
+  // Check if article is liked
+  const isLiked = useQuery(
+    api.likes.isArticleLiked,
+    user?.id ? {
+      articleId: article._id,
+      userId: user.id
+    } : "skip"
+  );
+
+  const toggleLike = useMutation(api.likes.toggleLike);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent navigation
+    e.stopPropagation();
+
+    if (!user) {
+      // Could redirect to sign in or show a modal
+      return;
+    }
+
+    try {
+      await toggleLike({
+        articleId: article._id,
+        userId: user.id
+      });
+    } catch (error) {
+      console.error("Error toggling like:", error);
+    }
+  };
+
   return (
     <Link href={`/article/${article._id}`}>
       <div className={`group bg-brand-card rounded-lg overflow-hidden border border-brand-card hover:bg-brand-card-dark transition-colors duration-200 h-auto flex flex-col ${className}`}>
-        {/* Image - 50% of height */}
-        <div className="h-1/2 relative p-5 pb-0">
-          {article.imageUrl ? (
-            <img 
-              src={article.imageUrl} 
-              alt={article.title}
-              className="w-full h-full object-cover rounded"
-            />
-          ) : (
-            <div className="w-full h-full bg-zinc-700 flex items-center justify-center rounded">
-              <span className="text-zinc-500 text-sm">No image</span>
-            </div>
-          )}
+        {/* Image - 16:9 aspect ratio container */}
+        <div className="relative p-5 pb-0">
+          <div className="aspect-video">
+            {article.imageUrl ? (
+              <img
+                src={article.imageUrl}
+                alt={article.title}
+                className="w-full h-full object-cover rounded"
+              />
+            ) : (
+              <div className="w-full h-full bg-zinc-700 flex items-center justify-center rounded">
+                <span className="text-zinc-500 text-sm">No image</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Content - 50% of height */}
         <div className="h-1/2 px-4 pb-4 pt-4 flex flex-col justify-between">
           <div>
-            <h3 className="font-abhaya-libre font-medium text-2xl leading-tight text-headline-primary mb-1 group-hover:text-brand-primary transition-colors line-clamp-2">
+            <h3 className="font-medium text-1xl leading-tight text-headline-primary mb-4 group-hover:text-brand-primary transition-colors line-clamp-2">
               {article.title}
             </h3>
             <p className="text-base text-body-secondary">{timeAgo}</p>
@@ -57,8 +95,15 @@ export function PortraitCard({ article, className = "" }: PortraitCardProps) {
                 <span>{sourceCount} Sources</span>
               )}
             </div>
-            <button className="p-1.5 hover:bg-zinc-700 rounded-full transition-colors flex-shrink-0">
-              <Heart className="w-3.5 h-3.5 text-body-secondary hover:text-brand-primary" />
+            <button
+              onClick={handleLike}
+              className="p-1.5 hover:bg-zinc-700 rounded-full transition-colors flex-shrink-0"
+            >
+              <Heart className={`w-3.5 h-3.5 transition-colors ${
+                isLiked
+                  ? "text-red-400 fill-red-400"
+                  : "text-body-secondary hover:text-red-400"
+              }`} />
             </button>
           </div>
         </div>

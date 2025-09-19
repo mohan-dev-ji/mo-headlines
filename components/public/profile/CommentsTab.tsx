@@ -23,7 +23,7 @@ function CommentCard({ comment }: CommentCardProps) {
 
   return (
     <div className="bg-brand-card rounded-lg p-6 hover:bg-brand-card/80 transition-colors">
-      <div className="space-y-3">
+      <div className="space-y-4">
         {/* Article title (linked) */}
         <Link href={`/article/${comment.articleId}`}>
           <h3 className="text-lg font-medium text-headline-primary hover:text-brand-primary transition-colors line-clamp-1">

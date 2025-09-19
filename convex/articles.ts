@@ -469,3 +469,185 @@ export const generateImageWithDallE = action({
   },
 });
 
+// Calendar Discovery System - ADR 5 Implementation
+
+export const getArticlesByDateRange = query({
+  args: {
+    startDate: v.string(), // YYYY-MM-DD format
+    endDate: v.string(),   // YYYY-MM-DD format
+    categoryId: v.optional(v.id("categories")), // Optional category filter
+    limit: v.optional(v.number()), // For pagination
+    offset: v.optional(v.number()), // For pagination
+  },
+  handler: async (ctx, args) => {
+    const startMs = new Date(args.startDate).getTime();
+    const endMs = new Date(args.endDate).getTime() + 24 * 60 * 60 * 1000 - 1; // End of day
+
+    let query = ctx.db.query("articles")
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("_creationTime"), startMs),
+          q.lte(q.field("_creationTime"), endMs),
+          q.eq(q.field("status"), "approved")
+        )
+      );
+
+    // Add category filter if provided
+    if (args.categoryId) {
+      query = query.filter((q) => q.eq(q.field("categoryId"), args.categoryId));
+    }
+
+    let articles = await query.collect();
+
+    // Sort by creation time (newest first)
+    articles.sort((a, b) => b._creationTime - a._creationTime);
+
+    // Apply pagination if provided
+    if (args.offset !== undefined || args.limit !== undefined) {
+      const offset = args.offset || 0;
+      const limit = args.limit || 10;
+      articles = articles.slice(offset, offset + limit);
+    }
+
+    // Add category and image details
+    const articlesWithDetails = await Promise.all(
+      articles.map(async (article) => {
+        const category = await ctx.db.get(article.categoryId);
+        let imageUrl = null;
+        if (article.imageId) {
+          try {
+            const image = await ctx.db.get(article.imageId);
+            if (image) {
+              imageUrl = image.cloudflareUrl;
+            }
+          } catch (error) {
+            console.error("Error getting image URL:", error);
+          }
+        }
+        return {
+          ...article,
+          category,
+          imageUrl,
+        };
+      })
+    );
+
+    return articlesWithDetails;
+  },
+});
+
+export const getDateCounts = query({
+  args: {
+    startDate: v.string(), // YYYY-MM-DD format
+    endDate: v.string(),   // YYYY-MM-DD format
+    categoryId: v.optional(v.id("categories")), // Optional category filter
+  },
+  handler: async (ctx, args) => {
+    const startMs = new Date(args.startDate).getTime();
+    const endMs = new Date(args.endDate).getTime() + 24 * 60 * 60 * 1000 - 1; // End of day
+
+    let query = ctx.db.query("articles")
+      .filter((q) =>
+        q.and(
+          q.gte(q.field("_creationTime"), startMs),
+          q.lte(q.field("_creationTime"), endMs),
+          q.eq(q.field("status"), "approved")
+        )
+      );
+
+    // Add category filter if provided
+    if (args.categoryId) {
+      query = query.filter((q) => q.eq(q.field("categoryId"), args.categoryId));
+    }
+
+    const articles = await query.collect();
+
+    // Group articles by date (YYYY-MM-DD format)
+    const dateCounts: Record<string, number> = {};
+
+    articles.forEach(article => {
+      const date = new Date(article._creationTime).toISOString().split('T')[0];
+      dateCounts[date] = (dateCounts[date] || 0) + 1;
+    });
+
+    return dateCounts;
+  },
+});
+
+export const getArticlesWithPagination = query({
+  args: {
+    categoryId: v.optional(v.id("categories")), // Optional category filter
+    selectedDate: v.optional(v.string()), // Optional date filter (YYYY-MM-DD)
+    limit: v.optional(v.number()), // Default 10
+    offset: v.optional(v.number()), // Default 0
+  },
+  handler: async (ctx, args) => {
+    const limit = args.limit || 10;
+    const offset = args.offset || 0;
+
+    let query = ctx.db.query("articles")
+      .filter((q) => q.eq(q.field("status"), "approved"));
+
+    // Add category filter if provided
+    if (args.categoryId) {
+      query = query.filter((q) => q.eq(q.field("categoryId"), args.categoryId));
+    }
+
+    // Add date filter if provided
+    if (args.selectedDate) {
+      const startMs = new Date(args.selectedDate).getTime();
+      const endMs = startMs + 24 * 60 * 60 * 1000 - 1; // End of day
+      query = query.filter((q) =>
+        q.and(
+          q.gte(q.field("_creationTime"), startMs),
+          q.lte(q.field("_creationTime"), endMs)
+        )
+      );
+    }
+
+    let articles = await query.collect();
+
+    // Sort by creation time (newest first)
+    articles.sort((a, b) => b._creationTime - a._creationTime);
+
+    // Get total count for pagination metadata
+    const total = articles.length;
+
+    // Apply pagination
+    articles = articles.slice(offset, offset + limit);
+
+    // Add category and image details
+    const articlesWithDetails = await Promise.all(
+      articles.map(async (article) => {
+        const category = await ctx.db.get(article.categoryId);
+        let imageUrl = null;
+        if (article.imageId) {
+          try {
+            const image = await ctx.db.get(article.imageId);
+            if (image) {
+              imageUrl = image.cloudflareUrl;
+            }
+          } catch (error) {
+            console.error("Error getting image URL:", error);
+          }
+        }
+        return {
+          ...article,
+          category,
+          imageUrl,
+        };
+      })
+    );
+
+    return {
+      articles: articlesWithDetails,
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      }
+    };
+  },
+});
+

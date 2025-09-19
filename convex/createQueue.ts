@@ -320,6 +320,7 @@ For each article:
 6. Generate 3 detailed image generation prompts for visual content related to the article
 
 REQUIREMENTS:
+- Title must be under 10 words - make it short and snappy for easy reading
 - Article should be 400-800 words
 - Use professional, objective tone
 - Include specific facts, dates, and figures when available
