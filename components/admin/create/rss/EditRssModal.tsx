@@ -59,7 +59,7 @@ export function EditRssModal({ isOpen, onClose, producer }: EditRssModalProps) {
     defaultValues: {
       feedTitle: "",
       feedUrl: "",
-      categoryId: "",
+      categoryId: "__load_all__",
       refreshInterval: 30,
     },
   })

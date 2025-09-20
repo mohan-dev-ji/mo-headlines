@@ -42,7 +42,7 @@ export function CreateRssModal({ isOpen, onClose }: CreateRssModalProps) {
     defaultValues: {
       feedTitle: "",
       feedUrl: "",
-      categoryId: "",
+      categoryId: "__load_all__",
       refreshInterval: 30,
     },
   })

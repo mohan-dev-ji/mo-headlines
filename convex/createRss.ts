@@ -153,10 +153,26 @@ export const testAndUpdateRssSource = action({
               : item.summary?.["#text"] || "";
           }
           description = decodeHTMLEntities(description).replace(/<[^>]*>/g, '').trim();
-          
+
           const pubDate = item.pubDate || item.published || item.updated || "";
 
-          if (title && url && description) {
+          // Debug logging for problematic items
+          if (!title || !url) {
+            console.log(`⚠️ Skipping item - missing required fields:`, {
+              hasTitle: !!title,
+              hasUrl: !!url,
+              title: title?.substring(0, 50),
+              rawItem: Object.keys(item)
+            });
+            continue;
+          }
+
+          if (title && url) {
+            // Use title as description if no description is available
+            if (!description) {
+              description = title;
+              console.log(`📝 No description found, using title as description for: "${title.substring(0, 50)}..."`);
+            }
             // Check if article matches category keywords (or load all mode)
             const matchesCategory = isLoadAll ||
               !category?.keywords || category.keywords.length === 0 ||
@@ -509,10 +525,26 @@ export const runRssSourceNow = action({
               : item.summary?.["#text"] || "";
           }
           description = decodeHTMLEntities(description).replace(/<[^>]*>/g, '').trim();
-          
+
           const pubDate = item.pubDate || item.published || item.updated || "";
 
-          if (title && url && description) {
+          // Debug logging for problematic items
+          if (!title || !url) {
+            console.log(`⚠️ Skipping item - missing required fields:`, {
+              hasTitle: !!title,
+              hasUrl: !!url,
+              title: title?.substring(0, 50),
+              rawItem: Object.keys(item)
+            });
+            continue;
+          }
+
+          if (title && url) {
+            // Use title as description if no description is available
+            if (!description) {
+              description = title;
+              console.log(`📝 No description found, using title as description for: "${title.substring(0, 50)}..."`);
+            }
             // Check if article matches category keywords (or load all mode)
             const matchesCategory = isLoadAll ||
               !category?.keywords || category.keywords.length === 0 ||
