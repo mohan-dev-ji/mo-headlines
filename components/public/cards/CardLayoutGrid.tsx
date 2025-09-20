@@ -4,9 +4,10 @@ import { LandscapeCardLeft } from "./LandscapeCardLeft";
 import { LandscapeCardRight } from "./LandscapeCardRight";
 import { PortraitCard } from "./PortraitCard";
 import { MobileArticleCard } from "./MobileArticleCard";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface Article {
-  _id: string;
+  _id: Id<"articles">;
   title: string;
   excerpt?: string;
   imageUrl?: string | null;
