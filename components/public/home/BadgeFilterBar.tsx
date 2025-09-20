@@ -68,8 +68,8 @@ export function BadgeFilterBar() {
               />
             ) : (
               <Link href="/sign-in">
-                <Button 
-                  variant="ghost" 
+                <Button
+                  variant="ghost"
                   className="text-body-primary hover:text-brand-primary hover:bg-brand-card-dark"
                 >
                   Sign In
@@ -99,8 +99,8 @@ export function BadgeFilterBar() {
                 />
               ) : (
                 <Link href="/sign-in">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="text-body-primary hover:text-brand-primary hover:bg-brand-card-dark"
                   >
                     Sign In

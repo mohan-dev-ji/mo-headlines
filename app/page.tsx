@@ -55,7 +55,7 @@ function HomeContent() {
                 <ArticleCalendar />
 
                 {/* Ad Space Placeholder */}
-                <div className="w-full">
+                <div className="w-full hidden">
                   <div className="mt-5 bg-brand-card border border-brand-line rounded-lg p-4 w-full">
                     <div className="text-center text-body-secondary text-sm mb-4">Advertisement</div>
                     <div className="h-32 bg-brand-card-dark rounded border-2 border-dashed border-brand-line flex items-center justify-center">

@@ -123,7 +123,7 @@ export function ArticleCalendar() {
             handleDateSelect(dateStr);
           }
         }}
-        className="bg-brand-card border border-brand-line rounded-lg p-4 w-full"
+        className="bg-brand-card rounded-lg p-4 w-full"
         classNames={{
           // Override the root w-fit to fill column
           root: "w-full flex flex-col items-center",
