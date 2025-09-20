@@ -113,14 +113,21 @@ export const testAndUpdateRssSource = action({
         throw new Error("RSS source not found");
       }
 
-      // Get category for filtering
-      const categories = await ctx.runQuery(api.categories.getCategoriesWithKeywords);
-      const category = categories.find((c: any) => c._id === source.categoryId);
-      if (!category) {
-        throw new Error("Category not found");
-      }
+      // Check if this source is set to load all articles
+      const isLoadAll = source.loadAllArticles === true;
+      let category: any = null;
 
-      console.log(`🏷️ Category: ${category.name}, Keywords: [${category.keywords?.join(', ') || 'None'}]`);
+      if (!isLoadAll) {
+        // Get category for filtering
+        const categories = await ctx.runQuery(api.categories.getCategoriesWithKeywords);
+        category = categories.find((c: any) => c._id === source.categoryId);
+        if (!category) {
+          throw new Error("Category not found");
+        }
+        console.log(`🏷️ Category: ${category.name}, Keywords: [${category.keywords?.join(', ') || 'None'}]`);
+      } else {
+        console.log(`🏷️ Load All Mode: No category filtering will be applied`);
+      }
 
       // Process and filter articles
       const matchedArticles: FeedArticle[] = [];
@@ -150,14 +157,16 @@ export const testAndUpdateRssSource = action({
           const pubDate = item.pubDate || item.published || item.updated || "";
 
           if (title && url && description) {
-            // Check if article matches category keywords
-            const matchesCategory = !category.keywords || category.keywords.length === 0 || 
-              category.keywords.some((keyword: string) => 
+            // Check if article matches category keywords (or load all mode)
+            const matchesCategory = isLoadAll ||
+              !category?.keywords || category.keywords.length === 0 ||
+              category.keywords.some((keyword: string) =>
                 title.toLowerCase().includes(keyword.toLowerCase()) ||
                 description.toLowerCase().includes(keyword.toLowerCase())
               );
 
-            console.log(`🔍 "${title.substring(0, 50)}...": ${matchesCategory ? '✅ MATCH' : '❌ NO MATCH'}`);
+            const matchReason = isLoadAll ? '✅ LOAD ALL' : (matchesCategory ? '✅ MATCH' : '❌ NO MATCH');
+            console.log(`🔍 "${title.substring(0, 50)}...": ${matchReason}`);
 
             if (matchesCategory) {
               matchedArticles.push({ title, url, description, pubDate });
@@ -231,9 +240,14 @@ export const addRssMatchesToQueue = mutation({
       return { success: false, message: "No articles to add to queue", count: 0 };
     }
 
-    // Get category name directly
-    const category = await ctx.db.get(source.categoryId);
-    const categoryName = category?.name || "Unknown";
+    // Get category name directly (handle "load all" case)
+    let categoryName = "Unknown";
+    if (source.loadAllArticles === true) {
+      categoryName = "All (No Filter)";
+    } else {
+      const category = await ctx.db.get(source.categoryId);
+      categoryName = category?.name || "Unknown";
+    }
 
     // Add each article to the create_queue
     const queueItems = [];
@@ -304,6 +318,7 @@ export const createRssSource = mutation({
     name: v.string(),
     feedUrl: v.string(),
     categoryId: v.id("categories"),
+    loadAllArticles: v.optional(v.boolean()), // Flag to ignore category filtering
     isActive: v.boolean(),
     pollFrequency: v.number(),
     maxArticles: v.number(),
@@ -321,6 +336,7 @@ export const createRssSource = mutation({
       publishedAt: new Date().toISOString(),
       isActive: args.isActive,
       createdBy: args.createdBy,
+      loadAllArticles: args.loadAllArticles,
     });
 
     // Schedule feed testing after creation
@@ -343,6 +359,7 @@ export const updateRssSource = mutation({
     feedUrl: v.optional(v.string()),
     url: v.optional(v.string()), // Legacy field
     categoryId: v.optional(v.id("categories")),
+    loadAllArticles: v.optional(v.boolean()),
     pollFrequency: v.optional(v.number()),
     isActive: v.optional(v.boolean()),
     // New fields
@@ -435,11 +452,17 @@ export const runRssSourceNow = action({
       
       console.log(`📰 Total articles found in feed: ${items.length}`);
       
-      // Get category for filtering first  
-      const categories = await ctx.runQuery(api.categories.getCategoriesWithKeywords);
-      const category = categories.find((c: any) => c._id === source.categoryId);
-      if (!category) {
-        throw new Error("Category not found");
+      // Check if this source is set to load all articles
+      const isLoadAll = source.loadAllArticles === true;
+      let category: any = null;
+
+      if (!isLoadAll) {
+        // Get category for filtering first
+        const categories = await ctx.runQuery(api.categories.getCategoriesWithKeywords);
+        category = categories.find((c: any) => c._id === source.categoryId);
+        if (!category) {
+          throw new Error("Category not found");
+        }
       }
 
       const maxArticles = source.maxArticles || source.numberOfArticles || 10;
@@ -454,11 +477,15 @@ export const runRssSourceNow = action({
         }, null, 2));
       }
 
-      console.log(`🏷️ Category info:`, JSON.stringify({
-        name: category.name,
-        keywords: category.keywords,
-        keywordCount: category.keywords?.length || 0
-      }, null, 2));
+      if (isLoadAll) {
+        console.log(`🏷️ Load All Mode: No category filtering will be applied`);
+      } else {
+        console.log(`🏷️ Category info:`, JSON.stringify({
+          name: category.name,
+          keywords: category.keywords,
+          keywordCount: category.keywords?.length || 0
+        }, null, 2));
+      }
 
       // Process and filter articles
       const matchedArticles: FeedArticle[] = [];
@@ -486,14 +513,16 @@ export const runRssSourceNow = action({
           const pubDate = item.pubDate || item.published || item.updated || "";
 
           if (title && url && description) {
-            // Check if article matches category keywords
-            const matchesCategory = !category.keywords || category.keywords.length === 0 || 
-              category.keywords.some((keyword: string) => 
+            // Check if article matches category keywords (or load all mode)
+            const matchesCategory = isLoadAll ||
+              !category?.keywords || category.keywords.length === 0 ||
+              category.keywords.some((keyword: string) =>
                 title.toLowerCase().includes(keyword.toLowerCase()) ||
                 description.toLowerCase().includes(keyword.toLowerCase())
               );
 
-            console.log(`🔍 Article "${title.substring(0, 50)}...": ${matchesCategory ? '✅ MATCH' : '❌ NO MATCH'}`);
+            const matchReason = isLoadAll ? '✅ LOAD ALL' : (matchesCategory ? '✅ MATCH' : '❌ NO MATCH');
+            console.log(`🔍 Article "${title.substring(0, 50)}...": ${matchReason}`);
 
             if (matchesCategory) {
               matchedArticles.push({ title, url, description, pubDate });
@@ -559,9 +588,16 @@ export const addRssArticleToQueue = mutation({
       throw new Error("RSS source not found");
     }
 
-    const category = await ctx.db.get(source.categoryId);
-    if (!category) {
-      throw new Error("Category not found");
+    // Handle "load all" case
+    let categoryName = "Unknown";
+    if (source.loadAllArticles === true) {
+      categoryName = "All (No Filter)";
+    } else {
+      const category = await ctx.db.get(source.categoryId);
+      if (!category) {
+        throw new Error("Category not found");
+      }
+      categoryName = category.name;
     }
 
     const feedUrl = source.feedUrl || source.url || "Unknown Feed";
@@ -571,7 +607,7 @@ export const addRssArticleToQueue = mutation({
       title: args.title,
       url: args.url,
       concept: args.concept, // RSS description becomes context for AI processing
-      category: category.name,
+      category: categoryName,
       createSource: `RSS: ${feedUrl}`,
       status: "pending",
       queuedAt: Date.now(),

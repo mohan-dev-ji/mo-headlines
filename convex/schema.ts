@@ -118,6 +118,7 @@ export default defineSchema({
     feedUrl: v.optional(v.string()),
     articlesInFeed: v.optional(v.number()), // Total number of articles found in the feed
     maxArticles: v.optional(v.number()), // Maximum articles to process
+    loadAllArticles: v.optional(v.boolean()), // Flag to ignore category filtering
     matchedArticles: v.optional(v.array(v.object({
       title: v.string(),
       url: v.string(),

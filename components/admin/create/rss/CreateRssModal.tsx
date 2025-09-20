@@ -56,17 +56,27 @@ export function CreateRssModal({ isOpen, onClose }: CreateRssModalProps) {
     try {
       setIsSubmitting(true)
       setSubmitError(null)
-      
+
       // Get or create user in Convex database
       const userId = await getOrCreateUser({
         clerkId: user.id,
         username: user.username || undefined,
       })
-      
+
+      // Check if "Load All" is selected
+      const isLoadAll = data.categoryId === "__load_all__"
+
+      // Use first available category if "Load All" is selected
+      let categoryId = data.categoryId
+      if (isLoadAll && categories && categories.length > 0) {
+        categoryId = categories[0]._id
+      }
+
       await createRssSource({
         name: data.feedTitle,
         feedUrl: data.feedUrl,
-        categoryId: data.categoryId as any, // Convex ID type
+        categoryId: categoryId as any, // Convex ID type
+        loadAllArticles: isLoadAll,
         isActive: true,
         pollFrequency: data.refreshInterval,
         maxArticles: 10, // Default value
@@ -157,10 +167,16 @@ export function CreateRssModal({ isOpen, onClose }: CreateRssModalProps) {
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-brand-card border-brand-line w-full">
+                <SelectItem
+                  value="__load_all__"
+                  className="text-headline-primary hover:text-headline-primary focus:text-brand-primary font-medium"
+                >
+                  Load All Articles (No Category Filter)
+                </SelectItem>
                 {categories?.map((category) => (
-                  <SelectItem 
-                    key={category._id} 
-                    value={category._id} 
+                  <SelectItem
+                    key={category._id}
+                    value={category._id}
                     className="text-headline-primary hover:text-headline-primary focus:text-brand-primary"
                   >
                     {category.name}

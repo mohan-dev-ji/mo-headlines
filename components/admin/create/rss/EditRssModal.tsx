@@ -70,7 +70,7 @@ export function EditRssModal({ isOpen, onClose, producer }: EditRssModalProps) {
       form.reset({
         feedTitle: producer.name,
         feedUrl: producer.feedUrl || producer.url || "",
-        categoryId: producer.categoryId,
+        categoryId: (producer as any).loadAllArticles ? "__load_all__" : producer.categoryId,
         refreshInterval: producer.pollFrequency,
       })
     }
@@ -78,16 +78,26 @@ export function EditRssModal({ isOpen, onClose, producer }: EditRssModalProps) {
 
   const handleSubmit = async (data: ProducerFormData) => {
     if (!producer) return
-    
+
     try {
       setIsSubmitting(true)
       setSubmitError(null)
-      
+
+      // Check if "Load All" is selected
+      const isLoadAll = data.categoryId === "__load_all__"
+
+      // Use first available category if "Load All" is selected
+      let categoryId = data.categoryId
+      if (isLoadAll && categories && categories.length > 0) {
+        categoryId = categories[0]._id
+      }
+
       await updateProducer({
         id: producer._id,
         name: data.feedTitle,
         feedUrl: data.feedUrl,
-        categoryId: data.categoryId as Id<"categories">,
+        categoryId: categoryId as Id<"categories">,
+        loadAllArticles: isLoadAll,
         pollFrequency: data.refreshInterval,
       })
       
@@ -186,10 +196,16 @@ export function EditRssModal({ isOpen, onClose, producer }: EditRssModalProps) {
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent className="bg-brand-card border-zinc-700 w-full">
+                <SelectItem
+                  value="__load_all__"
+                  className="text-body-greyed-out hover:text-headline-primary focus:text-headline-primary font-medium"
+                >
+                  Load All Articles (No Category Filter)
+                </SelectItem>
                 {categories?.map((category) => (
-                  <SelectItem 
-                    key={category._id} 
-                    value={category._id} 
+                  <SelectItem
+                    key={category._id}
+                    value={category._id}
                     className="text-body-greyed-out hover:text-headline-primary focus:text-headline-primary"
                   >
                     {category.name}
