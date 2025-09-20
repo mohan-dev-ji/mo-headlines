@@ -313,11 +313,12 @@ Process each article individually and return an array of processed articles.
 
 For each article:
 1. Use your research capabilities to find 4-10 reputable sources reporting on this same story
-2. Fact-check the key claims against these sources  
-3. Write a well-balanced, journalistic article that synthesizes the information
-4. Identify any conflicting reports or uncertain details
-5. Create a compelling excerpt
-6. Generate 3 detailed image generation prompts for visual content related to the article
+2. ANALYZE VISUAL CONTENT: Examine the photos, images, and visual elements used in the source articles to understand the visual narrative
+3. Fact-check the key claims against these sources
+4. Write a well-balanced, journalistic article that synthesizes the information
+5. Identify any conflicting reports or uncertain details
+6. Create a compelling excerpt
+7. Generate 3 detailed image generation prompts for visual content, using source article imagery as inspiration but creating unique compositions
 
 REQUIREMENTS:
 - Title must be under 10 words - make it short and snappy for easy reading
@@ -329,11 +330,24 @@ REQUIREMENTS:
 
 IMAGE GENERATION PROMPT REQUIREMENTS:
 - Create 3 detailed, specific prompts for AI image generation (Midjourney/OpenAI style)
-- Each prompt should be 15-30 words describing a visual concept related to the article
-- Focus on: technology, scenes, concepts, or visual metaphors from the story
-- Make prompts specific and descriptive (not generic)
-- Avoid copyrighted characters, logos, or specific people
-- Include style suggestions where appropriate (e.g., "digital art", "photorealistic", "minimalist")
+- Each prompt should be 50-150 words with rich descriptive detail
+- ANALYZE SOURCE ARTICLES: Research the visual elements, photos, and imagery used in the original source articles
+- Use source article visuals as INSPIRATION but create unique compositions for our site
+- REALISTIC IMAGERY: Focus on photorealistic, cinematic quality rather than obviously AI-generated looks
+- SPECIFIC PEOPLE: If article mentions famous figures (Trump, Musk, etc.), create realistic portraits in appropriate settings
+- SCENE RECREATION: For events (riots, protests, disasters), recreate realistic scenes with attention to lighting, composition, atmosphere
+- SCIENTIFIC CONTENT: For research/science articles, create detailed microscopic imagery, abstract compositions using authentic scientific visuals
+- TECHNICAL DETAIL: Include specific camera settings, lighting conditions, color palettes, composition techniques
+- CONTEXTUAL SETTINGS: Place subjects in environments that enhance the story narrative
+- AVOID: Generic stock photo looks, obvious AI artifacts, cartoonish elements
+- STYLE DIRECTION: Professional photojournalism, documentary photography, cinematic lighting, editorial photography
+
+EXAMPLE IMAGE PROMPT FORMATS:
+For FAMOUS FIGURES: "Close-up portrait of [person] in [relevant setting], shot with 85mm lens at f/2.8, dramatic rim lighting from [direction], wearing [appropriate attire], background showing [contextual elements], photorealistic skin texture, professional color grading with [specific color palette], depth of field isolating subject, editorial photography style reminiscent of [photography style/photographer]"
+
+For EVENTS/SCENES: "Wide establishing shot of [scene description], captured with 24mm lens, low-angle perspective, golden hour lighting with [specific atmospheric conditions], foreground elements include [specific details], middle ground shows [action/elements], background features [environmental context], cinematic color grading with [mood/palette], documentary photography style with authentic visual storytelling"
+
+For SCIENTIFIC/TECHNICAL: "Extreme macro photography of [scientific subject], shot with specialized microscopy equipment, [specific magnification], enhanced with [color techniques], composition showing [cellular/molecular structures], depth layering with [focus techniques], abstract color palette of [specific colors], scientific visualization style with artistic composition, background gradient from [color] to [color]"
 
 MARKDOWN FORMATTING INSTRUCTIONS:
 - Start with 1 introductory paragraph that outlines the main story - no subheading for this opening section
@@ -375,9 +389,9 @@ RESPONSE FORMAT (JSON ARRAY):
       {"url": "https://full-source-url3.com", "domain": "arstechnica", "title": "Source Article Title 3"}
     ],
     "imageGenPrompts": [
-      "Abstract conceptual imagery with symbolic elements related to the article - NO text, words, or real-world logos",
-      "Geometric and architectural composition conveying the article's themes through shapes, colors, and visual metaphors", 
-      "Cinematic lighting and atmospheric scene that captures the mood and essence of the topic through environmental storytelling"
+      "Detailed 50-150 word prompt analyzing source article visuals and creating unique photorealistic composition with specific lighting, camera angles, and environmental context",
+      "Detailed 50-150 word prompt for cinematic scene recreation or portrait photography with technical specifications like depth of field, color grading, and atmospheric details",
+      "Detailed 50-150 word prompt for editorial-style imagery with professional photojournalism approach, specific visual metaphors, and authentic contextual elements from the story"
     ]
   }${args.items.length > 1 ? ',\n  {\n    "title": "Improved title for article 2",\n    "body": "Full article content in markdown format",\n    "excerpt": "2-3 sentence summary for preview",\n    "category": "One of: ' + categoryNames.join(", ") + '",\n    "sourceUrls": [\n      {"url": "https://source-url1.com", "domain": "domain1", "title": "Article Title 1"},\n      {"url": "https://source-url2.com", "domain": "domain2", "title": "Article Title 2"}\n    ],\n    "imageGenPrompts": ["prompt1", "prompt2", "prompt3"]\n  }\n  // ... repeat for each article' : ''}
 ]`;
