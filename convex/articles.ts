@@ -651,3 +651,26 @@ export const getArticlesWithPagination = query({
   },
 });
 
+// Delete all rejected articles
+export const deleteAllRejectedArticles = mutation({
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    // Get all rejected articles
+    const rejectedArticles = await ctx.db
+      .query("articles")
+      .withIndex("by_status", (q) => q.eq("status", "rejected"))
+      .collect();
+
+    // Delete each rejected article
+    for (const article of rejectedArticles) {
+      await ctx.db.delete(article._id);
+    }
+
+    return { deletedCount: rejectedArticles.length };
+  },
+});
+
