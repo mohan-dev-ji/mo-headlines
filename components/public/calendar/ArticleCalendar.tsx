@@ -36,11 +36,14 @@ function ArticleDayButton({
         "relative flex aspect-square size-auto w-full min-w-8 flex-col items-center justify-center leading-none font-normal text-sm text-body-secondary rounded-md",
         "hover:bg-brand-badge-background hover:text-brand-primary transition-colors",
 
-        // Selected state - solid cyan fill like Figma design!
-        isSelected && "!bg-brand-badge-background !text-brand-primary !border !border-brand-primary hover:!bg-brand-badge-background hover:!text-brand-primary font-medium",
+        // Clear any default button styling that might cause white corners (but keep border capability)
+        "!bg-transparent !outline-none !ring-0 !ring-offset-0 focus:!ring-0 focus:!ring-offset-0 focus:!outline-none",
 
-        // Today styling - solid background like Figma design
-        isToday && !isSelected && "bg-brand-card text-headline-primary font-medium rounded-md border border-headline-primary",
+        // Selected state - solid cyan fill like Figma design!
+        isSelected && "!bg-brand-badge-background !text-brand-primary !border !border-brand-primary hover:!bg-brand-badge-background hover:!text-brand-primary font-medium !ring-0 !ring-offset-0",
+
+        // Today styling - only apply when NOT selected to avoid conflicts
+        isToday && !isSelected && "!bg-brand-card !text-headline-primary font-medium rounded-md border border-headline-primary",
 
         // Outside month styling
         modifiers.outside && "text-body-greyed-out opacity-50",
@@ -144,8 +147,12 @@ export function ArticleCalendar() {
           weekday: "text-body-secondary font-normal text-xs flex-1 text-center py-2",
           // Week rows - maintain grid structure and centering
           week: "flex w-full justify-center",
-          // Individual day cells - match weekday width
-          day: "flex-1 p-0 text-center",
+          // Individual day cells - remove any default background that causes white corners
+          day: "flex-1 p-0 text-center !bg-transparent",
+          // Override today styling to prevent white background
+          today: "!bg-transparent",
+          // Override selected styling to prevent conflicts
+          selected: "!bg-transparent",
         }}
         components={{
           DayButton: (props) => (
