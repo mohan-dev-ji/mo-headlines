@@ -29,7 +29,6 @@ Design files are organized in `/docs/Design/` with the following structure:
 ### Badge States
 - **Active Badge**: `bg-brand-badge-background text-brand-primary`
 - **Inactive Badge**: `bg-brand-card text-body-greyed-out`
-- **Calendar Icon Badge**: Same styling as other badges, opens modal on mobile
 - **Hover State**: Brightness increase, cursor pointer
 - **Transition**: 200ms ease-in-out
 
@@ -164,32 +163,6 @@ Design files are organized in `/docs/Design/` with the following structure:
 - **Vertical Stacking**: On mobile, sections stack with clear separation
 - **Content Flow**: Create → Queue → Review → Publish
 
-## Calendar Design System
-
-### Desktop Calendar Widget
-- **Container**: `brand-card` background with `brand-line` borders
-- **Header**: Month/year display with navigation arrows
-- **Grid Layout**: 7-column calendar grid with day labels
-- **Publication Indicators**: Dot system showing article density
-  - **Single Article**: Small dot (`w-1.5 h-1.5`)
-  - **Multiple Articles**: Additional dots or size variations
-  - **High Activity**: Multiple dots or enhanced visual treatment
-- **Selected Date**: `bg-brand-badge-background text-brand-primary` (cyan-950/cyan-400)
-- **Interactive States**: Hover effects for clickable dates
-- **Legend**: Shows total article count and indicator meaning
-
-### Mobile Calendar Modal
-- **Full Screen**: Maximizes touch target area and visual clarity
-- **Header**: Month navigation with swipe gesture support
-- **Touch Targets**: Larger calendar grid optimized for mobile interaction
-- **Selected State**: Same brand colors as desktop for consistency
-- **Close Action**: Clear apply/cancel functionality
-
-### Calendar Integration
-- **Visual Consistency**: Selected dates use same styling as active category badges
-- **Combined States**: Both category badge and calendar date can be highlighted simultaneously
-- **Reset Pattern**: "All" badge clears both category and date filters
-- **URL Persistence**: Date selections maintained in URL parameters
 
 ## Pagination Design System
 
@@ -214,12 +187,6 @@ Design files are organized in `/docs/Design/` with the following structure:
 - **Hover State**: `headline-primary` text color
 - **Responsive**: Horizontally scrollable on mobile
 
-### Badge Filter System
-- **Desktop Layout**: All badges visible (All, Tech, Science, Finance, Policies)
-- **Mobile Layout**: Horizontal scroll with calendar icon as final badge
-- **Active States**: `bg-brand-badge-background text-brand-primary`
-- **Inactive States**: `bg-brand-card text-body-greyed-out`
-- **Typography**: text-base semibold for improved visual hierarchy
 
 ### Calendar Interactions
 - **Desktop**: Direct click on calendar dates

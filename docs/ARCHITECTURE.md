@@ -2,21 +2,12 @@
 
 ## System Overview
 
-Mo Headlines is an AI-verified tech news platform built with a **workflow-based architecture** that separates content creation from editorial review. The system processes articles from multiple sources through a unified pipeline with dedicated asset and prompt management, enhanced with calendar-based discovery and efficient pagination.
-
-### Core Workflow
-```
-Create Sources → Unified Queue → AI Processing → Editorial Review → Publication
-                                      ↓
-                  Prompt Generation → Image Creation → Asset Management
-                                      ↓
-                  Calendar Discovery ← Pagination System ← Article Archive
-```
+Mo Headlines is an AI-verified tech news platform with separated content creation and editorial review systems. The architecture supports multiple content sources, AI processing, and asset management with calendar-based discovery and pagination.
 
 ### Key Architectural Principles
 - **Source Agnostic**: Universal queue accepts any content source type
 - **Editorial Control**: All AI-generated content requires human approval
-- **Workflow Separation**: Create, Review, and Images are distinct admin sections
+- **Section Separation**: Create, Review, and Images are distinct admin sections
 - **Unified Processing**: Single AI prompt handles all source types
 - **Asset Management**: Dedicated image storage and analytics pipeline
 - **Data Normalization**: Proper separation of articles, prompts, and images
@@ -168,48 +159,23 @@ create_youtube: {
 
 ---
 
-## Processing Pipeline
+## Data Processing
 
-### 1. Content Discovery & Generation
-- **RSS**: Feeds tested, matching articles generated based on category keywords
-- **Research**: Manual title/URL input with research concept
-- **YouTube**: Video URL processed, transcript extracted using Supadata.ai, timecode-based content extraction
+### Content Sources
+- **RSS**: Feed parsing and keyword-based article extraction
+- **Research**: Manual content input system
+- **YouTube**: Video transcript processing via Supadata.ai
 
-### 2. Admin Review & Queue Addition
-- Generated content appears in respective tabs (RSS/Research/YouTube)
-- Admin reviews and selects content to add to universal queue
-- Source-specific articles deleted after queue addition (prevents duplication)
+### AI Integration
+- **Perplexity**: Universal content processing and fact-checking
+- **DALL-E 3**: Image generation from prompts
+- **Cloudflare**: CDN storage and delivery
 
-### 3. AI Processing
-- **Unified Prompt**: Single Perplexity API call processes all source types
-- **Normalized Input**: Queue provides consistent data structure (title, url, concept, createSource)
-- **Quality Output**: Fact-checked articles with embedded citations
-- **Source Enrichment**: Each source includes URL, domain, title, and excerpt for transparency
-- **Prompt Generation**: AI creates 3 image prompts stored in prompts table
-- **Processing Modes**: Individual or batch processing
-
-### 4. Editorial Review
-- AI-generated articles appear with `status: "pending"`
-- AI-generated prompts appear linked to articles for image generation
-- Admin can approve, reject, edit, or save as draft
-- Only approved articles become publicly visible
-
-### 5. Image Generation & Management Pipeline
-- **Prompt Selection**: Admin chooses from AI-generated prompts or creates custom ones
-- **Prompt Editing**: EditPromptModal allows refinement of prompts before generation
-- **Generation**: DALL-E 3 API call generates images based on selected/edited prompt
-- **Storage**: Images uploaded to Cloudflare Workers bucket for CDN delivery
-- **Metadata**: Complete generation data stored in images table with prompt relationships
-- **Approval**: Images rated (1-10) and approved/rejected independently of articles
-
-### 6. Publication & Discovery
-- Approved articles with images automatically appear on public website
-- Images served from Cloudflare CDN for optimal performance
-- **Calendar Discovery**: Articles browsable by publication date via desktop calendar widget
-- **Mobile Calendar**: Full-screen modal for date-based filtering
-- **Combined Filtering**: Date and category filters work together
-- **Pagination**: Progressive loading of 10-article chunks with filter persistence
-- SEO optimization, social sharing, user engagement features
+### Content States
+- **Pending**: Awaiting editorial review
+- **Approved**: Published and publicly visible
+- **Rejected**: Declined content
+- **Draft**: Work in progress
 
 ---
 
@@ -263,22 +229,6 @@ create_youtube: {
 - **Mobile**: Single column with horizontal badge scrolling
 - **Responsive Breakpoints**: Mobile (<768px), Tablet (768-1024px), Desktop (1024px+)
 
-### Badge Filter Architecture
-- **Desktop**: All badges visible (All, Tech, Science, Finance, Policies)
-- **Mobile**: Horizontal scroll with calendar icon as final badge
-- **Client-side filtering**: No page reload, URL parameter sync
-- **Combined Filtering**: Date + category work together
-- **Visual Consistency**: Selected dates use same styling as active badges
-
-### Calendar Integration Architecture
-- **Base Component**: Built on shadcn Calendar component for consistent UI patterns
-- **Custom Enhancements**: Publication indicators, brand styling, date filtering integration
-- **Desktop**: Persistent widget in right column
-- **Mobile**: Full-screen modal triggered by calendar icon badge
-- **Publication Indicators**: Dot system showing article density per day
-- **Month Navigation**: Previous/next controls with current month default
-- **Brand Consistency**: Selected dates use cyan-400 text, cyan-950 background
-
 ### Pagination Architecture
 - **Initial Load**: 10 most recent articles
 - **Progressive Loading**: Load more button adds 10-article chunks
@@ -286,36 +236,23 @@ create_youtube: {
 - **Pattern Consistency**: 3-row card pattern continues across paginated loads
 - **Performance**: Efficient queries regardless of archive size
 
-### Shared Service Boundaries
+### Service Boundaries
 
-#### Create Workflow Services
-- **Queue Management**: Universal queue operations across all source types
-- **Tab System**: Navigation between RSS/Research/YouTube/Queue tabs
-- **Status Indicators**: Consistent status display across sources
+#### Admin Services
+- **Queue Management**: Universal content processing
+- **Tab Navigation**: Section and status navigation
+- **Content Operations**: CRUD operations for articles and assets
+- **Status Management**: Approval state handling
 
-#### Review Workflow Services  
-- **Tab System**: Navigation between Pending/Approved/Rejected/Drafts
-- **Article Actions**: Edit, approve, reject, publish operations
-- **Prompt Management**: Access to AI-generated prompts for image creation
-- **Filtering & Search**: Content discovery within review workflow
+#### Public Services
+- **Content Discovery**: Calendar and category filtering
+- **Pagination**: Progressive content loading
+- **User Engagement**: Comments and likes
 
-#### Images Workflow Services
-- **Gallery Management**: Grid display with sorting and filtering capabilities
-- **Rating System**: 1-10 quality scoring for prompt effectiveness
-- **Status Management**: Approve/reject workflow for generated images
-- **Prompt Analytics**: Track prompt source types and effectiveness
-- **Metadata Display**: Complete generation and usage analytics
-
-#### Public Discovery Services
-- **Calendar Management**: Date-based article filtering and discovery
-- **Combined Filtering**: Integration of date and category filter systems
-- **Pagination Control**: Progressive content loading with state persistence
-- **Archive Access**: Efficient browsing of historical content
-
-#### Cross-Workflow Services
-- **Admin Sidebar**: Navigation between Create, Review, and Images sections
-- **Form Components**: Consistent form patterns and validation
-- **Design System**: Shared styling and component tokens
+#### Shared Services
+- **Authentication**: User and admin access control
+- **Form Handling**: Validation and submission
+- **Design System**: Consistent UI components
 
 ---
 
@@ -343,10 +280,10 @@ create_youtube: {
 
 ### YouTube Transcript Extraction (Supadata.ai)
 - **Service**: Supadata.ai for YouTube video transcript extraction
-- **Features**: Timestamped transcript chunks with precise millisecond timing
-- **Processing**: Timecode-based segment extraction for targeted content analysis
-- **Output**: Structured transcript data with offset and duration metadata
-- **Error Handling**: Comprehensive retry logic with fallback mechanisms for missing transcripts
+- **Features**: Timestamped transcript extraction
+- **Processing**: Timecode-based content segments
+- **Output**: Structured transcript data
+- **Error Handling**: Retry logic for failed extractions
 
 ### External Services
 - **RSS Parsing**: Feed validation and article extraction
@@ -362,19 +299,12 @@ create_youtube: {
 - **API Security**: Rate limiting, input validation, secure key management
 
 ### Performance Optimization
-- **Database Indexes**: 
-  - `articles.status` for review queries
-  - `articles._creationTime` for calendar and pagination queries
-  - `images.rating` and `images.status` for gallery sorting
-  - `images.categoryId` for analytics
-  - `prompts.articleId` and `prompts.isUsed` for prompt queries
-  - `create_queue.status` for processing
-  - `categories.isActive` for RSS filtering
+- **Database Indexes**: Key indexes on status, creation time, ratings, and categories
 - **CDN Delivery**: Cloudflare Workers for image serving
-- **Queue Processing**: Configurable batch sizes, rate limiting compliance
-- **Caching**: Static generation for public articles, transcript caching for YouTube processing
-- **Pagination**: Efficient article loading with combined filter support
-- **Calendar Optimization**: Cached publication date aggregation for indicator display
+- **Queue Processing**: Batch processing with rate limiting
+- **Caching**: Static generation and transcript caching
+- **Pagination**: Efficient article loading with filters
+- **Calendar**: Cached publication date aggregation
 
 ### Animation Performance
 - **CSS Animations**: GPU-accelerated gradient transitions

@@ -1,5 +1,24 @@
 # Domain Model
 
+## Product Overview
+
+**The Headlines** (formerly Mo Headlines) is an AI-verified tech news platform delivering accurate, fact-checked technology news through automated source verification and intelligent content synthesis.
+
+### Product Goals
+- Timely, trustworthy news with AI fact-checked synthesis across multiple sources
+- Browse by category using badge-based filtering system
+- Scalable content pipeline supporting RSS feeds, manual research, and YouTube processing
+
+### User Types
+- **Reader**: Consumes articles, explores topics, comments and likes articles
+- **Editor/Admin**: Creates content through multiple sources, reviews and approves articles, manages content pipeline
+
+### Design Philosophy
+- Simplified 3-category system (Tech & Science, Finance, Policies)
+- Badge-based filtering replaces traditional navigation
+- Calendar-based discovery for temporal content browsing
+- Mobile-first responsive design with newspaper typography
+
 ## Core Entities
 
 ### Articles
