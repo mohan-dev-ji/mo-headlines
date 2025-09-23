@@ -16,8 +16,6 @@
 ## Implementation Resources
 
 - **[Architecture Decision Records](ADR/README.md)** - All architectural decisions and rationale
-- **[Templates](templates/README.md)** - Component, feature, and API templates
-- **[Troubleshooting](TROUBLESHOOTING.md)** - Common issues, debugging guides
 
 ---
 

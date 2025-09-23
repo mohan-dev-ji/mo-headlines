@@ -411,3 +411,203 @@ Implement **calendar-based article discovery** with combined temporal and catego
 This ADR establishes the foundation for temporal content discovery while maintaining the successful badge filtering system and preparing for future growth.
 
 ---
+
+# ADR 6: Lightweight Documentation Architecture - Simplicity and Clear Boundaries
+
+**Date**: 2025-09-22  
+**Status**: Accepted
+
+## Context
+
+After completing the frontend redesign and calendar system implementation, analysis of the current documentation reveals two critical structural problems that undermine the documentation-driven development approach.
+
+**Current Documentation State:**
+- 13 documents with significant information duplication
+- Heavy technical explanations where simple lists would suffice
+- Same systems described across multiple files
+- Complex code examples in files meant for Claude understanding
+
+**Specific Pain Points Identified:**
+- Badge filter system described in FEATURES.md, COMPONENTS.md, UX.md, and ARCHITECTURE.md
+- Calendar components detailed in both FEATURES.md and COMPONENTS.md
+- ARCHITECTURE.md: 400+ lines with complex technical diagrams
+- DEVELOPMENT.md: Mixed concerns with TypeScript examples and security details
+- Updates require changing multiple files to maintain consistency
+
+## Problem
+
+The current documentation architecture suffers from **information duplication** and **unnecessary complexity**, violating core principles of documentation-driven development:
+
+1. **Cognitive Overload**: Claude must parse complex explanations for simple concepts
+2. **Maintenance Burden**: Same information in multiple files creates update complexity  
+3. **Implementation Confusion**: Technical details mixed with requirements and design specs
+4. **Parsing Inefficiency**: Heavy code examples slow Claude understanding
+5. **Development Friction**: Documentation maintenance becomes a bottleneck
+
+**Example Problems:**
+- FEATURES.md: "Profile page needs tabs for Comments and Liked Posts"
+- COMPONENTS.md: "ProfileTabs component toggles between Comments/Liked posts"  
+- Same badge filter implementation described in 4 separate files
+- Complex workflow diagrams where simple numbered steps would work
+
+This undermines the goal of clear, lightweight specifications that enable efficient AI collaboration.
+
+## Decision
+
+Implement **lightweight documentation architecture** with absolute separation of concerns and simplicity-first approach:
+
+### Core Principle: Simple Markdown Only
+- **Titles, bullet points, numbered lists**
+- **Plain English explanations**
+- **Minimal code examples** (schemas only where essential)
+- **No complex diagrams or technical prose**
+
+### Clear Document Boundaries
+
+**CLAUDE.md**: "What am I working on right now?"
+- Current priorities
+- Quick reference links  
+- Implementation checklist
+
+**DOMAIN.md**: "What are the business rules and product vision?"
+- Business entities (simple definitions)
+- Content workflows (numbered steps)
+- Category definitions (lists only)
+- Product overview (merged from OVERVIEW.md)
+
+**ARCHITECTURE.md**: "How does data flow through the system?"
+- Database schemas (essential code only)
+- API integrations (simple lists)
+- Data relationships (plain English)
+
+**FEATURES.md**: "What should the user experience be?"
+- User-facing functionality (simple descriptions)
+- Behavior requirements (bullet points)
+- No implementation details
+
+**COMPONENTS.md**: "What technical components do we build?"
+- Component names and responsibilities (lists only)
+- No design specs, no business logic
+- Simple technical boundaries
+
+**UX.md**: "How should it look and feel?"
+- Design tokens (simple lists)
+- Visual standards (bullet points)  
+- No implementation details
+
+**PROMPTS.md**: "How do we integrate with AI services?"
+- AI prompts (simple templates)
+- API contracts (basic specifications)
+- No complex implementation
+
+**DEVELOPMENT.md**: "How do we build and maintain code?"
+- Code standards (simple rules)
+- File organization (basic structure)
+- Troubleshooting (merged from separate files)
+- No component patterns or complex examples
+
+## Specific Changes Required
+
+### Remove Duplications:
+- Badge filter system: Keep in COMPONENTS.md only
+- Calendar components: Keep in COMPONENTS.md only
+- Pagination system: Keep in COMPONENTS.md only
+- Workflow descriptions: Keep in DOMAIN.md only
+
+### Simplify Heavy Files:
+- **ARCHITECTURE.md**: Remove complex diagrams, keep essential schemas only
+- **COMPONENTS.md**: Convert implementation specs to simple component lists
+- **DEVELOPMENT.md**: Remove TypeScript examples, keep basic standards only
+- **PROMPTS.md**: Convert to simple AI contract templates
+
+### Documents to Eliminate:
+- **INDEX.md**: Redundant with CLAUDE.md navigation
+- **OVERVIEW.md**: Merge into DOMAIN.md
+- Separate troubleshooting files: Merge into DEVELOPMENT.md
+
+## Lightweight Content Standards
+
+### Each File Uses:
+- **Titles**: Clear section headers
+- **Bullet points**: Simple lists of features/components/rules
+- **Numbered steps**: For workflows and processes  
+- **Plain English**: No technical jargon unless essential
+- **Minimal code**: Database schemas only where absolutely necessary
+
+### No More:
+- Complex paragraphs explaining simple concepts
+- Code examples in non-technical files
+- Implementation details in requirements files
+- Duplicate information across multiple files
+- Heavy technical diagrams
+
+## Update Workflow
+
+**Single responsibility per change:**
+1. **Business change**: Update DOMAIN.md and FEATURES.md
+2. **Component change**: Update COMPONENTS.md only
+3. **Visual change**: Update UX.md only
+4. **Process change**: Update DEVELOPMENT.md only
+5. **AI change**: Update PROMPTS.md only
+
+**CLAUDE.md remains single reference point** that links to relevant sections without duplicating information.
+
+## Impact
+
+### Positive
+- **Eliminates Information Duplication**: Each piece of information lives in exactly one place
+- **Reduces Cognitive Load**: Simple markdown is faster for Claude to parse
+- **Improves Maintenance**: Single update location per change type
+- **Faster Development**: Clear, lightweight specifications reduce friction
+- **Better Claude Performance**: Simplified docs improve AI understanding speed
+
+### Negative
+- **Refactoring Effort**: Requires systematic reorganization and simplification
+- **Information Density**: May need more cross-references between files
+- **Learning Curve**: Team must understand new lightweight approach
+
+### Mitigation
+- Use systematic refactoring with version control
+- Implement clear cross-reference strategy
+- Document examples of lightweight content standards
+
+## Success Metrics
+
+- **File Size**: Target 50% reduction in total documentation length
+- **Update Speed**: Single file changes for most modifications  
+- **Claude Performance**: Faster understanding and implementation
+- **Maintenance**: No duplicate information across files
+
+## Implementation Plan
+
+### Phase 1: Deduplication
+- Remove duplicate badge filter descriptions (keep in COMPONENTS.md)
+- Remove duplicate calendar specs (keep in COMPONENTS.md)
+- Remove duplicate workflow descriptions (keep in DOMAIN.md)
+- Eliminate redundant files (INDEX.md, OVERVIEW.md)
+
+### Phase 2: Simplification
+- Convert ARCHITECTURE.md complex explanations to simple lists
+- Simplify COMPONENTS.md to basic component responsibilities  
+- Strip DEVELOPMENT.md to essential standards only
+- Merge content from eliminated files
+
+### Phase 3: Validation
+- Test Claude Code understanding with simplified docs
+- Verify no information gaps created
+- Confirm single-source-of-truth for all information
+
+## Future Considerations
+
+This architecture establishes patterns for:
+- **Lightweight Documentation**: Simple, scannable specifications
+- **AI-Optimized Content**: Fast parsing for improved AI collaboration
+- **Scalable Simplicity**: Documentation that stays lightweight as system grows
+- **Methodology Replication**: Template for others adopting documentation-driven development
+
+---
+
+**Decision Makers**: Mo (Project Owner)  
+**Implementation**: Systematic simplification using Claude Code with proper version control
+
+**Notes**: Lightweight documentation should improve Claude understanding speed while eliminating maintenance overhead from duplicated information. This validates documentation-driven development at a meta level.
