@@ -247,22 +247,22 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                     rel="noopener noreferrer"
                     className="block"
                   >
-                    <div className="text-sm font-medium text-body-secondary mb-2">
-                      {typeof source === 'string' ? 
-                        new URL(source).hostname.replace('www.', '') : 
-                        source.domain
-                      }
-                    </div>
-                    <div className="text-sm text-headline-primary line-clamp-2 leading-tight">
+                    <div className="text-sm font-medium text-body-greyed-out mb-2">
                       {(() => {
                         if (typeof source === 'string') {
-                          const url = source as string;
-                          return url.length > 18 ? url.substring(0, 18) + '...' : url;
+                          const hostname = new URL(source).hostname.replace('www.', '');
+                          return hostname.length > 18 ? hostname.substring(0, 18) + '...' : hostname;
                         } else {
-                          const text = (source.title || source.url) as string;
-                          return text.length > 18 ? text.substring(0, 18) + '...' : text;
+                          const domain = source.domain;
+                          return domain.length > 18 ? domain.substring(0, 18) + '...' : domain;
                         }
                       })()}
+                    </div>
+                    <div className="text-sm text-headline-primary line-clamp-2 leading-tight">
+                      {typeof source === 'string' ?
+                        source :
+                        source.title || source.url
+                      }
                     </div>
                   </a>
                 </div>
