@@ -253,9 +253,9 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                         source.domain
                       }
                     </div>
-                    <div className="text-sm text-headline-primary line-clamp-2 leading-tight">
-                      {typeof source === 'string' ? 
-                        source : 
+                    <div className="text-sm text-headline-primary line-clamp-2 leading-tight break-words">
+                      {typeof source === 'string' ?
+                        source :
                         source.title || source.url
                       }
                     </div>
