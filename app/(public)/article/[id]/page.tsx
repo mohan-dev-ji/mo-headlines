@@ -254,10 +254,15 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
                       }
                     </div>
                     <div className="text-sm text-headline-primary line-clamp-2 leading-tight">
-                      {typeof source === 'string' ?
-                        (source.length > 18 ? source.substring(0, 18) + '...' : source) :
-                        (source.title ? source.title : (source.url.length > 18 ? source.url.substring(0, 18) + '...' : source.url))
-                      }
+                      {(() => {
+                        if (typeof source === 'string') {
+                          const url = source as string;
+                          return url.length > 18 ? url.substring(0, 18) + '...' : url;
+                        } else {
+                          const text = (source.title || source.url) as string;
+                          return text.length > 18 ? text.substring(0, 18) + '...' : text;
+                        }
+                      })()}
                     </div>
                   </a>
                 </div>
