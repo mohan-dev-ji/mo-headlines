@@ -16,6 +16,7 @@ export function useArticleFilter() {
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // YYYY-MM-DD format
   const [loadedItems, setLoadedItems] = useState(10); // For pagination
   const [previousArticles, setPreviousArticles] = useState<any[]>([]); // Keep previous articles during refetch
+  const [hasLoaded, setHasLoaded] = useState(false); // Track if we've ever loaded data
 
   // Get categories for mapping slugs to IDs
   const categories = useQuery(api.categories.getAllCategories);
@@ -46,6 +47,7 @@ export function useArticleFilter() {
     // Reset pagination when filters change
     setLoadedItems(10);
     setPreviousArticles([]); // Clear previous articles when filters change
+    setHasLoaded(false); // Show loading state when filters change
   }, [searchParams]);
 
   // Get categoryId for filtering
@@ -70,6 +72,7 @@ export function useArticleFilter() {
   useEffect(() => {
     if (articleData?.articles && articleData.articles.length > 0) {
       setPreviousArticles(articleData.articles);
+      setHasLoaded(true);
     }
   }, [articleData]);
 
@@ -160,7 +163,7 @@ export function useArticleFilter() {
 
     // Article data
     articles,
-    isLoading: !categories || !articleData,
+    isLoading: !hasLoaded,
 
     // Pagination
     pagination,
