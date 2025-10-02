@@ -15,6 +15,7 @@ export function useArticleFilter() {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("recent");
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // YYYY-MM-DD format
   const [loadedItems, setLoadedItems] = useState(10); // For pagination
+  const [previousArticles, setPreviousArticles] = useState<any[]>([]); // Keep previous articles during refetch
 
   // Get categories for mapping slugs to IDs
   const categories = useQuery(api.categories.getAllCategories);
@@ -44,6 +45,7 @@ export function useArticleFilter() {
 
     // Reset pagination when filters change
     setLoadedItems(10);
+    setPreviousArticles([]); // Clear previous articles when filters change
   }, [searchParams]);
 
   // Get categoryId for filtering
@@ -61,8 +63,15 @@ export function useArticleFilter() {
   });
 
   // Extract articles and pagination info
-  const articles = articleData?.articles || [];
+  const articles = articleData?.articles || previousArticles;
   const pagination = articleData?.pagination;
+
+  // Update previous articles when new data arrives
+  useEffect(() => {
+    if (articleData?.articles && articleData.articles.length > 0) {
+      setPreviousArticles(articleData.articles);
+    }
+  }, [articleData]);
 
   // Get date counts for calendar indicators (current month by default)
   const currentDate = new Date();
