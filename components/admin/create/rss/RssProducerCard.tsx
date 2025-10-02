@@ -127,26 +127,8 @@ export function RssProducerCard({ producer, category, onEdit, onDelete, onToggle
                   </div>
                 </div>
 
-                {/* Keywords Section */}
-                {category?.keywords && category.keywords.length > 0 && (
-                  <div className="space-y-2">
-                    <h4 className="text-headline-primary text-sm font-medium">Keywords ({category.keywords.length})</h4>
-                    <div className="flex flex-wrap gap-1">
-                      {category.keywords.map((keyword, index) => (
-                        <span
-                          key={index}
-                          className="inline-flex items-center px-2 py-1 rounded-md bg-background-secondary text-body-primary text-xs border border-border-primary"
-                        >
-                          {keyword}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Status */}
                 <div className="space-y-2">
-                  <h4 className="text-headline-primary text-sm font-medium">Status</h4>
                   <div className="flex flex-col md:flex-row gap-2 text-sm">
                     <div className="flex items-center gap-1">
                       <span className="text-headline-primary font-medium">Status:</span>
