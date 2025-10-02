@@ -15,8 +15,6 @@ export function useArticleFilter() {
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("recent");
   const [selectedDate, setSelectedDate] = useState<string | null>(null); // YYYY-MM-DD format
   const [loadedItems, setLoadedItems] = useState(10); // For pagination
-  const [isLoadingMore, setIsLoadingMore] = useState(false); // Track pagination loading
-  const [hasInitiallyLoaded, setHasInitiallyLoaded] = useState(false); // Track if we've loaded data at least once
 
   // Get categories for mapping slugs to IDs
   const categories = useQuery(api.categories.getAllCategories);
@@ -46,7 +44,6 @@ export function useArticleFilter() {
 
     // Reset pagination when filters change
     setLoadedItems(10);
-    setHasInitiallyLoaded(false); // Show loading state when filters change
   }, [searchParams]);
 
   // Get categoryId for filtering
@@ -84,24 +81,9 @@ export function useArticleFilter() {
   // Load more functionality
   const loadMore = useCallback(() => {
     if (pagination?.hasMore) {
-      setIsLoadingMore(true);
       setLoadedItems(prev => prev + 10);
     }
   }, [pagination?.hasMore]);
-
-  // Track when data has loaded for the first time
-  useEffect(() => {
-    if (categories && articleData && !hasInitiallyLoaded) {
-      setHasInitiallyLoaded(true);
-    }
-  }, [categories, articleData, hasInitiallyLoaded]);
-
-  // Reset isLoadingMore when new data arrives
-  useEffect(() => {
-    if (isLoadingMore && articleData) {
-      setIsLoadingMore(false);
-    }
-  }, [articleData, isLoadingMore]);
 
   // Update URL when category filter changes
   const setFilter = useCallback((category: FilterCategory) => {
@@ -169,13 +151,12 @@ export function useArticleFilter() {
 
     // Article data
     articles,
-    isLoading: !hasInitiallyLoaded,
+    isLoading: !categories || !articleData,
 
     // Pagination
     pagination,
     loadMore,
     canLoadMore: pagination?.hasMore || false,
-    isLoadingMore,
 
     // Calendar data
     dateCounts: dateCounts || {},

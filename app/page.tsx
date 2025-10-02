@@ -3,21 +3,20 @@
 import { Suspense } from "react";
 import { SignedIn } from "@clerk/nextjs";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { BadgeFilterBar } from "@/components/public/home/BadgeFilterBar";
 import { CardLayoutGrid } from "@/components/public/cards/CardLayoutGrid";
 import { ArticleCalendar } from "@/components/public/calendar/ArticleCalendar";
 import { useArticleFilter } from "@/components/public/home/useArticleFilter";
 import { LoadingAnimation } from "@/components/ui/loading-animation";
 import { Button } from "@/components/ui/button";
+import { InfiniteScrollTrigger } from "@/components/public/home/InfiniteScrollTrigger";
 
 function HomeContent() {
   const {
     articles,
     isLoading,
     loadMore,
-    canLoadMore,
-    isLoadingMore
+    canLoadMore
   } = useArticleFilter();
 
   return (
@@ -38,23 +37,7 @@ function HomeContent() {
               {/* Articles Section - Spans 3 columns */}
               <div className="col-span-3">
                 <CardLayoutGrid articles={articles} />
-
-                {/* Load More Section */}
-                {canLoadMore && (
-                  <div className="mt-12 flex justify-center">
-                    {isLoadingMore ? (
-                      <LoadingAnimation size={60} />
-                    ) : (
-                      <button
-                        onClick={loadMore}
-                        className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-brand-primary bg-brand-card border border-brand-line rounded-full hover:bg-brand-card-dark transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                      >
-                        Load More Articles
-                        <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" />
-                      </button>
-                    )}
-                  </div>
-                )}
+                <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
               </div>
 
               {/* Calendar Section - Spans 1 column (same as portrait card) */}
@@ -87,23 +70,7 @@ function HomeContent() {
             {/* Mobile/Tablet Layout: Articles only (Calendar in modal) */}
             <div className="lg:hidden">
               <CardLayoutGrid articles={articles} />
-
-              {/* Load More Section */}
-              {canLoadMore && (
-                <div className="mt-12 flex justify-center">
-                  {isLoadingMore ? (
-                    <LoadingAnimation size={60} />
-                  ) : (
-                    <button
-                      onClick={loadMore}
-                      className="group relative inline-flex items-center justify-center px-8 py-3.5 text-base font-medium text-brand-primary bg-brand-card border border-brand-line rounded-full hover:bg-brand-card-dark transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
-                    >
-                      Load More Articles
-                      <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-0.5" />
-                    </button>
-                  )}
-                </div>
-              )}
+              <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
             </div>
           </>
         )}
