@@ -6,7 +6,13 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react"
-import { DayButton, DayPicker, getDefaultClassNames } from "react-day-picker"
+import {
+  DayButton,
+  DayPicker,
+  getDefaultClassNames,
+  type NextMonthButtonProps,
+  type PreviousMonthButtonProps
+} from "react-day-picker"
 
 import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -157,6 +163,8 @@ function Calendar({
           )
         },
         DayButton: CalendarDayButton,
+        NextMonthButton: NextMonthButton,
+        PreviousMonthButton: PreviousMonthButton,
         WeekNumber: ({ children, ...props }) => {
           return (
             <td {...props}>
@@ -209,6 +217,14 @@ function CalendarDayButton({
       {...props}
     />
   )
+}
+
+function NextMonthButton(props: NextMonthButtonProps) {
+  return <button {...props} />
+}
+
+function PreviousMonthButton(props: PreviousMonthButtonProps) {
+  return <button {...props} />
 }
 
 export { Calendar, CalendarDayButton }

@@ -36,8 +36,16 @@ function HomeContent() {
             <div className="hidden lg:grid grid-cols-4 gap-5">
               {/* Articles Section - Spans 3 columns */}
               <div className="col-span-3">
-                <CardLayoutGrid articles={articles} />
-                <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
+                {articles.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12">
+                    <p className="text-body-secondary text-center">No articles found for this date.</p>
+                  </div>
+                ) : (
+                  <>
+                    <CardLayoutGrid articles={articles} />
+                    <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
+                  </>
+                )}
               </div>
 
               {/* Calendar Section - Spans 1 column (same as portrait card) */}
@@ -69,8 +77,16 @@ function HomeContent() {
 
             {/* Mobile/Tablet Layout: Articles only (Calendar in modal) */}
             <div className="lg:hidden">
-              <CardLayoutGrid articles={articles} />
-              <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
+              {articles.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12">
+                  <p className="text-body-secondary text-center">No articles found for this date.</p>
+                </div>
+              ) : (
+                <>
+                  <CardLayoutGrid articles={articles} />
+                  <InfiniteScrollTrigger onLoadMore={loadMore} hasMore={canLoadMore} />
+                </>
+              )}
             </div>
           </>
         )}

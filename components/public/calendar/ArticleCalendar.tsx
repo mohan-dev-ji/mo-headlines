@@ -135,11 +135,11 @@ export function ArticleCalendar() {
           // Month container for better alignment
           month: "flex flex-col gap-4 w-full items-center",
           // Override month/year header styling - perfect alignment
-          month_caption: "flex items-center justify-center w-full h-8 text-headline-primary font-medium relative",
+          month_caption: "flex items-center justify-center w-full h-8 text-headline-primary font-medium relative z-0",
           // Navigation buttons - positioned at edges
-          nav: "flex justify-between w-full absolute top-0 left-0 right-0 pointer-events-none",
-          button_previous: "text-body-secondary hover:text-brand-primary hover:bg-brand-card-dark pointer-events-auto h-8 w-8 flex items-center justify-center rounded",
-          button_next: "text-body-secondary hover:text-brand-primary hover:bg-brand-card-dark pointer-events-auto h-8 w-8 flex items-center justify-center rounded",
+          nav: "flex justify-between w-full absolute top-0 left-0 right-0 z-10",
+          button_previous: "text-body-secondary hover:text-brand-primary hover:bg-brand-card-dark h-8 w-8 flex items-center justify-center rounded cursor-pointer",
+          button_next: "text-body-secondary hover:text-brand-primary hover:bg-brand-card-dark h-8 w-8 flex items-center justify-center rounded cursor-pointer",
           // Caption label centered
           caption_label: "text-center flex-1",
           // Weekday headers - ensure proper grid alignment and centering

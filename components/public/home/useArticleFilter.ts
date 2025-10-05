@@ -70,7 +70,7 @@ export function useArticleFilter() {
 
   // Update previous articles when new data arrives
   useEffect(() => {
-    if (articleData?.articles && articleData.articles.length > 0) {
+    if (articleData?.articles) {
       setPreviousArticles(articleData.articles);
       setHasLoaded(true);
     }

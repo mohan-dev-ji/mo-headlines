@@ -9,7 +9,7 @@ import { ProfileTabs } from "@/components/public/profile/ProfileTabs";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"comments" | "liked">("comments");
+  const [activeTab, setActiveTab] = useState<"comments" | "liked">("liked");
 
   return (
     <div className="min-h-screen bg-brand-card-dark">
