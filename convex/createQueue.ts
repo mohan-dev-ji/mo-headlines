@@ -415,7 +415,7 @@ RESPONSE FORMAT (JSON ARRAY):
             }
           ],
           temperature: 0.2,
-          max_tokens: itemCount * 4000, // Increased tokens for bulk processing
+          max_tokens: itemCount * 8000, // Sufficient tokens for detailed articles with sources and image prompts
         }),
       });
 
