@@ -2,7 +2,7 @@
 
 ## System Overview
 
-Mo Headlines is an AI-verified tech news platform with separated content creation and editorial review systems. The architecture supports multiple content sources, AI processing, and asset management with calendar-based discovery and pagination.
+The Headlines is an AI-verified tech news platform with separated content creation and editorial review systems. The architecture supports multiple content sources, AI processing, and asset management with calendar-based discovery and pagination.
 
 ### Key Architectural Principles
 - **Source Agnostic**: Universal queue accepts any content source type
@@ -221,7 +221,7 @@ create_youtube: {
 
 ### Typography System
 - **Headlines**: Abhaya Libre Medium (Google Fonts, desktop only)
-- **Body**: System font stack
+- **Body**: Inter
 - **Responsive**: Different font sizes per breakpoint
 
 ### Layout System
@@ -231,7 +231,7 @@ create_youtube: {
 
 ### Pagination Architecture
 - **Initial Load**: 10 most recent articles
-- **Progressive Loading**: Load more button adds 10-article chunks
+- **Infinate Scrollling**: In 10-article chunks
 - **Filter Persistence**: Pagination maintains active date and category filters
 - **Pattern Consistency**: 3-row card pattern continues across paginated loads
 - **Performance**: Efficient queries regardless of archive size
@@ -306,12 +306,6 @@ create_youtube: {
 - **Pagination**: Efficient article loading with filters
 - **Calendar**: Cached publication date aggregation
 
-### Animation Performance
-- **CSS Animations**: GPU-accelerated gradient transitions
-- **Intersection Observer**: Pause off-screen animations
-- **Reduced Motion**: Respect user preferences
-- **Battery Optimization**: Consider mobile battery impact
-- **Frame Rate**: Target 60fps for smooth animations
 
 ### Scalability Considerations
 - **Horizontal Scaling**: Queue processing can move to background workers

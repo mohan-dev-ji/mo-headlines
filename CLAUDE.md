@@ -1,29 +1,39 @@
-# Mo Headlines - Production Site Controller
+# The Headlines - Production Site Controller
 
 ## 📖 Project Documentation
 **Complete documentation is in `/docs/`** - Start with [docs/index.md](docs/index.md) for full context and navigation to all specifications.
 
 ## ✅ Project Status: Live in Production
-**Site**: Headlines platform is deployed and running on Vercel
-**Current Phase**: Documentation Architecture Refactoring (ADR 6)
+**Site**: The Headlines is deployed and running on Vercel
+**Current Phase**: SEO Technical Foundation
 
 ---
 
-## 🚨 IMMEDIATE TASK: ADR 6 Implementation
-
-### What We're Doing
-**Problem**: Current documentation has duplicate information across multiple files and unnecessary complexity
-**Goal**: Create lightweight, single-source-of-truth documentation system
-**Full Instructions**: See ADR 6 in [docs/ADR/README.md](docs/ADR/README.md) for complete implementation plan
-
-### Quick Summary
-- **Phase 1**: Remove duplicate content (badge filters, calendar, pagination described in multiple files)
-- **Phase 2**: Eliminate redundant files (INDEX.md, OVERVIEW.md)  
-- **Phase 3**: Simplify heavy files to lightweight markdown (titles, bullets, plain English)
-- **Target**: 8-file architecture with clear separation of concerns
+## ✅ COMPLETED: ADR 6 - Documentation Architecture Refactoring
 
 ---
 
-**Current Focus**: Begin ADR 6 implementation following the detailed plan in docs/ADR/README.md
+## 🚨 IMMEDIATE TASK: SEO Technical Implementation
 
-**Next Steps After ADR 6**: Return to feature development and site improvements with cleaner documentation system.
+### Phase 1: Core Technical Changes
+
+#### 1. Meta Tags & Open Graph
+- [ ] Add meta tags to article pages (`app/article/[slug]/page.tsx`)
+  - title, description, og:image, twitter:card
+  - article:published_time, article:section
+- [ ] Add meta tags to home page (`app/page.tsx`)
+
+#### 2. Structured Data (Schema.org)
+- [ ] Add NewsArticle JSON-LD to article pages
+- [ ] Add Organization schema to home page
+
+#### 3. Sitemaps
+- [ ] Create `/app/sitemap.xml/route.ts` - dynamic sitemap
+- [ ] Create `/app/sitemap-news.xml/route.ts` - Google News sitemap
+- [ ] Update `/public/robots.txt` with sitemap references
+
+#### 4. Image Optimization
+- [ ] Convert `<img>` to Next.js `<Image>` component
+- [ ] Add priority loading for above-fold images
+
+---
