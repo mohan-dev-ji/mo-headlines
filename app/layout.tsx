@@ -15,8 +15,29 @@ const abhayaLibre = Abhaya_Libre({
 });
 
 export const metadata: Metadata = {
-  title: "The Headlines",
-  description: "Professional news aggregation with fact-checking and source transparency",
+  title: "The Headlines | Professional News Aggregation",
+  description: "Professional news aggregation with fact-checking and source transparency. Get curated headlines from trusted sources.",
+  openGraph: {
+    title: "The Headlines",
+    description: "Professional news aggregation with fact-checking and source transparency",
+    type: "website",
+    url: "https://theheadlines.io",
+    siteName: "The Headlines",
+    images: [
+      {
+        url: "https://theheadlines.io/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "The Headlines - Professional News Aggregation",
+      }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "The Headlines",
+    description: "Professional news aggregation with fact-checking and source transparency",
+    images: ["https://theheadlines.io/og-image.png"],
+  },
 };
 
 export default function RootLayout({

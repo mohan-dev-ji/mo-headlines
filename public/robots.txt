@@ -1,0 +1,7 @@
+# *
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://theheadlines.io/sitemap.xml
+Sitemap: https://theheadlines.io/sitemap-news.xml

@@ -97,8 +97,24 @@ function HomeContent() {
 }
 
 export default function Home() {
+  // Structured Data (JSON-LD) for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "The Headlines",
+    "url": "https://theheadlines.io",
+    "logo": "https://theheadlines.io/logo.png",
+    "description": "Professional news aggregation with fact-checking and source transparency",
+    "sameAs": []
+  };
+
   return (
     <div className="min-h-screen">
+      {/* Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
           <LoadingAnimation size={80} />

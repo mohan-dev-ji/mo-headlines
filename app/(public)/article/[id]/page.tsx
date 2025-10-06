@@ -161,8 +161,41 @@ export default function ArticlePage({ params }: { params: Promise<{ id: string }
     );
   }
 
+  // Structured Data (JSON-LD) for SEO
+  const jsonLd = article ? {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    "headline": article.title,
+    "description": article.excerpt || article.body?.substring(0, 160),
+    "image": article.imageUrl ? [article.imageUrl] : undefined,
+    "datePublished": new Date(article.publishedAt || article._creationTime).toISOString(),
+    "dateModified": new Date(article._creationTime).toISOString(),
+    "author": {
+      "@type": "Organization",
+      "name": "The Headlines",
+      "url": "https://theheadlines.io"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "The Headlines",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://theheadlines.io/logo.png"
+      }
+    },
+    "articleSection": article.category?.name,
+    "url": `https://theheadlines.io/article/${article._id}`
+  } : null;
+
   return (
     <div className="min-h-screen bg-brand-card-dark lg:py-page-y py-8">
+      {/* Structured Data */}
+      {jsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      )}
       {/* Article Content */}
       <div className="max-w-[816px] mx-auto px-padding-md sm:px-6 lg:px-8">
       {/* Mobile Banner Image - Shows at top on mobile only */}
