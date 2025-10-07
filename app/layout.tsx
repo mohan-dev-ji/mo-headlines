@@ -49,6 +49,8 @@ export default function RootLayout({
   return (
     <ConvexClientProvider>
       <html lang="en">
+        {/* Google Search Console Verification */}
+        <meta name="google-site-verification" content="DgOxAQF8G4ZEklEtDOBoKhT4kUduRTjBztDBtcL9gFw" />
         <body className={`${inter.className} ${abhayaLibre.variable} antialiased`}>
           <RootLayoutContent>
             {children}
