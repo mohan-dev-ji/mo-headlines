@@ -3,6 +3,7 @@ import { Inter, Abhaya_Libre } from "next/font/google";
 import "./globals.css";
 import ConvexClientProvider from "@/components/public/ConvexClientProvider";
 import { RootLayoutContent } from "@/components/public/RootLayoutContent";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 const inter = Inter({
   subsets: ["latin"],
@@ -49,7 +50,12 @@ export default function RootLayout({
     <ConvexClientProvider>
       <html lang="en">
         <body className={`${inter.className} ${abhayaLibre.variable} antialiased`}>
-          <RootLayoutContent>{children}</RootLayoutContent>
+          <RootLayoutContent>
+            {children}
+            {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+              <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+            )}
+            </RootLayoutContent>
         </body>
       </html>
     </ConvexClientProvider>
