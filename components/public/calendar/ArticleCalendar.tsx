@@ -95,7 +95,7 @@ function ArticleDayButton({
 }
 
 export function ArticleCalendar() {
-  const { dateCounts, selectedDate, setDateFilter } = useArticleFilter();
+  const { dateCounts, selectedDate, setDateFilter, displayedMonth, setDisplayedMonth } = useArticleFilter();
 
   // Handle date selection
   const handleDateSelect = (dateStr: string) => {
@@ -120,6 +120,8 @@ export function ArticleCalendar() {
       <Calendar
         mode="single"
         selected={selectedDateObj}
+        month={displayedMonth}
+        onMonthChange={setDisplayedMonth}
         onSelect={(date) => {
           if (date) {
             const dateStr = date.toISOString().split('T')[0];

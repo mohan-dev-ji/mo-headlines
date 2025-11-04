@@ -17,6 +17,7 @@ export function useArticleFilter() {
   const [loadedItems, setLoadedItems] = useState(10); // For pagination
   const [previousArticles, setPreviousArticles] = useState<any[]>([]); // Keep previous articles during refetch
   const [hasLoaded, setHasLoaded] = useState(false); // Track if we've ever loaded data
+  const [displayedMonth, setDisplayedMonth] = useState<Date>(new Date()); // Track which month calendar is showing
 
   // Get categories for mapping slugs to IDs
   const categories = useQuery(api.categories.getAllCategories);
@@ -76,10 +77,9 @@ export function useArticleFilter() {
     }
   }, [articleData]);
 
-  // Get date counts for calendar indicators (current month by default)
-  const currentDate = new Date();
-  const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-  const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+  // Get date counts for calendar indicators (based on displayed month)
+  const startOfMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth(), 1);
+  const endOfMonth = new Date(displayedMonth.getFullYear(), displayedMonth.getMonth() + 1, 0);
 
   const startDateStr = startOfMonth.toISOString().split('T')[0];
   const endDateStr = endOfMonth.toISOString().split('T')[0];
@@ -172,6 +172,8 @@ export function useArticleFilter() {
 
     // Calendar data
     dateCounts: dateCounts || {},
+    displayedMonth,
+    setDisplayedMonth,
 
     // Category mapping
     categoryMap,
