@@ -5,16 +5,16 @@
 **The Headlines** (formerly Mo Headlines) is an AI-verified tech news platform delivering accurate, fact-checked technology news through automated source verification and intelligent content synthesis.
 
 ### Product Goals
-- Timely, trustworthy news with AI fact-checked synthesis across multiple sources
+- Timely, trustworthy news with AI fact-checked synthesis exclusively from YouTube sources
 - Browse by category using badge-based filtering system
-- Scalable content pipeline supporting RSS feeds, manual research, and YouTube processing
+- Scalable content pipeline supporting only YouTube processing
 
 ### User Types
-- **Reader**: Consumes articles, explores topics, comments and likes articles
-- **Editor/Admin**: Creates content through multiple sources, reviews and approves articles, manages content pipeline
+- **Reader**: Consumes articles, explores topics, comments and like articles
+- **Editor/Admin**: Creates content through youtube video discovery. Review, edit and publish articles.
 
 ### Design Philosophy
-- Simplified 3-category system (Tech & Science, Finance, Policies)
+- Simplified 4-category system (Tech, Science, Finance, Policies)
 - Badge-based filtering replaces traditional navigation
 - Calendar-based discovery for temporal content browsing
 - Mobile-first responsive design with newspaper typography
@@ -23,7 +23,7 @@
 
 ### Articles
 - **Purpose**: Main content pieces with AI-verified fact-checking
-- **Status**: Pending, approved, rejected, drafts
+- **Status**: Pending, approved, rejected
 - **Structure**: Title, body, excerpt, category, topics, source URLs
 - **Topics**: 5-10 single-token nouns per article for discoverability
 - **Sources**: Fact-checking sources with URL, domain, and title displayed as cards
@@ -34,7 +34,7 @@
 
 ### Prompts
 - **Purpose**: AI-generated and custom prompts for image generation with usage tracking
-- **Source Types**: AI-generated (from Perplexity), custom (admin-created), edited (refined prompts)
+- **Source Types**: AI-generated (from Gemini), custom (admin-created), edited (refined prompts)
 - **Usage Tracking**: Boolean flag indicating whether prompt was used for actual image generation
 - **Relationships**: Each prompt linked to specific article, images reference specific prompts
 - **Analytics**: Track which prompt types and patterns lead to successful image generation
@@ -44,14 +44,13 @@
 - **Status**: Pending, approved, rejected, unused
 - **Rating**: 1-10 quality scoring system for prompt effectiveness
 - **Storage**: Cloudflare Workers bucket for CDN delivery
-- **Metadata**: Complete generation data including prompts, models, costs
+- **Metadata**: Complete generation data including prompts, costs
 - **Analytics**: Article association and category tracking for insights
 - **Prompt Link**: Direct relationship to specific prompt used for generation
 
 ### Categories
 - **Current Set**: All, Tech, Science, Finance, Policies (5 categories)
 - **Previous System**: ~~AI, Startups, Big Tech, Science, Transport~~ (deprecated)
-- **Keywords**: Comprehensive keyword lists merged from previous categories
 - **Management**: Updated via `seedCategories.ts` script with safety flags
 - **Navigation**: Badge-based filtering on home page with horizontal scrolling on mobile
 - **Visual Identity**: Each category associated with gradient color pools
@@ -78,10 +77,8 @@
 - **Authentication**: Clerk-based system with role separation
 
 ### Content Sources
-- **RSS Sources**: Automated feed monitoring with category filtering and article generation
-- **Research Sources**: Manual article creation with admin input
-- **YouTube Sources**: Video content with timecode-based processing
-- **Queue Items**: Unified processing pipeline for all source types with normalized attributes (title, URL, concept, createSource)
+- **YouTube Sources**: Video content processing. This is the sole content input source.
+- **Queue Items**: Individual topics extracted from a YouTube video, queued for article generation.
 
 ### User Engagement
 - **Comments**: User-generated content requiring approval
@@ -93,7 +90,7 @@
 - **Categories**: Each article belongs to one category
 - **Topics**: Bold hyperlinks directing to search page with matching articles
 - **Sources**: Multiple enriched source objects (URL, domain, title) per article
-- **Origin**: Clear attribution to RSS/Research/YouTube source via createSource field
+- **Origin**: Clear attribution to YouTube source via createSource field
 - **Images**: Optional relationship to selected image asset
 - **Prompts**: One-to-many relationship with AI-generated prompts for image creation
 - **Publication Date**: Links article to calendar discovery system
@@ -116,13 +113,13 @@
 ### Prompt Connections
 - **Articles**: Each prompt belongs to a specific article
 - **Images**: Prompts can be used by multiple images (if regenerated)
-- **Source Tracking**: Clear identification of prompt origin (AI, custom, edited)
+- **Source Tracking**: Clear identification of prompt origin (Gemini AI, custom, edited)
 - **Usage Analytics**: Track which prompts lead to actual image generation
 - **Edit History**: Edited prompts maintain reference to original prompts
 
 ### Image Connections
 - **Articles**: Each image linked to the article it was created for
-- **Prompts**: Direct reference to the specific prompt used for generation
+- **Prompts**: Direct reference to the specific prompt used for generation (generated by Gemini)
 - **Categories**: Denormalized category for analytics and filtering
 - **Generation Data**: Complete metadata about creation process and effectiveness
 
@@ -143,8 +140,7 @@
 ## Business Rules
 
 ### Content Workflow
-- All content flows: Creation → Queue → Processing → Review → Publication
-- RSS sources find and generate articles that admin can review before adding to queue
+- All content flows: YouTube Source -> Extract Topics -> Queue (individual topics) -> Processing (Gemini AI) -> Review -> Publication
 - Only approved articles visible to public
 - Admin approval required for all content publication
 
@@ -163,42 +159,34 @@
 - **Performance Optimization**: Efficient queries prevent loading large datasets unnecessarily
 
 ### Prompt Management Workflow
-- AI processing generates 3 prompts per article stored in prompts table
+- Gemini AI processing generates 3 prompts per article stored in prompts table
 - Prompts marked with source type: "ai-generated", "custom", or "edited"
 - Admin can edit prompts before image generation, creating new "edited" prompt record
 - Only prompts used for actual image generation marked as `isUsed: true`
 - Prompt effectiveness tracked through image ratings and approval status
 
 ### Image Management Workflow
-- Images generated during article editing process using specific prompts
+- Images generated during article editing process using specific prompts (generated by Gemini)
 - All images stored in dedicated Cloudflare Workers bucket
 - Complete metadata tracked including prompt relationships and generation costs
 - Independent approval workflow from article approval
 - Quality rating system (1-10) for prompt effectiveness analysis
 - Images directly linked to prompts used for generation
 
-### RSS Article Generation
-- **Feed Processing**: RSS sources test feeds and find matching articles based on category keywords
-- **Article Review**: Generated RSS articles appear in RSS tab for admin review
-- **Queue Addition**: Admin selects articles to add to universal processing queue
-- **Lifecycle**: RSS articles deleted after queue addition to prevent duplication
-
 ### Universal Queue Processing
-- **Normalized Fields**: All sources provide title, URL, concept, createSource for consistent processing
-- **Single AI Prompt**: Universal prompt handles all source types using normalized queue data
-- **Processing Strategy**: Individual or batch processing with status tracking
-- **AI Output**: Articles created with pending status + 3 prompts stored in prompts table
-- **Prompt Generation**: Each processed article gets 3 AI-generated prompts for image creation
+- **Normalized Fields**: Individual topics extracted from a YouTube video provide title, URL (of the video), concept, createSource for consistent processing.
+- **Single AI Prompt**: Universal prompt handles each topic using normalized queue data.
+- **Processing Strategy**: Individual or batch processing with status tracking.
+- **AI Output**: Articles created with pending status + 3 prompts stored in prompts table.
+- **Prompt Generation**: Each processed topic gets 3 Gemini AI-generated prompts for image creation.
 
 ### Category Management
 - **Predefined Categories**: All, Tech, Science, Finance, Policies (5 total categories)
 - **Badge Filtering**: Desktop shows all badges, mobile uses horizontal scrolling
 - **Combined Filtering**: Category selection works with calendar date selection
 - **Reset Pattern**: "All" badge clears both category and date filters
-- **Keyword System**: Extensive keyword lists for accurate RSS content filtering
 - **Update Process**: `seedCategories.ts` script with safety flags (`force: true` required)
 - **Operations**: Create, update, deactivate categories with keyword management
-- **RSS Integration**: Keywords automatically filter relevant articles from feeds
 
 ### User Permissions
 - Admin dashboard access restricted to authenticated admins
@@ -210,13 +198,13 @@
 ## Data Flow
 
 ### Content Lifecycle
-1. **Creation**: Admin creates source (RSS/Research/YouTube)
-2. **Article Generation**: RSS finds articles, Research/YouTube create entries
-3. **Queue Addition**: Admin selects articles to add to universal queue
-4. **Processing**: AI processes queue items using normalized data structure
-5. **Prompt Generation**: AI creates 3 prompts per article in prompts table
-6. **Review**: Admin evaluates processed content and available prompts
-7. **Publication**: Approved articles become publicly visible with publication timestamps
+1. **Creation**: Admin provides YouTube URL.
+2. **Topic Extraction**: Multiple topics are extracted from the YouTube video.
+3. **Queue Addition**: Each extracted topic leads to a separate queue item.
+4. **Processing**: Gemini AI processes queue items (individual topics) using normalized data structure.
+5. **Prompt Generation**: Gemini AI creates 3 prompts per article (generated from a topic) in prompts table.
+6. **Review**: Admin evaluates processed content and available prompts.
+7. **Publication**: Approved articles become publicly visible with publication timestamps.
 
 ### Calendar Discovery Lifecycle
 1. **Publication**: Articles published with publishedAt timestamps
@@ -235,7 +223,7 @@
 6. **Archive Exploration**: Users can progressively load through entire content archive
 
 ### Prompt Lifecycle
-1. **Generation**: Perplexity AI creates 3 prompts per processed article
+1. **Generation**: Gemini AI creates 3 prompts per processed article
 2. **Storage**: Prompts stored in dedicated table linked to articles
 3. **Selection**: Admin chooses prompt for image generation or creates custom prompt
 4. **Editing**: Optional prompt refinement via EditPromptModal creates new edited prompt
@@ -243,25 +231,19 @@
 6. **Analytics**: Prompt effectiveness tracked through image ratings and approval rates
 
 ### Image Lifecycle
-1. **Prompt Selection**: Admin chooses from available prompts (AI/custom/edited)
-2. **Generation**: Images created via DALL-E 3 API using selected prompt
+1. **Prompt Selection**: Admin chooses from available prompts (Gemini AI/custom/edited)
+2. **Generation**: Images created via an integrated image generation API using selected prompt
 3. **Storage**: Images uploaded to Cloudflare Workers bucket
 4. **Metadata**: Complete generation data stored with prompt relationships
 5. **Rating**: Admin rates image quality (1-10) for prompt effectiveness
 6. **Approval**: Independent approve/reject workflow
 7. **Analytics**: Data available in Images admin section for prompt optimization
 
-### RSS Workflow
-1. **Source Creation**: Admin configures RSS feed with category selection
-2. **Article Discovery**: Feed tested and matching articles generated
-3. **Admin Review**: Articles appear in RSS tab for selection
-4. **Queue Integration**: Selected articles normalized and added to processing queue
-
 ### Universal Processing
-- **Data Normalization**: All source types provide title, URL, concept, createSource
-- **AI Processing**: Single prompt handles all sources using normalized queue structure
-- **Quality Control**: Consistent fact-checking and content standards across all sources
-- **Prompt Output**: Standardized 3-prompt generation for all processed articles
+- **Data Normalization**: Each extracted topic from YouTube provides title, URL (of the video), concept, createSource.
+- **AI Processing**: Single Gemini prompt handles each topic using normalized queue structure.
+- **Quality Control**: Consistent fact-checking and content standards across topics from YouTube source.
+- **Prompt Output**: Standardized 3-prompt generation for each processed article.
 
 ### User Journey
 - **Discovery**: Browse by category badges or calendar date selection
@@ -282,7 +264,6 @@
 - **Temporal Discovery**: Browse content by calendar date selection
 - **Combined Filtering**: Combine category and date for precision discovery
 - **Archive Access**: Historical content browsing through calendar interface
-- **Keyword Matching**: RSS content discovery via category keywords
 - **Image Gallery**: Filter images by rating, status, category, model, and date
 - **Prompt Analytics**: Filter and analyze prompts by source type and effectiveness
 - **Progressive Loading**: Efficient content discovery through pagination system

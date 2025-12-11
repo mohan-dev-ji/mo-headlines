@@ -32,9 +32,9 @@
 ## Admin Features
 
 ### Content Creation
-- **Multi-Source Support**: RSS feeds, manual research, YouTube video processing
-- **Universal Queue**: Normalized processing pipeline for all content types
-- **AI Processing**: Automated fact-checking and image prompt generation
+- **YouTube Video Processing**: Sole content input source for automated topic extraction from videos.
+- **Article Generation Queue**: Individual topics extracted from YouTube videos are queued for processing into full articles.
+- **Gemini AI Processing**: Automated fact-checking and image prompt generation via Gemini for each queued topic.
 
 ### Editorial Review
 - **Article Approval**: Review AI-processed content before publication

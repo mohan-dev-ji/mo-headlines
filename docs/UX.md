@@ -13,8 +13,8 @@ Design files are organized in `/docs/Design/` with the following structure:
 | Home Page | `/docs/Design/Public/Home/` |
 | Article Page | `/docs/Design/Public/Article/` |
 | Profile Settings | `/docs/Design/Public/Profile Settings/` |
-| Admin Create | `/docs/Design/Admin/Create/` |
-| Admin Review | `/docs/Design/Admin/Review/` |
+| Admin Dashboard | `/docs/Design/Admin/Dashboard/` |
+| Admin Settings | `/docs/Design/Admin/Settings/` |
 | Admin Image Gallery | `/docs/Design/Admin/Image Gallery/` |
 | Add Image Component | `/docs/Design/Admin/Add Image - Component/` |
 
@@ -302,12 +302,9 @@ All design files are stored as PNGs in the `/docs/Design/` directory for Claude 
 
 ### Admin Interface Designs
 - **Add Image Component**: `/docs/Design/Admin/Add Image - Component/`
-- **Create RSS Producer**: `/docs/Design/Admin/Create/RSS`
-- **Create YouTube Producer**: `/docs/Design/Admin/Create/YouTube`
-- **Create Research Producer**: `/docs/Design/Admin/Create/Research`
-- **Create Shared Queue**: `/docs/Design/Admin/Create/Queue`
+- **Create Dashboard**: `/docs/Design/Admin/Dashboard`
+- **Create Settings**: `/docs/Design/Admin/Settings`
 - **Image Gallery**: `/docs/Design/Admin/Image Gallery/`
-- **Review Workflow**: `/docs/Design/Admin/Review/`
 
 ### Public Website Designs
 - **Article Page**: `/docs/Design/Public/Article/`

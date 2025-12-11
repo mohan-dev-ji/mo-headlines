@@ -46,53 +46,29 @@
 - **FilterStateIndicator**: Active filter display
 - **LoadingStates**: Loading components
 
-## Admin Create Components
+## Admin Dashboard Components
 
-### RSS Components
-- **CreateRSSModal**: RSS feed creation form
-- **RssArticleCard**: RSS article display card
+### Dashboard Layout
+- **DashboardPage**: Main container for the dashboard views.
+- **EmptyDashboard**: Component shown when there are no articles to manage.
 
-### Research Components
-- **CreateResearchModal**: Research content creation form
-- **EditResearchModal**: Research content editor
-- **ResearchProducerCard**: Research item display
-- **ResearchActionsDropdown**: Research item actions
+### Article Lists
+- **ToApproveList**: Shows articles waiting for review.
+- **PublishedList**: Shows articles that are already live.
 
-### YouTube Components
-- **CreateYouTubeModal**: YouTube content creation form
-- **YouTubeSourceCard**: YouTube video display card
+### Core Workflows
+- **ArticlePreviewPage**: A full-page component to preview a generated article.
+- **ArticleEditPage**: The main interface for editing article content, title, etc.
+- **ImageReGenInterface**: Component/modal for re-generating an article's image.
 
-### Queue Components
-- **QueueCard**: Universal processing queue item
-- **QueueInterface**: Queue management interface
+### Shared Dashboard Components
+- **ArticleRow**: A list item component for an article, showing status and actions (Preview, Edit, Publish).
+- **PublishButton**: Component to publish an article.
+- **RejectButton**: Component to reject an article.
 
-### Shared Create Components
-- **CreateTabSystem**: Create section navigation
-- **StatusIndicator**: Content status display
-- **ActionDropdown**: Item action menus
-
-## Admin Review Components
-
-### Review Cards
-- **ReviewCard**: Article preview with status borders
-- **ArticlePreview**: Embedded article view
-
-### Tab Components
-- **PendingTab**: Pending articles list
-- **ApprovedTab**: Published articles list
-- **RejectedTab**: Rejected articles list
-- **DraftsTab**: Draft articles list
-
-### Editing Components
-- **EditArticleModal**: Article editor
-- **AddImagePage**: Image selection interface
-- **PromptSelector**: Prompt selection component
-- **PromptModal**: Prompt creation interface
-
-### Shared Review Components
-- **ReviewTabSystem**: Review section navigation
-- **FilterSystem**: Review content filtering
-- **BulkActions**: Multi-select operations
+## Admin Settings Components
+- **SettingsPage**: Main container for the settings view.
+- **SettingsForm**: Form to configure application settings like AI model and YouTube channel.
 
 ## Images Components
 
@@ -126,7 +102,7 @@
 - **PromptPreview**: Prompt preview component
 
 ## Shared Admin Components
-- **AdminSidebar**: Admin navigation between sections
+- **AdminSidebar**: Admin navigation between Dashboard, Settings, and Images.
 
 ### Source Cards Carousel
 - **SourceCarousel**: Horizontal scrolling source cards

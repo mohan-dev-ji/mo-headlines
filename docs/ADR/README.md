@@ -611,3 +611,66 @@ This architecture establishes patterns for:
 **Implementation**: Systematic simplification using Claude Code with proper version control
 
 **Notes**: Lightweight documentation should improve Claude understanding speed while eliminating maintenance overhead from duplicated information. This validates documentation-driven development at a meta level.
+
+# ADR 7: Sole Input Source and Complete AI Consolidation to Gemini
+
+**Date**: 2025-12-10
+**Status**: Accepted
+
+## Context
+
+The current architecture, defined in previous ADRs, is designed to be **Source Agnostic** and supports multiple content sources: RSS feeds, Research articles, and YouTube videos. This complexity requires a `Universal Queue` and normalized source data. The AI pipeline relies on multiple vendors:
+* **Perplexity API** (`sonar-pro`) for content synthesis and fact-checking.
+* **Supadata.ai** for timecode-based YouTube transcript extraction.
+* Other services (implied by `OPENAI_API_KEY` and the `Image Management System`) for image generation.
+
+This vendor sprawl and multi-source complexity increase operational cost, maintenance overhead, and dependency risk.
+
+## Decision
+
+The architectural focus will be drastically simplified to a single input source and a single AI model:
+
+1.  **Sole Input Source:** The system will exclusively accept **YouTube Video URL** as the only valid content source. RSS and Research ingestion methods will be fully deprecated.
+2.  **AI Consolidation:** All AI-driven tasks—including transcript analysis, article synthesis, source validation, fact-checking, and image prompt generation—will be consolidated to use a single provider: **Google's Gemini**.
+
+## Reasoning
+
+* **Cost and Management Efficiency:** Moving to a single vendor (Gemini) eliminates complex API key management and dependency on multiple external services (Perplexity, Supadata.ai).
+* **Maximum Simplification:** This change removes the engineering burden of maintaining content normalization for multiple source types, overriding the original **Source Agnostic** key principle.
+* **Leverage Multimodality:** Gemini's unified platform is superior for processing video-related data (transcript, title, and metadata) and outputting all required assets (article content and image prompts) in a single, cohesive service.
+
+## Impact
+
+* **Admin Workflow:** The Admin Content Creation UI will be radically simplified, only requiring the YouTube URL input.
+* **Backend Refactor:** All backend code related to processing RSS and Research sources, as well as the logic for Perplexity and Supadata.ai, must be deleted.
+* **Configuration:** The environment variables for the legacy APIs (`PERPLEXITY_API_KEY`, `SUPADATA_API_KEY`) will be removed.
+
+## Gemini CLI Implementation Steps
+
+The following steps outline the required changes for the backend workers and API handlers:
+
+### AI System Migration
+
+1.  **Remove Legacy APIs:**
+    * Delete all configuration and integration code for the **Perplexity API**.
+    * Delete all configuration and integration code for the **Supadata.ai API**.
+2.  **Implement Unified Gemini Handler:**
+    * Create a single, robust **Gemini API handler**.
+    * This handler must perform **all** current AI tasks: content synthesis, fact-checking, source validation, and image prompt generation.
+    * The handler must natively manage transcript segmentation and analysis, replacing the external Supadata.ai service.
+
+### Source Elimination
+
+1.  **Delete RSS Logic:**
+    * Remove all worker functions responsible for RSS feed fetching, parsing, and data creation.
+2.  **Delete Research Logic:**
+    * Remove all admin UI components and backend functions related to manual research article submission.
+3.  **Enforce Source Type:**
+    * Modify the `UniversalQueueProcessing` worker to strictly validate that the `createSource` field is **only** `youtube`.
+
+### Environment and Configuration Cleanup
+
+1.  **Remove Obsolete Keys:**
+    * Delete the `PERPLEXITY_API_KEY` and `SUPADATA_API_KEY` from all deployment environments and documentation.
+2.  **Update Prompt Schema:**
+    * Update the `prompts` table logic and related system configurations to reflect that **Gemini** is the exclusive source for all content and image prompts.

@@ -6,7 +6,6 @@
 - [ ] Badge filter system functional
 - [ ] Responsive design verified
 - [ ] Abhaya Libre font loading correctly
-- [ ] Animation performance optimized
 
 ### Category Migration
 - [ ] Categories reduced to 3 (Tech & Science, Finance, Policies)
@@ -45,9 +44,21 @@ CLOUDFLARE_R2_ENDPOINT=xxx
 
 ### Production APIs
 ```bash
-PERPLEXITY_API_KEY=xxx
-OPENAI_API_KEY=xxx
-SUPADATA_API_KEY=xxx
+GEMINI_API_KEY=xxx
+```
+
+### Social Media Integration (X & LinkedIn)
+```bash
+# X (Twitter) API Credentials
+X_API_KEY=xxx
+X_API_SECRET_KEY=xxx
+X_ACCESS_TOKEN=xxx
+X_ACCESS_TOKEN_SECRET=xxx
+
+# LinkedIn API Credentials
+LINKEDIN_CLIENT_ID=xxx
+LINKEDIN_CLIENT_SECRET=xxx
+LINKEDIN_ACCESS_TOKEN=xxx
 ```
 
 ## Vercel Configuration
@@ -112,3 +123,4 @@ SUPADATA_API_KEY=xxx
 - Vercel Support: support.vercel.com
 - Convex Support: convex.dev/support
 - Cloudflare Support: dash.cloudflare.com
+

@@ -2,37 +2,25 @@
 
 ## Overview
 
-Mo Headlines uses Perplexity API to fact-check and synthesize content from multiple sources into verified articles. The system processes queue items containing structured data (title, URL, concept) to generate comprehensive, cited articles.
+The Headlines uses Google Gemini to fact-check and synthesize content from YouTube sources into verified articles. The system processes queue items containing structured data (title, URL, concept) to generate comprehensive, cited articles.
 
 ## AI Integration Workflow
 
 ### Universal Processing Pattern
 - **Queue Items**: All content types normalize to `title`, `url`, and `concept` fields
-- **Single API Call**: Unified Perplexity request handles all source types
+- **Single Gemini API Call**: Unified Gemini request handles YouTube source
 - **Structured Output**: Markdown articles with embedded citations
 - **Quality Control**: AI-driven fact-checking with source verification
 
-### Source Type Processing
-- **RSS Sources**: Title and URL from feed, concept extracted from description
-- **Research Articles**: Manual title/URL input, concept from user-provided context
-- **YouTube Videos**: Title from video metadata, URL to video, concept from transcript segment
-
 ## Prompt Strategy
 
-### Current Implementation (RSS-focused)
-- **Model**: `sonar-pro` for enhanced research capabilities
-- **Temperature**: 0.2 for consistent, factual output
-- **Max Tokens**: 1500 for comprehensive articles
-- **Format**: Structured JSON response with predefined fields
-
 ### Universal Prompt Template
-**Core Structure**: Works for all content types using normalized fields
+**Core Structure**: Works for YouTube content using normalized fields
 
 **Input Fields**:
-- `title`: Source content title
-- `url`: Primary source URL  
-- `concept`: Context excerpt or transcript segment
-- `sourceType`: RSS, Research, or YouTube (for context)
+- `title`: YouTube video title
+- `url`: YouTube video URL
+- `concept`: Transcript segment from YouTube video
 
 **Output Requirements**:
 - Fact-checked article in markdown format
@@ -41,58 +29,28 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 - Professional, objective tone
 - Bold topic keywords for discoverability
 
-### Source-Specific Adaptations
-
-#### RSS Sources
-- **Concept Field**: RSS item description or excerpt
-- **Context**: Feed source name and RSS category
-- **Processing**: Standard fact-checking against multiple sources
-
-#### Research Articles  
-- **Concept Field**: User-provided research context or notes
-- **Context**: Manual research intent and focus area
-- **Processing**: Deep-dive analysis with academic source preference
-
-#### YouTube Videos
-- **Concept Field**: Transcript segment between timecodes
-- **Context**: Video metadata, channel, upload date
-- **Processing**: Video content verification against external sources
-- **Note**: Perplexity cannot directly watch YouTube videos - transcript required
-
 ### YouTube Transcript Integration
-**Recommended Approach**:
-1. Use YouTube Data API v3 to get video metadata
-2. Extract transcript using third-party service (e.g., youtube-transcript-api)
-3. Extract relevant segment based on timecodes
-4. Use transcript excerpt as `concept` field
-5. Process normally through unified prompt
-
-**Alternative**: Use YouTube URL with clear timecode parameters - let Perplexity research the video topic rather than content analysis
+**Approach**:
+1. Obtain YouTube video metadata and transcript.
+2. Extract relevant segment based on timecodes if needed, or use full transcript.
+3. Use transcript excerpt as `concept` field directly for Gemini processing.
+4. Gemini will perform all necessary content analysis and fact-checking.
 
 ## Image Generation Pipeline
 
-### DALL-E 3 Integration
-- **Model**: DALL-E 3 for high-quality article images  
-- **Prompt Sources**: AI-generated prompts from Perplexity analysis or user-created prompts
-- **Specifications**: 1024x576 resolution, 16:9 aspect ratio, JPEG format
-- **Workflow Integration**: Accessible from article edit pages when no image present
-- **Iterative Generation**: Multiple generation attempts until satisfactory result
-- **Content Relevance**: Prompts based on article content analysis for visual coherence
-
 ### Image Generation Workflow
 - **Access Point**: Generate Image button appears on edit pages without images
-- **Prompt Selection**: Choose from AI-generated prompts or create custom prompts
-- **Generation Process**: Send selected prompt to DALL-E 3 API
+- **Prompt Selection**: Choose from Gemini AI-generated prompts or create custom prompts
+- **Generation Process**: Send selected prompt to an integrated image generation API
 - **Preview System**: Display generated image for user review
 - **Iteration Support**: Generate multiple variations until satisfied
 - **Integration**: Save approved image to article, return to edit workflow
 
-### Prompt Generation Strategy
-- **Content Analysis**: Extract visual themes from article content
+### Prompt Generation Strategy (by Gemini)
+- **Content Analysis**: Gemini extracts visual themes from article content to generate prompts
 - **Style Guidelines**: Consistent visual aesthetic across all generated images
-- **Technical Specifications**: Optimize prompts for 16:9 aspect ratio
-- **Brand Alignment**: Ensure generated imagery aligns with Mo Headlines visual identity
-
+- **Technical Specifications**: Optimize prompts for desired aspect ratios and resolutions
+- **Brand Alignment**: Ensure generated imagery aligns with The Headlines visual identity
 ### Source data structure
 - For each source cited, extract and provide:
   - The complete URL
@@ -109,7 +67,7 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 - **Discrepancy Handling**: Note conflicting reports between sources
 
 ### Source Citation Standards
-- **Minimum Sources**: 4-10 reputable sources per article
+- **Minimum Sources**: 10-20 reputable sources per article
 - **Source Types**: Major tech publications, company announcements, research papers
 - **URL Recording**: All source URLs captured for verification
 - **Attribution**: Clear source identification in content
@@ -117,30 +75,14 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 ## Processing Instructions
 
 ### Universal Processing (Single or Bulk)
-- **Single Item**: Process one queue item individually 
-- **Bulk Processing**: Process multiple selected items in single API call
+- **Single Item**: Process one queue item individually using Gemini AI
+- **Bulk Processing**: Process multiple selected items in single Gemini API call
 - **Unified Function**: Same `processWithAIInternal` function handles both cases
 - **Queue Status**: Waiting → Processing → Completed/Failed for each item
 - **Error Handling**: Individual item retry logic with failure tracking
 - **Status Updates**: Real-time processing state management per item
 - **Result Storage**: Articles created with pending status for review
-- **Cost Optimization**: Bulk processing reduces API calls through intelligent batching
-
-### Queue Field Structure
-**Current Fields**:
-- `title`: Article title
-- `url`: Source URL
-- `description`: Content excerpt (maps to concept)
-- `producerId`: Source creator reference
-- `categories`: Content categorization
-
-**Recommended Universal Fields**:
-- `title`: Normalized title across all sources
-- `url`: Primary source URL
-- `concept`: Content context (description/notes/transcript)
-- `sourceType`: RSS/Research/YouTube identifier
-- `metadata`: Source-specific additional data
-
+- **Cost Optimization**: Bulk processing reduces Gemini API calls through intelligent batching
 ## Content Standards
 
 ### Fact-Checking Requirements
@@ -166,23 +108,44 @@ Mo Headlines uses Perplexity API to fact-check and synthesize content from multi
 
 ## Technical Implementation Notes
 
+
+
 ### API Integration
+
 - **Authentication**: Secure API key management
-- **Rate Limiting**: Respect Perplexity usage limits
+
+- **Rate Limiting**: Respect Gemini usage limits
+
 - **Error Recovery**: Robust failure handling and retry logic
+
 - **Response Validation**: Ensure complete JSON structure
+
 - **Performance Monitoring**: Track processing times and success rates
 
+
+
 ### Content Processing
+
 - **Topic Sanitization**: Enforce single-token topic rules
+
 - **Bold Formatting**: Automatic topic highlighting in content
+
 - **Slug Generation**: URL-friendly article identifiers
+
 - **Category Mapping**: Flexible category assignment with fallbacks
-- **Image Prompt Generation**: AI-generated visual content prompts
+
+- **Image Prompt Generation**: Gemini AI-generated visual content prompts
+
+
 
 ### Future Enhancements
-- **Batch Processing**: Multiple items in single API call
-- **Source Diversity**: Expand beyond tech news to other domains
-- **Quality Scoring**: Automatic content quality assessment
-- **Duplicate Detection**: Prevent redundant article creation
-- **Performance Analytics**: Processing efficiency metrics
+
+- **Batch Processing**: Multiple items in single Gemini API call
+
+- **Enhanced AI Capabilities**: Deeper analysis, multi-modal outputs with Gemini
+
+- **Quality Scoring**: Automatic content quality assessment by Gemini
+
+- **Duplicate Detection**: Prevent redundant article creation by Gemini
+
+- **Performance Analytics**: Processing efficiency metrics for Gemini API usage

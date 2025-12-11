@@ -2,13 +2,13 @@
 
 ## System Overview
 
-The Headlines is an AI-verified tech news platform with separated content creation and editorial review systems. The architecture supports multiple content sources, AI processing, and asset management with calendar-based discovery and pagination.
+The Headlines is an AI-verified tech news platform with separated content creation and editorial review systems. The architecture supports youtube video for content sources, AI processing, and asset management with calendar-based discovery and pagination.
 
 ### Key Architectural Principles
-- **Source Agnostic**: Universal queue accepts any content source type
+- **Sole Input Source**: The system exclusively accepts YouTube Video URL as the only valid content source.
 - **Editorial Control**: All AI-generated content requires human approval
-- **Section Separation**: Create, Review, and Images are distinct admin sections
-- **Unified Processing**: Single AI prompt handles all source types
+- **Section Separation**: Dashboard, Settings, and Images are distinct admin sections
+- **Unified AI Processing**: A single Gemini-based AI prompt handles all source types
 - **Asset Management**: Dedicated image storage and analytics pipeline
 - **Data Normalization**: Proper separation of articles, prompts, and images
 - **Temporal Discovery**: Calendar-based article browsing with combined filtering
@@ -111,15 +111,15 @@ comments: {
 
 ### Content Creation Tables
 
-#### Universal Queue
+#### Article Generation Queue
 ```typescript
 create_queue: {
   _id: Id<"create_queue">
-  sourceType: "rss" | "research" | "youtube"
-  title: string                   // Normalized across all sources
-  url: string                     // Source URL
-  concept: string                 // Content context/excerpt
-  createSource: string            // Human-readable source attribution
+  sourceType: "youtube"             // Indicates the source of the topic is a YouTube video
+  title: string                   // The specific topic/story title extracted from the video
+  url: string                     // URL of the originating YouTube video
+  concept: string                 // Context or excerpt related to the specific topic
+  createSource: string            // Human-readable source attribution (e.g., YouTube channel name)
   status: "waiting" | "processing" | "completed" | "failed"
   queuedAt: number
   processedAt?: number
@@ -129,23 +129,6 @@ create_queue: {
 
 #### Source-Specific Tables
 ```typescript
-create_rss: {
-  _id: Id<"create_rss">
-  categoryId: Id<"categories">
-  feedUrl: string
-  maxArticles: number
-  pollFrequency: number
-  matchedArticles: array          // Generated articles for review
-}
-
-create_research: {
-  _id: Id<"create_research">
-  title: string
-  url: string
-  concept: string
-  categoryId: Id<"categories">
-}
-
 create_youtube: {
   _id: Id<"create_youtube">
   videoUrl: string
@@ -162,20 +145,16 @@ create_youtube: {
 ## Data Processing
 
 ### Content Sources
-- **RSS**: Feed parsing and keyword-based article extraction
-- **Research**: Manual content input system
-- **YouTube**: Video transcript processing via Supadata.ai
+- **YouTube**: Video analysis.
 
 ### AI Integration
-- **Perplexity**: Universal content processing and fact-checking
-- **DALL-E 3**: Image generation from prompts
+- **Gemini**: Universal content processing, fact-checking, and image prompt generation.
 - **Cloudflare**: CDN storage and delivery
 
 ### Content States
 - **Pending**: Awaiting editorial review
 - **Approved**: Published and publicly visible
 - **Rejected**: Declined content
-- **Draft**: Work in progress
 
 ---
 
@@ -184,17 +163,15 @@ create_youtube: {
 ### Admin Layout Structure
 ```
 /components/admin/
-├── create/
-│   ├── rss/                    # RSS-specific components
-│   ├── research/               # Research-specific components  
-│   ├── youtube/                # YouTube-specific components
-│   └── shared/                 # Create workflow utilities
-├── review/
-│   ├── pending/                # Pending approval
-│   ├── approved/               # Published content
-│   ├── rejected/               # Declined content
-│   ├── drafts/                 # Work in progress
-│   └── shared/                 # Review workflow utilities
+├── dashboard/
+│   ├── empty/                  # Empty state dashboard
+│   ├── to_approve/             # Articles pending approval
+│   ├── published/              # Published articles
+│   ├── article-preview/        # Article preview interface
+│   ├── article-edit/           # Article editing interface
+│   ├── image-re-gen/           # Image re-generation interface
+│   └── shared/                 # Dashboard-specific shared utilities
+├── settings/                   # Admin settings for model, YouTube channel, etc.
 ├── images/
 │   ├── gallery/                # Image grid and filtering
 │   ├── detail/                 # Individual image pages
@@ -239,9 +216,7 @@ create_youtube: {
 ### Service Boundaries
 
 #### Admin Services
-- **Queue Management**: Universal content processing
-- **Tab Navigation**: Section and status navigation
-- **Content Operations**: CRUD operations for articles and assets
+- **Content Management**: Review, Publish, and Edit operations for articles and assets
 - **Status Management**: Approval state handling
 
 #### Public Services
@@ -258,19 +233,16 @@ create_youtube: {
 
 ## API Integration
 
-### AI Processing (Perplexity)
-- **Model**: `sonar-pro` for research capabilities
-- **Universal Prompt**: Handles all source types using normalized queue data
-- **Output**: Structured markdown with embedded citations + 3 image prompts
-- **Prompt Storage**: AI-generated prompts stored in prompts table linked to articles
-- **Error Handling**: Retry logic with failure tracking
+---
 
-### AI Processing (DALL-E 3)
-- **Model**: `DALL-E 3` for image generation
-- **Prompt Sources**: Selected from prompts table (AI-generated, custom, or edited)
-- **Output**: Images uploaded to Cloudflare Workers bucket
-- **Metadata Storage**: Complete generation data in images table with prompt relationships
-- **Error Handling**: Retry logic with failure tracking
+## API Integration
+
+### AI Processing (Gemini)
+- **Model**: Google Gemini (specific model to be defined by implementation)
+- **Universal Processing**: Handles transcript analysis, article synthesis, source validation, fact-checking, and image prompt generation.
+- **Output**: Structured markdown with embedded citations and image prompts.
+- **Prompt Storage**: AI-generated prompts stored in prompts table linked to articles.
+- **Error Handling**: Robust retry logic with failure tracking.
 
 ### Cloud Storage (Cloudflare Workers)
 - **Image Storage**: Dedicated R2 bucket for generated images
@@ -278,24 +250,14 @@ create_youtube: {
 - **Asset Management**: Upload, retrieval, and cleanup operations
 - **Cost Optimization**: Efficient storage and bandwidth usage
 
-### YouTube Transcript Extraction (Supadata.ai)
-- **Service**: Supadata.ai for YouTube video transcript extraction
-- **Features**: Timestamped transcript extraction
-- **Processing**: Timecode-based content segments
-- **Output**: Structured transcript data
-- **Error Handling**: Retry logic for failed extractions
-
 ### External Services
-- **RSS Parsing**: Feed validation and article extraction
 - **Authentication**: Clerk integration for admin access
-
 ---
 
 ## Security & Performance
 
 ### Authentication & Authorization
 - **Admin Access**: Clerk-based authentication
-- **Role-Based Permissions**: Create vs Review vs Images workflow access
 - **API Security**: Rate limiting, input validation, secure key management
 
 ### Performance Optimization
@@ -308,7 +270,6 @@ create_youtube: {
 
 
 ### Scalability Considerations
-- **Horizontal Scaling**: Queue processing can move to background workers
 - **Source Extensibility**: Plugin architecture for new content types
 - **Asset Management**: Cloudflare Workers handles image scaling automatically
 - **Data Relationships**: Normalized structure supports complex queries and analytics
@@ -318,24 +279,44 @@ create_youtube: {
 
 ---
 
+
+
 ## Future Architecture
 
+
+
 ### Planned Extensions
-- **Additional Sources**: Twitter threads, podcast transcripts, conference talks
-- **Enhanced AI**: Multi-model processing, quality scoring, duplicate detection
-- **Advanced Queue**: Priority processing, scheduling, bulk operations
-- **Prompt Library**: Template system for reusable prompt patterns
-- **Image Analytics**: Automated prompt pattern analysis, success rate metrics
-- **Multi-Model Support**: Integration with additional image generation services
-- **Calendar Enhancements**: Editorial calendar, content gap analysis, publishing trends
-- **Advanced Pagination**: Infinite scroll options, custom page sizes
-- **Analytics**: Performance dashboards, content insights, user engagement, calendar usage metrics
+
+- **Enhanced YouTube Processing**: Deeper analysis of YouTube content, sentiment analysis, speaker diarization.
+
+- **Advanced Gemini AI**: Further fine-tuning of Gemini for specific news tasks, more sophisticated fact-checking algorithms, personalized content generation.
+
+- **Advanced Queue**: Priority processing, scheduling, bulk operations for YouTube ingestion.
+
+- **Prompt Library**: Template system for reusable prompt patterns optimized for Gemini.
+
+- **Image Analytics**: Automated prompt pattern analysis, success rate metrics for Gemini-generated image prompts.
+
+- **Calendar Enhancements**: Editorial calendar, content gap analysis, publishing trends.
+
+- **Advanced Pagination**: Infinite scroll options, custom page sizes.
+
+- **Analytics**: Performance dashboards, content insights, user engagement, calendar usage metrics.
+
+
 
 ### Migration Path
-- Current architecture supports adding new source types without breaking changes
-- Queue system designed for enhanced processing capabilities
-- Component boundaries allow incremental feature additions
-- Image management system ready for multi-model support
-- Normalized data structure enables advanced analytics and reporting
-- Calendar system foundation supports editorial and analytics extensions
-- Pagination architecture scales with archive growth and new filtering dimensions
+
+- The simplified architecture now exclusively supports YouTube as a content source.
+
+- The queue system is designed for enhanced processing capabilities of YouTube content.
+
+- Component boundaries allow incremental feature additions focused on the YouTube/Gemini pipeline.
+
+- The image management system is optimized for Gemini-generated image prompts.
+
+- Normalized data structure enables advanced analytics and reporting.
+
+- The calendar system foundation supports editorial and analytics extensions.
+
+- The pagination architecture scales with archive growth and new filtering dimensions.
